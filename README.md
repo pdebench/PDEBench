@@ -37,7 +37,7 @@ pip install "jax[cuda11_cudnn82]>=0.3.0" -f https://storage.googleapis.com/jax-r
 ```
 
 ## Data Generation
-The data generation codes are contained in [data_gen](./PDEBench/tree/main/pdebench/data_gen):
+The data generation codes are contained in [data_gen](./pdebench/data_gen):
 - `gen_diff_react.py` to generate the 2D diffusion-reaction data.
 - `gen_diff_sorp.py` to generate the 1D diffusion-sorption data.
 - `gen_radial_dam_break.py` to generate the 2D shallow-water data.
@@ -62,7 +62,7 @@ There is an example in `example.env`.
 
 
 ## Data Download
-The data download codes are contained in [data_download](./PDEBench/tree/main/pdebench/data_download):
+The data download codes are contained in [data_download](./pdebench/data_download):
 - `download.py` to download the data.
 - `.env` is the environment data to store Dataverse URL and API token to download the generated data. Note that the filename should be strictly `.env` (i.e. remove the  `example` from the filename)
 - `config` directory contains the yaml files storing the configuration for the data downloader. The argument 'filename' should match the filename in the data repository.
@@ -70,7 +70,7 @@ The data download codes are contained in [data_download](./PDEBench/tree/main/pd
 
 ## Baseline Models
 In this work, we provide three different ML models to be trained and evaluated against the benchmark datasets, namely [FNO](https://arxiv.org/pdf/2010.08895.pdf), [U-Net](https://www.sciencedirect.com/science/article/abs/pii/S0010482519301520?via%3Dihub), and [PINN](https://www.sciencedirect.com/science/article/pii/S0021999118307125).
-The codes for the baseline model implementations are contained in [models](h./PDEBench/tree/main/pdebench/models):
+The codes for the baseline model implementations are contained in [models](./pdebench/models):
 - `train_models_forward.py` is the main script to train and evaluate the model. It will call on model-specific script based on the input argument.
 - `train_models_inverse.py` is the main script to train and evaluate the model for inverse problems. It will call on model-specific script based on the input argument.
 - `metrics.py` is the script to evaluate the trained models based on various evaluation metrics described in our paper. Additionally, it also plots the prediction and target data.
@@ -80,9 +80,9 @@ The codes for the baseline model implementations are contained in [models](h./PD
 - `unet` contains the scripts of U-Net implementation. These are partly adapted from the [U-Net repository](https://github.com/mateuszbuda/brain-segmentation-pytorch).
 - `pinn` contains the scripts of PINN implementation. These utilize the [DeepXDE library](https://github.com/lululxvi/deepxde).
 - `inverse` contains the model for inverse model based on gradient.
-- `config` contains the yaml files for the model training input. The default templates for different equations are provided in the [args](https://github.com/timothypraditia/pde_benchmark/tree/main/models/config/args) directory. User just needs to copy and paste them to the args keyword in the [config.yaml](https://github.com/timothypraditia/pde_benchmark/blob/main/models/config/config.yaml) file.
+- `config` contains the yaml files for the model training input. The default templates for different equations are provided in the [args](./pdebench/models/config/args) directory. User just needs to copy and paste them to the args keyword in the [config.yaml](./pdebench/models/config/config.yaml) file.
 
-An example to run the forward model training can be found in [run_forward_1D.sh](./PDEBench/tree/main/pdebench/models/run_forward_1D.sh), and an example to run the inverse model training can be found in [run_inverse.sh](./PDEBench/tree/main/pdebench/models/run_inverse.sh).
+An example to run the forward model training can be found in [run_forward_1D.sh](./pdebench/models/run_forward_1D.sh), and an example to run the inverse model training can be found in [run_inverse.sh](./pdebench/models/run_inverse.sh).
 
 
 ### Short explanations on the config args
