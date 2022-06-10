@@ -9,7 +9,7 @@ PDEBench features a much wider range of PDEs than existing approaches including 
 
 ## Installation
 
-    pip install pdebench
+    pip install .
 
 ## Requirements
 
