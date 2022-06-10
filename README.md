@@ -191,10 +191,10 @@ author = {M. Raissi and P. Perdikaris and G.E. Karniadakis}
 
 ## Code contributors
 
-* [Makato Takamoto] (https://github.com/mtakamoto-D)
-* [Timothy Praditia] (https://github.com/timothypraditia)
-* [Raphael Leiteritz] (https://github.com/leiterrl)
-* [Francesco Alesiani] (https://github.com/falesiani)
+* [Makato Takamoto](https://github.com/mtakamoto-D)
+* [Timothy Praditia](https://github.com/timothypraditia)
+* [Raphael Leiteritz](https://github.com/leiterrl)
+* [Francesco Alesiani](https://github.com/falesiani)
 * [Dan MacKinlay](https://danmackinlay.name/)
 * [John Kim](https://github.com/johnmjkim)
 * [Gefei Shan](https://github.com/davecatmeow)
