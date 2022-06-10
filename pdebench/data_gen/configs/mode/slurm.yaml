@@ -1,0 +1,18 @@
+# @package _global_
+
+hydra:
+  # default output paths for all file logs etc
+  # doesn't seem to actually work?
+  run:
+    dir: ${oc.env:WORKING_DIR,output}/${hydra.job.name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:WORKING_DIR,multirun}/${hydra.job.name}/${now:%Y-%m-%d}/${now:%H-%M-%S}/${hydra.job.override_dirname}
+    subdir: ${hydra.job.num}
+  launcher:
+    submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+    cpus_per_task: 4
+    gpus_per_node: 1
+    tasks_per_node: 1
+    mem_gb: 16
+    timeout_min: 719 # just under 12 hours is good for many clusters
+

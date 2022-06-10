@@ -1,0 +1,88 @@
+# @package _global_
+
+# specify here default sim configuration
+defaults:
+  - _self_
+
+  - mode: default.yaml
+
+# path to original working directory
+# hydra hijacks working directory by changing it to the current log directory,
+# so it's useful to have this path as a special variable
+# https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
+work_dir: ${hydra:runtime.cwd}
+
+# path to folder with data
+data_dir: data
+upload: false
+
+output_path: 2D_rdb_NA_NA
+
+# name of the run, accessed by loggers
+name: 2d_rdb
+
+sim:
+  T_end: 1.0
+  n_time_steps: 100
+  xdim: 128
+  ydim: 128
+  gravity: 1.0
+  dam_radius: 0.5
+  inner_height: 2.0
+  x_left: -2.5
+  x_right: 2.5
+  y_bottom: -2.5
+  y_top: 2.5
+  seed: '???'
+
+  
+plot:
+  t_idx: 1.0        # Fraction of the final time step idx to be plotted
+  dim: 2            # Spatial dimension
+  channel_idx: 0    # Index of the variable to be plotted
+
+dataverse:
+  lib_name: pyDaRUS
+  dataset_id: doi:10.18419/darus-2922
+  metadatablocks:
+    citation:
+      author:
+        - name: Raphael Leiteritz
+          affiliation: Universität Stuttgart
+          identifier_scheme: ORCID
+          identifier: 0000-0001-8070-2384
+      description:
+        - text: 2D shallow-water equation dataset generated for the PDE benchmark paper
+          date: '2022'
+      contact:
+        - name: Raphael Leiteritz
+          affiliation: Universität Stuttgart
+          email: raphael.leiteritz@iws.uni-stuttgart.de
+      title: 2D shallow-water equation dataset
+      subject:
+        - computer_and__information__science
+        - physics
+    process:
+      processing_methods:
+        - name: FVM
+          description: Finite Volume Method is a spatial discretization method to calculate spatial derivative in a Partial Differential Equation. It integrates the fluxes at all discrete cell boundaries so that it ensures conservation.
+          parameters: cell length, cell width
+      method_parameters:
+        - name: cell length
+          symbol: dx
+          unit: m
+          value: 0.0390625
+        - name: cell width
+          symbol: dy
+          unit: m
+          value: 0.0390625
+        - name: time step size
+          symbol: dt
+          unit: s
+          value: 0.01
+        - name: total time
+          symbol: t
+          unit: s
+          value: 1
+    engMeta: {}
+    codeMeta: {}

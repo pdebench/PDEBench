@@ -1,0 +1,11 @@
+# @package _global_
+
+hydra:
+  # default output paths for all file logs etc
+  # doesn't seem to actually work?
+  run:
+    dir: ${oc.env:WORKING_DIR,output}/${hydra.job.name}/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${oc.env:WORKING_DIR,multirun}/${hydra.job.name}/${now:%Y-%m-%d}/${now:%H-%M-%S}/${hydra.job.override_dirname}
+    subdir: ${hydra.job.num}
+

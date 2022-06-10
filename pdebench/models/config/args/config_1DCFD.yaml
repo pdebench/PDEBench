@@ -1,0 +1,41 @@
+model_name: 'FNO'
+if_training: True
+continue_training: False
+num_workers: 2
+batch_size: 100
+initial_step: 10
+t_train: 100
+model_update: 2
+filename: '1D_CFD_periodic_Train.hdf5'
+single_file: True
+reduced_resolution: 8
+reduced_resolution_t: 5
+reduced_batch: 1
+epochs: 500
+learning_rate: 1.e-3
+scheduler_step: 100
+scheduler_gamma: 0.5
+#Unet
+in_channels: 3
+out_channels: 3
+ar_mode: True
+pushforward: True
+unroll_step: 20
+#FNO
+num_channels: 3
+modes: 12
+width: 20
+#Inverse
+base_path: ../data/
+training_type: autoregressive
+#Inverse MCMC
+mcmc_num_samples: 20
+mcmc_warmup_steps: 10
+mcmc_num_chains: 1
+num_samples_max: 1000
+in_channels_hid: 64
+inverse_model_type: InitialConditionInterp    
+#Inverse grad
+inverse_epochs: 100
+inverse_learning_rate: 0.2
+inverse_verbose_flag: False

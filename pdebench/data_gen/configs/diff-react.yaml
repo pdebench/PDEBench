@@ -1,0 +1,96 @@
+# @package _global_
+
+# specify here default sim configuration
+defaults:
+  - _self_
+
+  - mode: default.yaml
+
+# path to original working directory
+# hydra hijacks working directory by changing it to the current log directory,
+# so it's useful to have this path as a special variable
+# https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
+work_dir: ${hydra:runtime.cwd}
+
+# path to folder with data
+data_dir: data
+upload: false
+
+output_path: 2D_diff-react_NA_NA
+
+# name of the run, accessed by loggers
+name: 2d_diff-react
+
+sim:
+  Du: 1E-3
+  Dv: 5E-3
+  k: 5E-3
+  t: 5
+  tdim: 101
+  x_left: -1.0
+  x_right: 1.0
+  xdim: 128
+  y_bottom: -1.0
+  y_top: 1.0
+  ydim: 128
+  n: 1
+  seed: '???'
+  
+plot:
+  t_idx: 1.0        # Fraction of the final time step idx to be plotted
+  dim: 2            # Spatial dimension
+  channel_idx: 0    # Index of the variable to be plotted
+
+
+dataverse:
+  lib_name: pyDaRUS
+  dataset_id: doi:10.18419/darus-2922
+  metadatablocks:
+    citation:
+      author:
+        - name: Timothy Praditia
+          affiliation: Universität Stuttgart
+          identifier_scheme: ORCID
+          identifier: 0000-0003-3619-9122
+      description:
+        - text: 2D diffusion-reaction dataset generated for the PDE benchmark paper
+          date: '2022'
+      contact:
+        - name: Timothy Praditia
+          affiliation: Universität Stuttgart
+          email: timothy.praditia@iws.uni-stuttgart.de
+      title: 2D diffusion-reaction dataset
+      subject:
+        - computer_and__information__science
+        - physics
+    process:
+      processing_methods:
+        - name: FVM
+          description: Finite Volume Method is a spatial discretization method to calculate spatial derivative in a Partial Differential Equation. It integrates the fluxes at all discrete cell boundaries so that it ensures conservation.
+          parameters: cell length, cell width
+        - name: RK45
+          description: Explicit Runge-Kutta method of order 5(4) is a time integration method to solve the temporal derivative in a Partial Differential Equation. It is an adaptive time integration scheme to ensure better accuracy and computation efficiency.
+          parameters: time step size, total time, error tolerance
+      method_parameters:
+        - name: cell length
+          symbol: dx
+          unit: m
+          value: 0.015625
+        - name: cell width
+          symbol: dy
+          unit: m
+          value: 0.015625
+        - name: time step size
+          symbol: dt
+          unit: s
+          value: 0.05
+        - name: total time
+          symbol: t
+          unit: s
+          value: 5
+        - name: error tolerance
+          symbol: \epsilon
+          unit: "-"
+          value: 1e-6
+    engMeta: {}
+    codeMeta: {}

@@ -1,0 +1,8 @@
+model_name: 'PINN'
+
+scenario: 'diff-sorp'
+model_update: 500
+filename: '2D_diff-react_NA_NA_0000.h5'
+epochs: 15000
+learning_rate: 1.e-3
+seed: '0000'

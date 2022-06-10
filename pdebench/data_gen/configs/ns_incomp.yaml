@@ -1,0 +1,54 @@
+defaults:
+  - _self_
+
+  - mode: default.yaml
+
+artefact_dir: ${oc.env:ARTEFACT_DIR,artefacts}
+dataverse:
+  dataset_id: doi:10.18419/darus-2984
+
+sim_name: 'ns_sim_2d'
+label: null
+
+# Solver Parameters 
+domain_size: [1, 1]
+grid_size: [256,256]
+
+#['scalar_grid', extrapolation_x:(type or bound), extrapolation_y:(type or bound)]
+particle_extrapolation: 'BOUNDARY'
+    
+#['staggered_grid', extrapolation_x:(type or bound), extrapolation_y:(type or bound)]
+velocity_extrapolation: 'ZERO'
+
+# Fluid characteristics
+NU: 0.01 #(kinematic viscosity)
+
+# External force
+# enable_gravity: false
+force_extrapolation: 'ZERO'
+
+# Fluctuation Generator Parameters (Noise)
+seed: 1
+smoothness: 1.0
+scale: 0.4
+force_smoothness: 3.0
+force_scale: 0.15
+
+#params for IncompressibleFlow(Physics)
+n_steps: 100000
+DT : 0.00005
+frame_int: 100
+
+n_batch: 1
+
+# Visualisation
+# save_images: false
+# save_gif: false
+save_h5: true
+profile: false  # Run performance profiling
+upload: false   # upload to DARUS - requires key
+
+backend: 'jax'
+device: 'GPU'
+jit: true
+
