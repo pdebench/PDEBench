@@ -228,7 +228,8 @@ def run_training(if_training,
 
                 train_l2_step += loss.item()
                 _batch = yy.size(0)
-                l2_full = loss_fn(pred.reshape(_batch, -1), yy.reshape(_batch, -1))
+                _yy = yy[..., :t_train, :]  # if t_train is not -1
+                l2_full = loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1))
                 train_l2_full += l2_full.item()
         
                 optimizer.zero_grad()
@@ -278,7 +279,8 @@ def run_training(if_training,
             
                         val_l2_step += loss.item()
                         _batch = yy.size(0)
-                        val_l2_full += loss_fn(pred.reshape(_batch, -1), yy.reshape(_batch, -1)).item()
+                        _yy = yy[..., :t_train, :]
+                        val_l2_full += loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1)).item()
 
                     if training_type in ['single']:
                         x = xx[..., 0 , :]
