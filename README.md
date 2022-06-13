@@ -201,3 +201,8 @@ author = {M. Raissi and P. Perdikaris and G.E. Karniadakis}
 * [Yizhou Yang](https://github.com/verdantwynnd)
 * [Ran Zhang](https://github.com/maphyca)
 * [Simon Brown](https://github.com/SimonSyBrown)
+
+
+## License 
+MIT for solver code and baseline code
+NLE Academic License for selected code 
