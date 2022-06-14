@@ -142,7 +142,7 @@ An example to run the forward model training can be found in [run_forward_1D.sh]
 ## Datasets and pretrained models
 We provide the benchmark datasets we used in the paper through our [data repository](https://darus.uni-stuttgart.de/privateurl.xhtml?token=1be27526-348a-40ed-9fd0-c62f588efc01).
 The data generation configuration can be found in the paper.
-Additionally, the pretrained models are also available to be downloaded [here](https://darus.uni-stuttgart.de/privateurl.xhtml?token=cd862f8c-8e1b-49d2-b4da-b35f8df5ac85).
+Additionally, the pretrained models are also available to be downloaded [here](https://darus.uni-stuttgart.de/privateurl.xhtml?token=cd862f8c-8e1b-49d2-b4da-b35f8df5ac85). To use the pretrained models, users can specify the argument `continue_training: True` in the [config file](./pdebench/models/config/config.yaml).
 
 
 ## Citations
@@ -201,3 +201,7 @@ author = {M. Raissi and P. Perdikaris and G.E. Karniadakis}
 * [Yizhou Yang](https://github.com/verdantwynnd)
 * [Ran Zhang](https://github.com/maphyca)
 * [Simon Brown](https://github.com/SimonSyBrown)
+
+
+## License 
+MIT for solver code and baseline code, and NLE Academic License for selected code 

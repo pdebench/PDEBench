@@ -273,7 +273,9 @@ def run_training(if_training,
                             xx = torch.cat((xx[..., 1:, :], im), dim=-2)
                                 
                     train_l2_step += loss.item()
-                    l2_full = loss_fn(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
+                    _batch = yy.size(0)
+                    _yy = yy[..., :t_train, :]
+                    l2_full = loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1))
                     train_l2_full += l2_full.item()
             
                     optimizer.zero_grad()
@@ -327,7 +329,9 @@ def run_training(if_training,
                                 xx = torch.cat((xx[..., 1:, :], im), dim=-2)
                 
                             val_l2_step += loss.item()
-                            val_l2_full += loss_fn(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
+                            _batch = yy.size(0)
+                            _yy = yy[..., :t_train, :]
+                            val_l2_full += loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1)).item()
                     
                     if training_type in ['single']:
                         x = xx[..., 0 , :]
@@ -408,7 +412,9 @@ def run_training(if_training,
                     # xx = torch.cat((xx[..., 1:, :], im), dim=-2)
         
                 train_l2_step += loss.item()
-                l2_full = loss_fn(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
+                _batch = yy.size(0)
+                _yy = yy[..., :t_train, :]  # if t_train is not -1
+                l2_full = loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1))
                 train_l2_full += l2_full.item()
         
                 optimizer.zero_grad()
@@ -444,7 +450,9 @@ def run_training(if_training,
                             pred = torch.cat((pred, im), -2)
             
                         val_l2_step += loss.item()
-                        val_l2_full += loss_fn(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
+                        _batch = yy.size(0)
+                        _yy = yy[..., :t_train, :]  # if t_train is not -1
+                        val_l2_full += loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1)).item()
                     
                     if  val_l2_full < loss_val_min:
                         loss_val_min = val_l2_full
