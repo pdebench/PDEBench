@@ -22,4 +22,4 @@ Citations
 
 __version__ = "0.0.1"
 __author__ = 'Makoto Takamoto, Timothy Praditia, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk Pflüger, Mathias Niepert'
-__credits__ = 'NEC labs Europe, University of Stuttgart, CSIRO’s Data61'
+__credits__ = 'NEC labs Europe, University of Stuttgart, CSIRO''s Data61'
