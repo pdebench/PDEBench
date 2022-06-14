@@ -1,11 +1,27 @@
 # PDEBench
 
 This repository contains the code for the paper:
+
 PDEBench: An Extensive Benchmark for Scientific Machine Learning
 
 In this work, we provide a diverse and comprehensive benchmark for scientific machine learning, including a variety of challenging and representative range of physical problems.
 This repository consists of the codes used to generate the datasets, upload and download the datasets from the data repository, train and evaluate different machine learning models as baseline.
 PDEBench features a much wider range of PDEs than existing approaches including realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial or boundary conditions and model parameters, and extensible source codes.
+
+## Dataset
+
+Temporary url
+
+https://darus.uni-stuttgart.de/privateurl.xhtml?token=1be27526-348a-40ed-9fd0-c62f588efc01
+
+
+Permanent url
+
+https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2986
+
+DOI 
+
+[![DOI:10.18419/darus-2986](https://img.shields.io/badge/DOI-doi%3A10.18419%2Fdarus--2986-red)](https://doi.org/10.18419/darus-2986)
 
 ## Installation
 
