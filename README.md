@@ -12,16 +12,25 @@ PDEBench features a much wider range of PDEs than existing approaches including 
 
 Temporary url
 
+PDEBench Dataset
 https://darus.uni-stuttgart.de/privateurl.xhtml?token=1be27526-348a-40ed-9fd0-c62f588efc01
 
+PDEBench Pre-Trained Models
+https://darus.uni-stuttgart.de/privateurl.xhtml?token=cd862f8c-8e1b-49d2-b4da-b35f8df5ac85
 
 Permanent url
 
+PDEBench Dataset
 https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2986
 
-DOI 
+PDEBench Pre-Trained Models
+https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2987
+
+
+DOIs 
 
 [![DOI:10.18419/darus-2986](https://img.shields.io/badge/DOI-doi%3A10.18419%2Fdarus--2986-red)](https://doi.org/10.18419/darus-2986)
+[![DOI:10.18419/darus-2987](https://img.shields.io/badge/DOI-doi%3A10.18419%2Fdarus--2987-red)](https://doi.org/10.18419/darus-2987)
 
 ## Installation
 
