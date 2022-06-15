@@ -183,6 +183,26 @@ Additionally, the pretrained models are also available to be downloaded [here](h
   urldate = {2022-06-06}
 }
 
+
+@data{darus-2986_2022,
+author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
+publisher = {DaRUS},
+title = {{PDEBench Datasets}},
+year = {2022},
+doi = {10.18419/darus-2986},
+url = {https://doi.org/10.18419/darus-2986}
+}
+
+@data{darus-2987_2022,
+author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
+publisher = {DaRUS},
+title = {{PDEBench Pretrained Models}},
+year = {2022},
+doi = {10.18419/darus-2987},
+url = {https://doi.org/10.18419/darus-2987}
+}
+
+
 @misc{li2020fourier,
   title={Fourier Neural Operator for Parametric Partial Differential Equations}, 
   author={Zongyi Li and Nikola Kovachki and Kamyar Azizzadenesheli and Burigede Liu and Kaushik Bhattacharya and Andrew Stuart and Anima Anandkumar},
