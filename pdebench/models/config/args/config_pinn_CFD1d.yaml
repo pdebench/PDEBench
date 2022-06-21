@@ -1,0 +1,15 @@
+model_name: 'PINN'
+scenario: 'pde1D'
+model_update: 500
+filename: '1D_CFD_Rand_Eta1.e-8_Zeta1.e-8_periodic_Train.hdf5'
+epochs: 15000
+input_ch: 2
+output_ch: 3
+learning_rate: 1.e-3
+root_path: '../data'
+val_num: 10
+if_periodic_bc: True
+period: 5000
+val_time: 1.0
+val_batch_idx: 10
+aux_params: [1.6666666667]

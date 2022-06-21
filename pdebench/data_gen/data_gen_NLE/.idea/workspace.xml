@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d04fd41f-2013-4359-9170-9227072c75d8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test01.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test01.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test02.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test02.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test03.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test03.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test04.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Benchmarks/1D/Burgers/burgers_solution_test04.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CompressibleFluid/CFD.py" beforeDir="false" afterPath="$PROJECT_DIR$/CompressibleFluid/CFD.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="26nFNpg94duGIKs3ecImU3fiA1o" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d04fd41f-2013-4359-9170-9227072c75d8" name="Changes" comment="" />
+      <created>1648051406434</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1648051406434</updated>
+      <workItem from="1648051425648" duration="15000" />
+    </task>
+    <servers />
+  </component>
+</project>

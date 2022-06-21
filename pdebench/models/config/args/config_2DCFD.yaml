@@ -1,0 +1,25 @@
+model_name: 'FNO'
+if_training: True
+continue_training: False
+batch_size: 20
+unroll_step: 20
+num_workers: 2
+t_train: 21
+model_update: 2
+filename: '2D_CFD_M0.1_Eta0.01_Zeta0.01_periodic_128_Train.hdf5'
+single_file: True
+reduced_resolution: 2
+reduced_resolution_t: 1
+reduced_batch: 1
+epochs: 500
+learning_rate: 1.e-3
+#Unet
+in_channels: 4
+out_channels: 4
+#FNO
+num_channels: 4
+modes: 12
+width: 20
+scheduler_step: 100
+scheduler_gamma: 0.5
+initial_step: 10

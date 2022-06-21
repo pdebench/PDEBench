@@ -1,0 +1,16 @@
+save: '../save/ReacDiff/'
+dt_save: 0.01
+ini_time: 0.
+fin_time: 1.
+nx: 64
+nx: 64
+xL: 0.
+xR: 6.28318530718
+yL: 0.
+yR: 6.28318530718
+nu : 1.e0
+rho: 1.e0
+CFL: 2.5e-1
+if_show: 1
+show_steps: 100
+init_mode: 'react'

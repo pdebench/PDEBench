@@ -1,0 +1,15 @@
+save: '../save/burgers/'
+dt_save: 0.01
+ini_time: 0.
+fin_time: 2.
+nx: 1024
+xL: -1.
+xR: 1.
+epsilon: 1.e-2
+u0 : 1.e1
+du : 0.1
+CFL: 4.e-1
+if_second_order: 1.
+if_show: 1
+show_steps: 100
+init_mode: 'sin'

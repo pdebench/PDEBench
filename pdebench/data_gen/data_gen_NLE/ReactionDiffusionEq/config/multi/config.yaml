@@ -1,0 +1,14 @@
+save: '../save/ReacDiff/'
+dt_save: 0.01
+ini_time: 0.
+fin_time: 1.
+nx: 1024
+xL: 0.
+xR: 1.
+nu: 5.e0
+rho: 1.e1
+CFL: 4.e-1
+if_show: 1
+numbers: 100
+if_second_order: 1.
+show_steps: 100

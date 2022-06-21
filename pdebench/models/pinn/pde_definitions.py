@@ -84,3 +84,126 @@ def pde_swe2d(x, y):
     eq3 = v_t + u * v_x + v * v_y + g * h_y
 
     return eq1 + eq2 + eq3
+
+def pde_adv1d(x, y, beta):
+    dy_x = dde.grad.jacobian(y, x, i=0, j=0)
+    dy_t = dde.grad.jacobian(y, x, i=0, j=1)
+    return dy_t + beta * dy_x
+
+def pde_diffusion_reaction_1d(x, y, nu, rho):
+    dy_t = dde.grad.jacobian(y, x, i=0, j=1)
+    dy_xx = dde.grad.hessian(y, x, i=0, j=0)
+    return dy_t - nu * dy_xx - rho * y * (1. - y)
+
+def pde_burgers1D(x, y, nu):
+    dy_x = dde.grad.jacobian(y, x, i=0, j=0)
+    dy_t = dde.grad.jacobian(y, x, i=0, j=1)
+    dy_xx = dde.grad.hessian(y, x, i=0, j=0)
+    return dy_t + y * dy_x - nu / np.pi * dy_xx
+
+def pde_CFD1d(x, y, gamma):
+    h = y[..., 0].unsqueeze(1)  # rho
+    u = y[..., 1].unsqueeze(1)  # v
+    p = y[..., 2].unsqueeze(1)  # p
+    E = p/(gamma - 1.) + 0.5 * h * u**2
+    E = E.unsqueeze(1)
+    Fx = u * (E + p)
+    Fx = Fx.unsqueeze(1)
+
+    # non conservative form
+    hu_x = dde.grad.jacobian(h * u, x, i=0, j=0)
+    h_t = dde.grad.jacobian(y, x, i=0, j=1)
+    u_x = dde.grad.jacobian(y, x, i=1, j=0)
+    u_t = dde.grad.jacobian(y, x, i=1, j=1)
+    p_x = dde.grad.jacobian(y, x, i=2, j=0)
+    Fx_x = dde.grad.jacobian(Fx, x, i=0, j=0)
+    E_t = dde.grad.jacobian(E, x, i=0, j=1)
+
+    eq1 = h_t + hu_x
+    eq2 = h * (u_t + u * u_x) - p_x
+    eq3 = E_t + Fx_x
+
+    return eq1 + eq2 + eq3
+
+def pde_CFD2d(x, y, gamma):
+    h = y[..., 0].unsqueeze(1)  # rho
+    ux = y[..., 1].unsqueeze(1)  # vx
+    uy = y[..., 2].unsqueeze(1)  # vy
+    p = y[..., 3].unsqueeze(1)  # p
+    E = p/(gamma - 1.) + 0.5 * h * (ux**2 + uy**2)
+    E = E.unsqueeze(1)
+    Fx = ux * (E + p)
+    Fx = Fx.unsqueeze(1)
+    Fy = uy * (E + p)
+    Fy = Fy.unsqueeze(1)
+
+    # non conservative form
+    hu_x = dde.grad.jacobian(h * ux, x, i=0, j=0)
+    hu_y = dde.grad.jacobian(h * uy, x, i=0, j=1)
+    h_t = dde.grad.jacobian(y, x, i=0, j=2)
+    ux_x = dde.grad.jacobian(y, x, i=1, j=0)
+    ux_y = dde.grad.jacobian(y, x, i=1, j=1)
+    ux_t = dde.grad.jacobian(y, x, i=1, j=2)
+    uy_x = dde.grad.jacobian(y, x, i=2, j=0)
+    uy_y = dde.grad.jacobian(y, x, i=2, j=1)
+    uy_t = dde.grad.jacobian(y, x, i=2, j=2)
+    p_x = dde.grad.jacobian(y, x, i=3, j=0)
+    p_y = dde.grad.jacobian(y, x, i=3, j=1)
+    Fx_x = dde.grad.jacobian(Fx, x, i=0, j=0)
+    Fy_y = dde.grad.jacobian(Fy, x, i=0, j=1)
+    E_t = dde.grad.jacobian(E, x, i=0, j=2)
+
+    eq1 = h_t + hu_x + hu_y
+    eq2 = h * (ux_t + ux * ux_x + uy * ux_y) - p_x
+    eq3 = h * (uy_t + ux * uy_x + uy * uy_y) - p_y
+    eq4 = E_t + Fx_x + Fy_y
+
+    return eq1 + eq2 + eq3 + eq4
+
+def pde_CFD3d(x, y, gamma):
+    h = y[..., 0].unsqueeze(1)  # rho
+    ux = y[..., 1].unsqueeze(1)  # vx
+    uy = y[..., 2].unsqueeze(1)  # vy
+    uz = y[..., 3].unsqueeze(1)  # vz
+    p = y[..., 4].unsqueeze(1)  # p
+    E = p/(gamma - 1.) + 0.5 * h * (ux**2 + uy**2 + uz**2)
+    E = E.unsqueeze(1)
+    Fx = ux * (E + p)
+    Fx = Fx.unsqueeze(1)
+    Fy = uy * (E + p)
+    Fy = Fy.unsqueeze(1)
+    Fz = uz * (E + p)
+    Fz = Fz.unsqueeze(1)
+
+    # non conservative form
+    hu_x = dde.grad.jacobian(h * ux, x, i=0, j=0)
+    hu_y = dde.grad.jacobian(h * uy, x, i=0, j=1)
+    hu_z = dde.grad.jacobian(h * uy, x, i=0, j=2)
+    h_t = dde.grad.jacobian(y, x, i=0, j=3)
+    ux_x = dde.grad.jacobian(y, x, i=1, j=0)
+    ux_y = dde.grad.jacobian(y, x, i=1, j=1)
+    ux_z = dde.grad.jacobian(y, x, i=1, j=2)
+    ux_t = dde.grad.jacobian(y, x, i=1, j=3)
+    uy_x = dde.grad.jacobian(y, x, i=2, j=0)
+    uy_y = dde.grad.jacobian(y, x, i=2, j=1)
+    uy_z = dde.grad.jacobian(y, x, i=2, j=2)
+    uy_t = dde.grad.jacobian(y, x, i=2, j=3)
+    uz_x = dde.grad.jacobian(y, x, i=3, j=0)
+    uz_y = dde.grad.jacobian(y, x, i=3, j=1)
+    uz_z = dde.grad.jacobian(y, x, i=3, j=2)
+    uz_t = dde.grad.jacobian(y, x, i=3, j=3)
+    p_x = dde.grad.jacobian(y, x, i=4, j=0)
+    p_y = dde.grad.jacobian(y, x, i=4, j=1)
+    p_z = dde.grad.jacobian(y, x, i=4, j=2)
+    Fx_x = dde.grad.jacobian(Fx, x, i=0, j=0)
+    Fy_y = dde.grad.jacobian(Fy, x, i=0, j=1)
+    Fz_z = dde.grad.jacobian(Fz, x, i=0, j=2)
+    E_t = dde.grad.jacobian(E, x, i=0, j=3)
+
+    eq1 = h_t + hu_x + hu_y + hu_z
+    eq2 = h * (ux_t + ux * ux_x + uy * ux_y + uz * ux_z) - p_x
+    eq3 = h * (uy_t + ux * uy_x + uy * uy_y + uz * uy_z) - p_y
+    eq4 = h * (uz_t + ux * uz_x + uy * uz_y + uz * uz_z) - p_z
+    eq5 = E_t + Fx_x + Fy_y + Fz_z
+
+    return eq1 + eq2 + eq3 + eq4 + eq5

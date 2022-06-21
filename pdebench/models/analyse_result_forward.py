@@ -166,17 +166,33 @@ def main():
             title = fl.split('\\')[-1][:-7].split('_')
             print(title)
             if title[0] == '1D':
-                index1.append(title[1])
-                index2.append(title[3])
-                index3.append(title[4])
+                if title[1] == 'CFD':
+                    index1.append(title[0] + title[1])
+                    index2.append(title[3] + title[4] + '_' + title[2] + '_' + title[5])
+                    index3.append(title[7])
+                else:
+                    index1.append(title[1])
+                    index2.append(title[3])
+                    index3.append(title[4])
             elif title[0] == '2D':
-                index1.append(title[1])
-                index2.append(title[2])
-                index3.append(title[4])
+                if title[1] == 'CFD':
+                    index1.append(title[0] + title[1])
+                    index2.append(title[3] + title[3] + title[4] + '_' + title[2] + '_' + title[6])
+                    index3.append(title[9])
+                else:
+                    index1.append(title[1])
+                    index2.append(title[2])
+                    index3.append(title[4])
+            elif title[0] == '3D':
+                index1.append(title[0] + title[1])
+                index2.append(title[3] + title[4] + title[5] + '_' + title[2] + '_' + title[6])
+                index3.append(title[8])
             else:
                 index1.append(title[0])
                 index2.append(title[1] + title[2])
                 index3.append(title[3])
+            if index3[-1][0] == 'U':
+                index3[-1] = index3[-1][:4]
     indexes = [index1, index2, index3]
     
     # create dataframe

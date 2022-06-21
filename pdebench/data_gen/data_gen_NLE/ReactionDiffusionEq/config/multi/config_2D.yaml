@@ -1,0 +1,17 @@
+save: '../save/ReacDiff//'
+dt_save: 0.25
+ini_time: 0.
+fin_time: 2.
+nx: 128
+ny: 128
+xL: 0.
+xR: 1.
+yL: 0.
+yR: 1.
+beta: 1.
+CFL: 2.5e-1
+if_show: 1
+numbers: 200
+if_second_order: 1.
+show_steps: 100
+init_key: 2022
