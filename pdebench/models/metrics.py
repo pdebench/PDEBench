@@ -159,6 +159,7 @@ def metric_func(pred, target, if_mean=True, Lx=1., Ly=1., Lz=1., iLow=4, iHigh=1
     code for calculate metrics discussed in the Brain-storming session
     MSE, normalized MSE, max error, MSE at the boundaries, conserved variables, MSE in Fourier space, temporal sensitivity
     """
+    pred, target = pred.to(device), target.to(device)
     # (batch, nx^i..., timesteps, nc)
     idxs = target.size()
     if len(idxs) == 4:

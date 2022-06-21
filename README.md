@@ -1,7 +1,8 @@
 # PDEBench
 
-This repository contains the code for the paper:
+By : Makoto Takamoto `<makoto.takamoto@neclab.eu, takamtmk@gmail.com>`, Timothy Praditia `<timothy.praditia@iws.uni-stuttgart.de>`, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk Pflüger and Mathias Niepert
 
+This repository contains the code for the paper:
 PDEBench: An Extensive Benchmark for Scientific Machine Learning
 
 In this work, we provide a diverse and comprehensive benchmark for scientific machine learning, including a variety of challenging and representative range of physical problems.
@@ -73,6 +74,25 @@ The data generation codes are contained in [data_gen](./pdebench/data_gen):
 - `.env` is the environment data to store Dataverse URL and API token to upload the generated data. Note that the filename should be strictly `.env` (i.e. remove the  `example` from the filename)
 - `configs` directory contains the yaml files storing the configuration for the simulation. Arguments for the simulation are problem-specific and detailed explanation can be found in the simulation scripts.
 - `src` directory contains the simulation scripts for different problems: `sim_diff_react-py` for 2D diffusion-reaction, `sim_diff_sorp.py` for 1D diffusion-sorption, and `swe` for the shallow-water equation.
+
+### Data Generation for 1D Advection/Burgers/Reaction-Diffusion/2D DarcyFlow/Compressible Navier-Stokes Equations
+The data generation codes are contained in [data_gen_NLE](./pdebench/data_gen/data_gen_NLE/):
+- `utils.py` util file for data generation, mainly boundary conditions and initial conditions.
+- `AdvectionEq` directory with the source codes to generate 1D Advection equation training samples
+- `BurgersEq` directory with the source codes to generate 1D Burgers equation training samples
+- `CompressibleFluid` directory with the source codes to generate compressible Navier-Stokes equations training samples
+- `ReactionDiffusionEq` directory with the source codes to generate 1D Reaction-Diffusion equation training samples
+- `save` directory saving the generated training samples
+
+A typical example to generate training samples (1D Advection Equation):
+(in `data_gen/data_gen_NLE/AdvectionEq/`)
+```bash
+python3 advection_multi_solution_Hydra.py +multi=beta1e0.yaml
+```
+which is assumed to be performed in each directory.
+
+Examples for generating other PDEs are provided in `run_trainset.sh` in each PDE's directories.
+The config files for Hydra are stored in `config` directory in each PDE's directory. 
 
 ## Configuration
 

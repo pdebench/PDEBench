@@ -253,7 +253,56 @@ class FNODatasetSingle(Dataset):
                     y = torch.tensor(y, dtype=torch.float)
                     X, Y = torch.meshgrid(x, y)
                     self.grid = torch.stack((X, Y), axis=-1)[::reduced_resolution, ::reduced_resolution]
+            
+            if len(idx_cfd)==5:  # 3D
+                    self.data = np.zeros([idx_cfd[0]//reduced_batch,
+                                          idx_cfd[2]//reduced_resolution,
+                                          idx_cfd[3]//reduced_resolution,
+                                          idx_cfd[4]//reduced_resolution,
+                                          mt.ceil(idx_cfd[1]/reduced_resolution_t),
+                                          5],
+                                         dtype=np.float32)
+                    # density
+                    _data = _data[::reduced_batch,::reduced_resolution_t,::reduced_resolution,::reduced_resolution,::reduced_resolution]
+                    ## convert to [x1, ..., xd, t, v]
+                    _data = np.transpose(_data, (0, 2, 3, 4, 1))
+                    self.data[...,0] = _data   # batch, x, t, ch
+                    # pressure
+                    _data = np.array(f['pressure'], dtype=np.float32)  # batch, time, x,...
+                    _data = _data[::reduced_batch,::reduced_resolution_t,::reduced_resolution,::reduced_resolution,::reduced_resolution]
+                    ## convert to [x1, ..., xd, t, v]
+                    _data = np.transpose(_data, (0, 2, 3, 4, 1))
+                    self.data[...,1] = _data   # batch, x, t, ch
+                    # Vx
+                    _data = np.array(f['Vx'], dtype=np.float32)  # batch, time, x,...
+                    _data = _data[::reduced_batch,::reduced_resolution_t,::reduced_resolution,::reduced_resolution,::reduced_resolution]
+                    ## convert to [x1, ..., xd, t, v]
+                    _data = np.transpose(_data, (0, 2, 3, 4, 1))
+                    self.data[...,2] = _data   # batch, x, t, ch
+                    # Vy
+                    _data = np.array(f['Vy'], dtype=np.float32)  # batch, time, x,...
+                    _data = _data[::reduced_batch,::reduced_resolution_t,::reduced_resolution,::reduced_resolution,::reduced_resolution]
+                    ## convert to [x1, ..., xd, t, v]
+                    _data = np.transpose(_data, (0, 2, 3, 4, 1))
+                    self.data[...,3] = _data   # batch, x, t, ch
+                    # Vz
+                    _data = np.array(f['Vz'], dtype=np.float32)  # batch, time, x,...
+                    _data = _data[::reduced_batch,::reduced_resolution_t,::reduced_resolution,::reduced_resolution,::reduced_resolution]
+                    ## convert to [x1, ..., xd, t, v]
+                    _data = np.transpose(_data, (0, 2, 3, 4, 1))
+                    self.data[...,4] = _data   # batch, x, t, ch
 
+                    x = np.array(f["x-coordinate"], dtype=np.float32)
+                    y = np.array(f["y-coordinate"], dtype=np.float32)
+                    z = np.array(f["z-coordinate"], dtype=np.float32)
+                    x = torch.tensor(x, dtype=torch.float)
+                    y = torch.tensor(y, dtype=torch.float)
+                    z = torch.tensor(z, dtype=torch.float)
+                    X, Y, Z = torch.meshgrid(x, y, z)
+                    self.grid = torch.stack((X, Y, Z), axis=-1)[::reduced_resolution,\
+                                                                ::reduced_resolution,\
+                                                                ::reduced_resolution]
+                                                                
             else:  # scalar equations
                 ## data dim = [t, x1, ..., xd, v]
                 _data = np.array(f['tensor'], dtype=np.float32)  # batch, time, x,...

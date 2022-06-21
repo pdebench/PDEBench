@@ -15,12 +15,21 @@ from .utils import (
     PINNDataset2D,
     PINNDatasetDiffSorption,
     PINNDatasetBump,
+    PINNDataset1Dpde,
+    PINNDataset2Dpde,
+    PINNDataset3Dpde,
 )
 from .pde_definitions import (
     pde_diffusion_reaction,
     pde_swe2d,
     pde_diffusion_sorption,
     pde_swe1d,
+    pde_adv1d,
+    pde_diffusion_reaction_1d,
+    pde_burgers1D,
+    pde_CFD1d,
+    pde_CFD2d,
+    pde_CFD3d,
 )
 
 from metrics import metrics, metric_func
@@ -175,6 +184,162 @@ def setup_swe_2d(filename, seed) -> Tuple[dde.Model, PINNDataset2D]:
 
     return model, dataset
 
+def setup_pde1D(filename="1D_Advection_Sols_beta0.1.hdf5",
+                root_path='data',
+                val_batch_idx=-1,
+                input_ch=2,
+                output_ch=1,
+                hidden_ch=40,
+                xL=0.,
+                xR=1.,
+                if_periodic_bc=True,
+                aux_params=[0.1]):
+
+    # TODO: read from dataset config file
+    geom = dde.geometry.Interval(xL, xR)
+    if filename[0] == 'R':
+        timedomain = dde.geometry.TimeDomain(0, 1.0)
+        pde = lambda x, y : pde_diffusion_reaction_1d(x, y, aux_params[0], aux_params[1])
+    else:
+        if filename.split('_')[1][0]=='A':
+            timedomain = dde.geometry.TimeDomain(0, 2.0)
+            pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
+        elif filename.split('_')[1][0] == 'B':
+            timedomain = dde.geometry.TimeDomain(0, 2.0)
+            pde = lambda x, y: pde_burgers1D(x, y, aux_params[0])
+        elif filename.split('_')[1][0]=='C':
+            timedomain = dde.geometry.TimeDomain(0, 1.0)
+            pde = lambda x, y: pde_CFD1d(x, y, aux_params[0])
+    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
+
+    dataset = PINNDataset1Dpde(filename, root_path=root_path, val_batch_idx=val_batch_idx)
+    # prepare initial condition
+    initial_input, initial_u = dataset.get_initial_condition()
+    if filename.split('_')[1][0] == 'C':
+        ic_data_d = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[:,0].unsqueeze(1), component=0)
+        ic_data_v = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[:,1].unsqueeze(1), component=1)
+        ic_data_p = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[:,2].unsqueeze(1), component=2)
+    else:
+        ic_data_u = dde.icbc.PointSetBC(initial_input.cpu(), initial_u, component=0)
+    # prepare boundary condition
+    if if_periodic_bc:
+        bc = dde.icbc.PeriodicBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+        if filename.split('_')[1][0] == 'C':
+            data = dde.data.TimePDE(
+                geomtime,
+                pde,
+                [ic_data_d, ic_data_v, ic_data_p, bc],
+                num_domain=1000,
+                num_boundary=1000,
+                num_initial=5000,
+            )
+        else:
+            data = dde.data.TimePDE(
+                geomtime,
+                pde,
+                [ic_data_u, bc],
+                num_domain=1000,
+                num_boundary=1000,
+                num_initial=5000,
+            )
+    else:
+        ic = dde.icbc.IC(
+            geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial
+        )
+        bd_input, bd_uL, bd_uR = dataset.get_boundary_condition()
+        bc_data_uL = dde.icbc.PointSetBC(bd_input.cpu(), bd_uL, component=0)
+        bc_data_uR = dde.icbc.PointSetBC(bd_input.cpu(), bd_uR, component=0)
+
+        data = dde.data.TimePDE(
+            geomtime,
+            pde,
+            [ic, bc_data_uL, bc_data_uR],
+            num_domain=1000,
+            num_boundary=1000,
+            num_initial=5000,
+        )
+    net = dde.nn.FNN([input_ch] + [hidden_ch] * 6 + [output_ch], "tanh", "Glorot normal")
+    model = dde.Model(data, net)
+
+    return model, dataset
+
+def setup_CFD2D(filename="2D_CFD_RAND_Eta1.e-8_Zeta1.e-8_periodic_Train.hdf5",
+                root_path='data',
+                val_batch_idx=-1,
+                input_ch=2,
+                output_ch=4,
+                hidden_ch=40,
+                xL=0.,
+                xR=1.,
+                yL=0.,
+                yR=1.,
+                if_periodic_bc=True,
+                aux_params=[1.6667]):
+
+    # TODO: read from dataset config file
+    geom = dde.geometry.Rectangle((-1, -1), (1, 1))
+    timedomain = dde.geometry.TimeDomain(0., 1.0)
+    pde = lambda x, y: pde_CFD2d(x, y, aux_params[0])
+    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
+
+    dataset = PINNDataset2Dpde(filename, root_path=root_path, val_batch_idx=val_batch_idx)
+    # prepare initial condition
+    initial_input, initial_u = dataset.get_initial_condition()
+    ic_data_d = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,0].unsqueeze(1), component=0)
+    ic_data_vx = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,1].unsqueeze(1), component=1)
+    ic_data_vy = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,2].unsqueeze(1), component=2)
+    ic_data_p = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,3].unsqueeze(1), component=3)
+    # prepare boundary condition
+    bc = dde.icbc.PeriodicBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+    data = dde.data.TimePDE(
+        geomtime,
+        pde,
+        [ic_data_d, ic_data_vx, ic_data_vy, ic_data_p],#, bc],
+        num_domain=1000,
+        num_boundary=1000,
+        num_initial=5000,
+    )
+    net = dde.nn.FNN([input_ch] + [hidden_ch] * 6 + [output_ch], "tanh", "Glorot normal")
+    model = dde.Model(data, net)
+
+    return model, dataset
+
+def setup_CFD3D(filename="3D_CFD_RAND_Eta1.e-8_Zeta1.e-8_periodic_Train.hdf5",
+                root_path='data',
+                val_batch_idx=-1,
+                input_ch=2,
+                output_ch=4,
+                hidden_ch=40,
+                aux_params=[1.6667]):
+
+    # TODO: read from dataset config file
+    geom = dde.geometry.Cuboid((0., 0., 0.), (1., 1., 1.))
+    timedomain = dde.geometry.TimeDomain(0., 1.0)
+    pde = lambda x, y: pde_CFD2d(x, y, aux_params[0])
+    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
+
+    dataset = PINNDataset3Dpde(filename, root_path=root_path, val_batch_idx=val_batch_idx)
+    # prepare initial condition
+    initial_input, initial_u = dataset.get_initial_condition()
+    ic_data_d = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,0].unsqueeze(1), component=0)
+    ic_data_vx = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,1].unsqueeze(1), component=1)
+    ic_data_vy = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,2].unsqueeze(1), component=2)
+    ic_data_vz = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,3].unsqueeze(1), component=3)
+    ic_data_p = dde.icbc.PointSetBC(initial_input.cpu(), initial_u[...,4].unsqueeze(1), component=4)
+    # prepare boundary condition
+    bc = dde.icbc.PeriodicBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+    data = dde.data.TimePDE(
+        geomtime,
+        pde,
+        [ic_data_d, ic_data_vx, ic_data_vy, ic_data_vz, ic_data_p, bc],
+        num_domain=1000,
+        num_boundary=1000,
+        num_initial=5000,
+    )
+    net = dde.nn.FNN([input_ch] + [hidden_ch] * 6 + [output_ch], "tanh", "Glorot normal")
+    model = dde.Model(data, net)
+
+    return model, dataset
 
 def run_training(scenario, epochs, learning_rate, model_update, flnm, seed):
     if scenario == "swe2d":

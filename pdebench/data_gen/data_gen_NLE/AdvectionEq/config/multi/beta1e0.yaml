@@ -1,0 +1,15 @@
+save: '../save/advection/'
+dt_save: 0.01
+ini_time: 0.
+fin_time: 2.
+nx: 1024
+xL: 0.
+xR: 1.
+beta : 1.e0
+if_show: 1
+numbers: 10000
+CFL: 4.e-1
+if_second_order: 1.
+show_steps: 100
+init_key: 2022
+if_rand_param: False

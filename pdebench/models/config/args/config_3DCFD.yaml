@@ -1,0 +1,24 @@
+model_name: 'Unet'
+if_training: True
+t_train: 21
+continue_training: False
+batch_size: 5
+unroll_step: 20
+model_update: 1
+filename: '3D_CFD_Rand_M1.0_Eta1e-08_Zeta1e-08_periodic_Train.hdf5'
+single_file: True
+reduced_resolution: 2
+reduced_resolution_t: 1
+reduced_batch: 1
+epochs: 500
+learning_rate: 1.e-3
+#Unet
+in_channels: 5
+out_channels: 5
+#FNO
+num_channels: 5
+modes: 12
+width: 20
+scheduler_step: 100
+scheduler_gamma: 0.5
+initial_step: 10  # should be the same value to unroll_step ??
