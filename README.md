@@ -94,9 +94,20 @@ which is assumed to be performed in each directory.
 Examples for generating other PDEs are provided in `run_trainset.sh` in each PDE's directories.
 The config files for Hydra are stored in `config` directory in each PDE's directory. 
 
+#### Data Transformaion and Merge into HDF5 format
+1D Advection/Burgers/Reaction-Diffusion/2D DarcyFlow/Compressible Navier-Stokes Equations save data as a numpy array. 
+So, to read those data via our dataloaders, the data transformation/merge should be performed. 
+This can be done using `data_gen_NLE/Data_Merge.py` whose config file is located at: `data_gen/data_gen_NLE/config/config.yaml`. 
+After properly set parameters in the config file (type: name of PDEs, dim: number of spatial-dimension, bd: boundary condition), 
+the corresponding HDF5 file could be obtained as: 
+```bash
+python3 Data_Merge.py
+```
+
+
 ## Configuration
 
-You can sent the default values for data locations for this project by putting config vars like this in the `.env` file:
+You can set the default values for data locations for this project by putting config vars like this in the `.env` file:
 
 ```
 WORKING_DIR=~/Data/Working
