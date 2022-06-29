@@ -3,12 +3,13 @@ import deepxde as dde
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-import sys
+import os, sys
 import torch
 
 from typing import Tuple
 
 sys.path.append(".")
+
 from .utils import (
     PINNDatasetRadialDambreak,
     PINNDatasetDiffReact,
@@ -93,7 +94,6 @@ def setup_diffusion_sorption(filename, seed):
     model = dde.Model(data, net)
 
     return model, dataset
-
 
 def setup_diffusion_reaction(filename, seed):
     # TODO: read from dataset config file
@@ -184,6 +184,9 @@ def setup_swe_2d(filename, seed) -> Tuple[dde.Model, PINNDataset2D]:
 
     return model, dataset
 
+def _boundary_r(x, on_boundary, xL, xR):
+    return (on_boundary and np.isclose(x[0], xL)) or (on_boundary and np.isclose(x[0], xR))
+
 def setup_pde1D(filename="1D_Advection_Sols_beta0.1.hdf5",
                 root_path='data',
                 val_batch_idx=-1,
@@ -197,6 +200,7 @@ def setup_pde1D(filename="1D_Advection_Sols_beta0.1.hdf5",
 
     # TODO: read from dataset config file
     geom = dde.geometry.Interval(xL, xR)
+    boundary_r = lambda x, on_boundary: _boundary_r(x, on_boundary, xL, xR)
     if filename[0] == 'R':
         timedomain = dde.geometry.TimeDomain(0, 1.0)
         pde = lambda x, y : pde_diffusion_reaction_1d(x, y, aux_params[0], aux_params[1])
@@ -223,17 +227,21 @@ def setup_pde1D(filename="1D_Advection_Sols_beta0.1.hdf5",
         ic_data_u = dde.icbc.PointSetBC(initial_input.cpu(), initial_u, component=0)
     # prepare boundary condition
     if if_periodic_bc:
-        bc = dde.icbc.PeriodicBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
         if filename.split('_')[1][0] == 'C':
+            bc_D = dde.icbc.PeriodicBC(geomtime, 0, boundary_r)
+            bc_V = dde.icbc.PeriodicBC(geomtime, 1, boundary_r)
+            bc_P = dde.icbc.PeriodicBC(geomtime, 2, boundary_r)
+
             data = dde.data.TimePDE(
                 geomtime,
                 pde,
-                [ic_data_d, ic_data_v, ic_data_p, bc],
+                [ic_data_d, ic_data_v, ic_data_p, bc_D, bc_V, bc_P],
                 num_domain=1000,
                 num_boundary=1000,
                 num_initial=5000,
             )
         else:
+            bc = dde.icbc.PeriodicBC(geomtime, 0, boundary_r)
             data = dde.data.TimePDE(
                 geomtime,
                 pde,
@@ -341,7 +349,11 @@ def setup_CFD3D(filename="3D_CFD_RAND_Eta1.e-8_Zeta1.e-8_periodic_Train.hdf5",
 
     return model, dataset
 
-def run_training(scenario, epochs, learning_rate, model_update, flnm, seed):
+def _run_training(scenario, epochs, learning_rate, model_update, flnm,
+                  input_ch, output_ch,
+                  root_path, val_batch_idx, if_periodic_bc, aux_params,
+                  if_single_run,
+                  seed):
     if scenario == "swe2d":
         model, dataset = setup_swe_2d(filename=flnm, seed=seed)
         n_components = 1
@@ -351,11 +363,42 @@ def run_training(scenario, epochs, learning_rate, model_update, flnm, seed):
     elif scenario == "diff-sorp":
         model, dataset = setup_diffusion_sorption(filename=flnm, seed=seed)
         n_components = 1
+    elif scenario == "pde1D":
+        model, dataset = setup_pde1D(filename=flnm,
+                                     root_path=root_path,
+                                     input_ch=input_ch,
+                                     output_ch=output_ch,
+                                     val_batch_idx=val_batch_idx,
+                                     if_periodic_bc=if_periodic_bc,
+                                     aux_params=aux_params)
+        if flnm.split('_')[1][0] == 'C':
+            n_components = 3
+        else:
+            n_components = 1
+    elif scenario == "CFD2D":
+        model, dataset = setup_CFD2D(filename=flnm,
+                                     root_path=root_path,
+                                     input_ch=input_ch,
+                                     output_ch=output_ch,
+                                     val_batch_idx=val_batch_idx,
+                                     aux_params=aux_params)
+        n_components = 4
+    elif  scenario == "CFD3D":
+        model, dataset = setup_CFD3D(filename=flnm,
+                                     root_path=root_path,
+                                     input_ch=input_ch,
+                                     output_ch=output_ch,
+                                     val_batch_idx=val_batch_idx,
+                                     aux_params=aux_params)
+        n_components = 5
     else:
         raise NotImplementedError(f"PINN training not implemented for {scenario}")
 
     # filename
-    model_name = flnm + "_PINN"
+    if if_single_run:
+        model_name = flnm + "_PINN"
+    else:
+        model_name = flnm[:-5] + "_PINN"
 
     checker = dde.callbacks.ModelCheckpoint(
         f"{model_name}.pt", save_better_only=True, period=5000
@@ -381,32 +424,64 @@ def run_training(scenario, epochs, learning_rate, model_update, flnm, seed):
         test_gt, n_last_time_steps=20, n_components=n_components
     )
 
-    errs = metric_func(test_pred, test_gt)
-    errors = [np.array(err.cpu()) for err in errs]
-    print(errors)
-    pickle.dump(errors, open(model_name + ".pickle", "wb"))
+    if if_single_run:
+        errs = metric_func(test_pred, test_gt)
+        errors = [np.array(err.cpu()) for err in errs]
+        print(errors)
+        pickle.dump(errors, open(model_name + ".pickle", "wb"))
 
-    # plot sample
-    plot_input = dataset.generate_plot_input(time=1.0)
-    dim = dataset.config["plot"]["dim"]
-    xdim = dataset.config["sim"]["xdim"]
-    if dim == 2:
-        ydim = dataset.config["sim"]["ydim"]
-    y_pred = model.predict(plot_input)[:, 0]
-    if dim == 1:
-        plt.figure()
-        plt.plot(y_pred)
-    elif dim == 2:
-        im_data = y_pred.reshape(xdim, ydim)
-        plt.figure()
-        plt.imshow(im_data)
+        # plot sample
+        plot_input = dataset.generate_plot_input(time=1.0)
+        if scenario == "pde1D":
+            xdim = dataset.xdim
+            dim = 1
+        else:
+            dim = dataset.config["plot"]["dim"]
+            xdim = dataset.config["sim"]["xdim"]
+            if dim == 2:
+                ydim = dataset.config["sim"]["ydim"]
 
-    plt.savefig(f"{model_name}.png")
+        y_pred = model.predict(plot_input)[:, 0]
+        if dim == 1:
+            plt.figure()
+            plt.plot(y_pred)
+        elif dim == 2:
+            im_data = y_pred.reshape(xdim, ydim)
+            plt.figure()
+            plt.imshow(im_data)
 
-    # TODO: implement function to get specific timestep from dataset
-    # y_true = dataset[:][1][-xdim * ydim :]
+        plt.savefig(f"{model_name}.png")
 
-    # print("L2 relative error:", dde.metrics.l2_relative_error(y_true.cpu(), y_pred))
+        # TODO: implement function to get specific timestep from dataset
+        # y_true = dataset[:][1][-xdim * ydim :]
+    else:
+        return test_pred, test_gt, model_name
+
+def run_training(scenario, epochs, learning_rate, model_update, flnm,
+                 input_ch=1, output_ch=1,
+                 root_path='../data/', val_num=10, if_periodic_bc=True, aux_params=[None], seed='0000'):
+
+    if val_num == 1:  # single job
+        _run_training(scenario, epochs, learning_rate, model_update, flnm,
+                      input_ch, output_ch,
+                      root_path, -val_num, if_periodic_bc, aux_params,
+                      if_single_run=True, seed=seed)
+    else:
+        for val_batch_idx in range(-1, -val_num, -1):
+            test_pred, test_gt, model_name = _run_training(scenario, epochs, learning_rate, model_update, flnm,
+                                                           input_ch, output_ch,
+                                                           root_path, val_batch_idx, if_periodic_bc, aux_params,
+                                                           if_single_run=False, seed=seed)
+            if val_batch_idx == -1:
+                pred, target = test_pred.unsqueeze(0), test_gt.unsqueeze(0)
+            else:
+                pred = torch.cat([pred, test_pred.unsqueeze(0)], 0)
+                target = torch.cat([target, test_gt.unsqueeze(0)], 0)
+
+        errs = metric_func(test_pred, test_gt)
+        errors = [np.array(err.cpu()) for err in errs]
+        print(errors)
+        pickle.dump(errors, open(model_name + ".pickle", "wb"))
 
 
 if __name__ == "__main__":

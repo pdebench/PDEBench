@@ -9,6 +9,8 @@ hydra:
     dir: .
 
 args:
-  type: 'advection'
+  type: 'advection'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
   dim: 1
   bd: 'periodic'
+  nbatch: 1000
+  savedir: './save/CFD/'

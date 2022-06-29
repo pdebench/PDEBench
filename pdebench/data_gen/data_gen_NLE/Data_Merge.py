@@ -143,6 +143,11 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+'''
+Data_Merge.py
+This is a script creating HDF5 from the generated data (numpy array) by our data generation scripts.
+A more detailed explanation how to use this script is provided in the README. 
+'''
 
 
 import numpy as np
@@ -153,14 +158,14 @@ import glob
 import hydra
 from omegaconf import DictConfig
 
-def _mergeRD(var, DataND):
+def _mergeRD(var, DataND, savedir):
     _vars = ['2D', 'nu']
     if var not in _vars:
         print(var+' is not defined!')
         return None
 
     idx = 0
-    datas = glob.glob('save/ReacDiff/'+var+'*key*.npy')
+    datas = glob.glob(savedir+'/' + var + '*key*.npy')
     datas.sort()
     for data in datas:
         print(idx, data)
@@ -174,7 +179,7 @@ def _mergeRD(var, DataND):
 
     return DataND[:idx]
 
-def _merge(var, DataND, dim):
+def _merge(var, DataND, dim, savedir):
     if dim == 1:
         _vars = ['D', 'P', 'Vx']
     elif dim == 2:
@@ -186,7 +191,7 @@ def _merge(var, DataND, dim):
         return None
 
     idx = 0
-    datas = glob.glob('save/CFD/HD*'+var+'.npy')
+    datas = glob.glob(savedir+'/HD*' + var + '.npy')
     datas.sort()
     for data in datas:
         print(idx, data)
@@ -201,51 +206,57 @@ def nan_check(data):
     data = np.abs(data).reshape([data.shape[0], data.shape[1],-1]).sum(axis=-1)
     return np.where(data[:,-2] < 1.e-6)[0], np.where(data[:,-2] > 1.e-6)[0]
 
-def merge(type, dim, bd):
+def merge(type, dim, bd, nbatch, savedir):
     if type=='CFD':
-        datas = glob.glob('save/CFD/HD*D.npy')
+        datas = glob.glob(savedir+'/HD*D.npy')
         datas.sort()
         test = np.load(datas[0])
-        _nbatch, nt, nx, ny, nz = test.shape
-        nbatch = _nbatch * len(datas)
-        print('nb, nt, nx, ny, nz: ', nbatch, nt, nx, ny, nz)
+        __nbatch, nt, nx, ny, nz = test.shape
+        _nbatch = __nbatch * len(datas)
+        print('nb, nt, nx, ny, nz: ', _nbatch, nt, nx, ny, nz)
+        print('nbatch: {0}, _nbatch: {1}'.format(nbatch, _nbatch))
+        assert nbatch <= _nbatch, 'nbatch should be equal or less than the number of generated samples'
+        assert 2*nbatch > _nbatch, '2*nbatch should be larger than the number of generated samples'
 
         if dim == 1:
-            DataND = np.zeros([2*nbatch, nt, nx])
+            DataND = np.zeros([2*nbatch, nt, nx], dtype=np.float32)
             vars = ['D', 'P', 'Vx']
         elif dim == 2:
-            DataND = np.zeros([2*nbatch, nt, nx, ny])
+            DataND = np.zeros([2*nbatch, nt, nx, ny], dtype=np.float32)
             vars = ['D', 'P', 'Vx', 'Vy']
         elif dim == 3:
-            DataND = np.zeros([2*nbatch, nt, nx, ny, nz])
+            DataND = np.zeros([2*nbatch, nt, nx, ny, nz], dtype=np.float32)
             vars = ['D', 'P', 'Vx', 'Vy', 'Vz']
 
     elif type=='ReacDiff':
-        datas = glob.glob('save/ReacDiff/nu*.npy')
+        datas = glob.glob(savedir+'/nu*.npy')
         datas.sort()
         test = np.load(datas[0])
-        _nbatch, nx, ny = test.shape
-        nbatch = _nbatch * len(datas)
-        print('nb, nx, ny: ', nbatch, nx, ny)
-        DataND = np.zeros([nbatch, nx, ny])
+        __nbatch, nx, ny = test.shape
+        _nbatch = __nbatch * len(datas)
+        print('nbatch: {0}, _nbatch: {1}'.format(nbatch, _nbatch))
+        assert nbatch == _nbatch, 'nbatch should be equal or less than the number of generated samples'
+        print('nb, nx, ny: ', _nbatch, nx, ny)
+        DataND = np.zeros([nbatch, nx, ny], dtype=np.float32)
         vars = ['2D', 'nu']
 
     for var in vars:
         if type=='CFD':
-            DataND = _merge(var, DataND, dim)
+            _DataND = _merge(var, DataND, dim, savedir)
             if var=='D':
-                idx_neg, idx_pos = nan_check(DataND)
+                idx_neg, idx_pos = nan_check(_DataND)
                 print('idx_neg: {0}, idx_pos: {1}'.format(len(idx_neg), len(idx_pos)))
                 if len(idx_pos) < nbatch:
                     print('too many ill-defined data...')
                     print('nbatch: {0}, idx_pos: {1}'.format(nbatch, len(idx_pos)))
-            DataND = DataND[idx_pos]
-            np.save('save/CFD/'+var+'.npy', DataND)
+            _DataND = _DataND[idx_pos]
+            _DataND = _DataND[:nbatch]
+            np.save(savedir+'/' + var + '.npy', _DataND)
         elif type == 'ReacDiff':
-            DataND = _mergeRD(var, DataND)
-            np.save('save/ReacDiff/'+var+'.npy', DataND)
+            DataND = _mergeRD(var, DataND, savedir)
+            np.save(savedir+'/' + var + '.npy', DataND)
 
-    datas = glob.glob('save/'+type+'/*npy')
+    datas = glob.glob(savedir+'/*npy')
     datas.sort()
 
     if type == 'CFD':
@@ -258,13 +269,14 @@ def merge(type, dim, bd):
     tcrd = np.load(datas[-1])
     del (datas[-1])
     if type=='ReacDiff':
-        datas = glob.glob('save/' + type + '/nu*key*npy')
+        #datas = glob.glob('save/' + type + '/nu*key*npy')
+        datas = glob.glob(savedir+'/nu*key*npy')
         datas.sort()
         _beta = datas[0].split('/')[-1].split('_')[3]
-        flnm = 'save/ReacDiff/2D_DecayFlow_'+_beta+'_Train.hdf5'
+        flnm = savedir+'/2D_DecayFlow_' + _beta + '_Train.hdf5'
         with h5py.File(flnm, 'w') as f:
-            f.create_dataset('tensor', data = np.load('save/ReacDiff/2D.npy')[:, None, :, :])
-            f.create_dataset('nu', data = np.load('save/ReacDiff/nu.npy'))
+            f.create_dataset('tensor', data=np.load(savedir+'/2D.npy')[:, None, :, :])
+            f.create_dataset('nu', data=np.load(savedir+'/nu.npy'))
             f.create_dataset('x-coordinate', data=xcrd)
             f.create_dataset('y-coordinate', data=ycrd)
             f.attrs['beta'] = float(_beta[4:])
@@ -275,24 +287,24 @@ def merge(type, dim, bd):
     _zeta = datas[1].split('/')[-1].split('_')[5]
     _M = datas[1].split('/')[-1].split('_')[6]
     if dim == 1:
-        flnm = 'save/CFD/1D_CFD_' + mode + '_' + _eta + '_' + _zeta + '_' + bd + '_Train.hdf5'
+        flnm = savedir+'/1D_CFD_' + mode + '_' + _eta + '_' + _zeta + '_' + bd + '_Train.hdf5'
     elif dim == 2:
-        flnm = 'save/CFD/2D_CFD_' + mode + '_' + _eta + '_' + _zeta + '_' + _M + '_' + bd + '_Train.hdf5'
+        flnm = savedir+'/2D_CFD_' + mode + '_' + _eta + '_' + _zeta + '_' + _M + '_' + bd + '_Train.hdf5'
     elif dim == 3:
-        flnm = 'save/CFD/3D_CFD_' + mode + '_' + _eta + '_' + _zeta + '_' + _M + '_' + bd + '_Train.hdf5'
+        flnm = savedir+'/3D_CFD_' + mode + '_' + _eta + '_' + _zeta + '_' + _M + '_' + bd + '_Train.hdf5'
     print(flnm)
 
     del(DataND)
 
     with h5py.File(flnm, 'w') as f:
-        f.create_dataset('density', data = np.load('save/CFD/D.npy'))
-        f.create_dataset('pressure', data = np.load('save/CFD/P.npy'))
-        f.create_dataset('Vx', data = np.load('save/CFD/Vx.npy'))
+        f.create_dataset('density', data=np.load(savedir+'/D.npy'))
+        f.create_dataset('pressure', data=np.load(savedir+'/P.npy'))
+        f.create_dataset('Vx', data=np.load(savedir+'/Vx.npy'))
         if dim > 1:
-            f.create_dataset('Vy', data=np.load('save/CFD/Vy.npy'))
+            f.create_dataset('Vy', data=np.load(savedir+'/Vy.npy'))
             f.create_dataset('y-coordinate', data=ycrd)
         if dim == 3:
-            f.create_dataset('Vz', data=np.load('save/CFD/Vz.npy'))
+            f.create_dataset('Vz', data=np.load(savedir+'/Vz.npy'))
             f.create_dataset('z-coordinate', data=zcrd)
         f.create_dataset('x-coordinate', data = xcrd)
         f.create_dataset('t-coordinate', data = tcrd)
@@ -306,8 +318,8 @@ def merge(type, dim, bd):
             f.attrs['M'] = M
             print('M: ', M)
 
-def transform(type):
-    datas = glob.glob('save/'+type+'/*npy')
+def transform(type, savedir):
+    datas = glob.glob(savedir+'/*npy')
     datas.sort()
     xcrd = np.load(datas[-1])
     del (datas[-1])
@@ -343,11 +355,11 @@ def transform(type):
 def main(cfg: DictConfig) -> None:
     pde1ds = ['advection', 'burgers', 'ReacDiff']
     if cfg.args.type in pde1ds and cfg.args.dim==1:
-        transform(type=cfg.args.type)
+        transform(type=cfg.args.type, savedir=cfg.args.savedir)
     else:
         bds = ['periodic', 'trans']
         assert cfg.args.bd in bds, 'bd should be either periodic or trans'
-        merge(type=cfg.args.type, dim=cfg.args.dim, bd=cfg.args.bd)
+        merge(type=cfg.args.type, dim=cfg.args.dim, bd=cfg.args.bd, nbatch=cfg.args.nbatch, savedir=cfg.args.savedir)
 
 if __name__=='__main__':
     main()
