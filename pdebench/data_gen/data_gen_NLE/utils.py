@@ -1444,6 +1444,37 @@ def bc_HD(u, mode):
         u = u.at[:, 2:-2, 2:-2, -1].set(u[:, 2:-2, 2:-2, -4])
     return u
 
+def bc_HD_vis(u, if_periodic=True):  # for viscosity
+    """
+    for the moment, assuming periodic/copy boundary
+    seemingly, copy boundary does not work well...
+    """
+    _, Nx, Ny, Nz = u.shape
+    Nx -= 2
+    Ny -= 2
+    Nz -= 2
+
+    if if_periodic:
+        u = u.at[:, 0:2, 0:2 + 2, 2:-2].set(u[:, Nx - 2:Nx, Ny - 2:Ny, 2:-2])  # xByB
+        u = u.at[:, 0:2, 2:-2, 0:2].set(u[:, Nx - 2:Nx, 2:-2, Nz - 2:Nz])  # xBzB
+        u = u.at[:, 0:2, Ny:Ny + 2, 2:-2].set(u[:, Nx - 2:Nx, 2:4, 2:-2])  # xByT
+        u = u.at[:, 0:2, 2:-2, Nz:Nz + 2].set(u[:, Nx - 2:Nx, 2:-2, 2:4])  # xBzT
+        u = u.at[:, Nx:Nx + 2, 0:2, 2:-2].set(u[:, 2:4, Ny - 2:Ny, 2:-2])  # xTyB
+        u = u.at[:, Nx:Nx + 2, 2:-2, 0:2].set(u[:, 2:4, 2:-2, Nz - 2:Nz])  # xTzB
+        u = u.at[:, Nx:Nx + 2, Ny:Ny + 2, 2:-2].set(u[:, 2:4, 2:4, 2:-2])  # xTyT
+        u = u.at[:, Nx:Nx + 2, 2:-2, Nz:Nz + 2].set(u[:, 2:4, 2:-2, 2:4])  # xTzT
+    else: # trans
+        u = u.at[:, 0:2, 0:2 + 2, 2:-2].set(u[:, 4:2, Ny:Ny-2, 2:-2])  # xByT
+        u = u.at[:, 0:2, 2:-2, 0:2].set(u[:, 4:2, 2:-2, 4:2])  # xBzB
+        u = u.at[:, 0:2, Ny:Ny + 2, 2:-2].set(u[:, 4:2, Ny:Ny-2, 2:-2])  # xByB
+        u = u.at[:, 0:2, 2:-2, Nz:Nz + 2].set(u[:, 4:2, 2:-2, Nz:Nz-2])  # xBzT
+        u = u.at[:, Nx:Nx + 2, 0:2, 2:-2].set(u[:, Nx:Nx-2, 4:2, 2:-2])  # xTyB
+        u = u.at[:, Nx:Nx + 2, 2:-2, 0:2].set(u[:, Nx:Nx-2, 2:-2, 4:2])  # xTzB
+        u = u.at[:, Nx:Nx + 2, Ny:Ny + 2, 2:-2].set(u[:, Nx:Nx-2, Ny:Ny-2, 2:-2])  # xTyT
+        u = u.at[:, Nx:Nx + 2, 2:-2, Nz:Nz + 2].set(u[:, Nx:Nx-2, 2:-2, Nz:Nz-2])  # xTzT
+        
+    return u
+
 def bc_HD_vis(u):  # for viscosity
     _, Nx, Ny, Nz = u.shape
     Nx -= 2
