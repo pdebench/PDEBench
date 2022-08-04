@@ -31,11 +31,12 @@ from itertools import repeat
 from src import utils
 import numpy as np
 from uploader import dataverse_upload
+import time
 
 log = logging.getLogger(__name__)
 
 
-def simulator(base_config, i, data_f):
+def simulator(base_config, i):
     
     from src.sim_radial_dam_break.py import RadialDamBreak2D
     
@@ -54,15 +55,26 @@ def simulator(base_config, i, data_f):
         ydim=config.sim.ydim,
     )
 
+    start_time = time.time()
     scenario.run(T=config.sim.T_end, tsteps=config.sim.n_time_steps, plot=False)
-    scenario.save_state_to_disk(data_f, i)
+    duration = time.time() - start_time
+    log.info(f"Seed {config.sim.seed} took {duration} to finish")
+    config.output_path = config.output_path + "_" + str(i).zfill(4) + ".h5"
+    scenario.save_state_to_disk(filepath=config.output_path)
     
-    seed_str = str(i).zfill(4)
-    
-    data_f.attrs[f"{seed_str}/config"] = OmegaConf.to_yaml(config)
-        
-    
+    with h5py.File(config.output_path, "r+") as f:
+        f.attrs["config"] = OmegaConf.to_yaml(config)
 
+    if config.upload:
+        dataverse_upload(
+            file_path=config.output_path,
+            dataverse_url=os.getenv("DATAVERSE_URL", "https://darus.uni-stuttgart.de"),
+            dataverse_token=os.getenv("DATAVERSE_API_TOKEN", ""),
+            dataverse_dir=config.name,
+            dataverse_id=os.getenv("DATAVERSE_ID", ""),
+            log=log,
+        )
+        
 
 @hydra.main(config_path="configs/", config_name="radial_dam_break")
 def main(config: DictConfig):
@@ -86,29 +98,15 @@ def main(config: DictConfig):
     output_path = os.path.join(work_path, config.data_dir, config.output_path)
     if not os.path.isdir(output_path):
         os.makedirs(output_path)
-    config.output_path = os.path.join(output_path, config.output_path) + '.h5'
+    config.output_path = os.path.join(output_path, config.output_path)
 
     num_samples_init = 0
     num_samples_final = 1000
     
-    with h5py.File(utils.expand_path(config.output_path), "w") as data_f:
-
-        pool = mp.Pool(mp.cpu_count())
-        seed = np.arange(num_samples_init, num_samples_final)
-        seed = seed.tolist()
-        pool.starmap(simulator, zip(repeat(config), seed, data_f))
-    
-    if config.upload:
-        dataverse_upload(
-            file_path=config.output_path,
-            dataverse_url=os.getenv(
-                'DATAVERSE_URL', 'https://darus.uni-stuttgart.de'),
-            dataverse_token=os.getenv(
-                'DATAVERSE_API_TOKEN', ''),
-            dataverse_dir=config.name,
-            dataverse_id=os.getenv(
-                'DATAVERSE_ID', ''),
-            log=log)
+    pool = mp.Pool(mp.cpu_count())
+    seed = np.arange(num_samples_init, num_samples_final)
+    seed = seed.tolist()
+    pool.starmap(simulator, zip(repeat(config), seed))
 
     return
 
