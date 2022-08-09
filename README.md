@@ -11,16 +11,6 @@ PDEBench features a much wider range of PDEs than existing approaches including 
 
 ## Dataset
 
-Temporary url
-
-PDEBench Dataset
-https://darus.uni-stuttgart.de/privateurl.xhtml?token=1be27526-348a-40ed-9fd0-c62f588efc01
-
-PDEBench Pre-Trained Models
-https://darus.uni-stuttgart.de/privateurl.xhtml?token=cd862f8c-8e1b-49d2-b4da-b35f8df5ac85
-
-Permanent url
-
 PDEBench Dataset
 https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2986
 
@@ -46,7 +36,8 @@ pip install --upgrade pip wheel
 pip install -r requirements.txt
 ```
 
-The required packages are listed in [requirements.txt](./requirements.txt)
+The minimum required packages to train and run the baseline ML models are listed in [requirements.txt](./requirements.txt)
+To run the data generation scripts, the complete package requirements are listed in [requirements_datagen.txt](./requirements_datagen.txt)
 
 For GPU support there are additional platform-specific instructions:
 

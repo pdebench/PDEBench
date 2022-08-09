@@ -6,18 +6,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name='pdebench',
     version='0.0.1',
-    install_requires=['numpy',
-                        'scipy',
+    install_requires=['scipy',
                         'matplotlib',
                         'h5py',
                         'pandas',
                         'python-dotenv',
                         'hydra-core',
                         'omegaconf',
-                        'clawpack',
-                        'deepxde',
-                        'torch',
-                        'pyDaRUS'
+                        'deepxde'
                         ],
     packages=['pdebench'],
     author='Makoto Takamoto, Timothy Praditia, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk Pflüger, Mathias Niepert',
