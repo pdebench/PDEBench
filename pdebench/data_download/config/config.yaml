@@ -9,4 +9,7 @@ hydra:
     dir: .
     
 args:
-    filename: '1D_diff-sorp_NA_NA'
+    filename: 'Advection_beta'
+    dataverse_url: 'https://darus.uni-stuttgart.de'
+    dataset_id: 'doi:10.18419/darus-2986'
+    data_folder: 'data'
