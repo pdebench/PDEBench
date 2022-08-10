@@ -111,8 +111,7 @@ There is an example in `example.env`.
 ## Data Download
 The data download codes are contained in [data_download](./pdebench/data_download):
 - `download.py` to download the data.
-- `.env` is the environment data to store Dataverse URL and API token to download the generated data. Note that the filename should be strictly `.env` (i.e. remove the  `example` from the filename)
-- `config` directory contains the yaml files storing the configuration for the data downloader. The argument 'filename' should match the filename in the data repository.
+- `config` directory contains the yaml files storing the configuration for the data downloader. Anyfiles in the dataset matching `args.filename` will be downloaded into `args.data_folder`.
 
 
 ## Baseline Models
