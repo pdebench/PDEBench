@@ -29,6 +29,7 @@ DOIs
 
 ## Requirements
 
+### Using pip
 ```bash
 python3 -m venv ./venv --prompt pde_benchmark --system-site-packages 
 . ./venv/bin/activate
@@ -36,22 +37,52 @@ pip install --upgrade pip wheel
 pip install -r requirements.txt
 ```
 
-The minimum required packages to train and run the baseline ML models are listed in [requirements.txt](./requirements.txt)
+The minimum required packages to train and run the baseline ML models are listed in [requirements.txt](./requirements.txt).
+
 To run the data generation scripts, the complete package requirements are listed in [requirements_datagen.txt](./requirements_datagen.txt)
 
 For GPU support there are additional platform-specific instructions:
 
-For pytorch,
+For PyTorch, [see here](https://pytorch.org/get-started/locally/).
 
-```bash
-pip3 install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu113
+For JAX, which is approximately 6 times faster for simulations than PyTorch in our tests, [see here](https://github.com/google/jax#installation)
+
+### Using conda:
+
+If you like you can also install dependencies using anaconda. We suggest using [miniforge](https://github.com/conda-forge/miniforge) (and possibly mamba) as distribution. Otherwise you may have to __enable the conda-forge__ channel for the following commands.
+
+Starting from a fresh environment:
+
+```
+conda create -n myenv python=3.9
+conda activate myenv
 ```
 
-For jax, which is approximately 6 times faster for simulations than pytorch in our tests,
-
-```bash
-pip install "jax[cuda11_cudnn82]>=0.3.0" -f https://storage.googleapis.com/jax-releases/jax_releases.html
+Install dependencies for model training:
 ```
+conda install deepxde hydra-core h5py
+```
+
+[Install PyTorch](https://pytorch.org/get-started/locally/) according to your hardware requirements: 
+
+E.g.
+```
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+```
+
+Optional dependencies for data generation:
+```
+conda install clawpack jax jaxlib python-dotenv
+```
+
+Optional dependencies for data downloading:
+```
+pip install pyDarus~=1.0.5
+```
+
+## Configuring DeepXDE
+In our tests we used PyTorch as backend for DeepXDE. Please [follow the documentation](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends) to enable this.
+
 
 ## Data Generation
 The data generation codes are contained in [data_gen](./pdebench/data_gen):
