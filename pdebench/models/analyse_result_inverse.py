@@ -168,12 +168,12 @@ def main():
         print(width, pos)
     
     ax.set_xticks(x)
-    ax.set_xticklabels(pdes,rotation=45,fontsize=16)
-    ax.tick_params(axis='y',labelsize=16)
+    ax.set_xticklabels(pdes,rotation=45,fontsize=30)
+    ax.tick_params(axis='y',labelsize=30)
     ax.set_yscale('log')
-    ax.set_xlabel('PDEs',fontsize=16)
-    ax.set_ylabel('MSE',fontsize=16)
-    fig.legend(models,loc=1,ncol=num_models,fontsize=16)
+    ax.set_xlabel('PDEs',fontsize=30)
+    ax.set_ylabel('MSE',fontsize=30)
+    fig.legend(models,loc=1,ncol=num_models,fontsize=20)
     plt.tight_layout()
     plt.savefig('ResultsInverse.pdf')
     

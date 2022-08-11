@@ -221,12 +221,12 @@ def main():
         ax.bar(pos, data[data.index.isin([models[i]],level=2)]['MSE'], width)
     
     ax.set_xticks(x)
-    ax.set_xticklabels(pdes,fontsize=16)
-    ax.tick_params(axis='y',labelsize=16)
+    ax.set_xticklabels(pdes,fontsize=30)
+    ax.tick_params(axis='y',labelsize=30)
     ax.set_yscale('log')
-    ax.set_xlabel('PDEs',fontsize=16)
-    ax.set_ylabel('MSE',fontsize=16)
-    fig.legend(models,loc=8,ncol=num_models,fontsize=16)
+    ax.set_xlabel('PDEs',fontsize=30)
+    ax.set_ylabel('MSE',fontsize=30)
+    fig.legend(models,loc=8,ncol=num_models,fontsize=20)
     plt.tight_layout(rect=[0,0.1,1,1])
     plt.savefig('Results.pdf')
     
