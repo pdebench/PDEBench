@@ -191,8 +191,6 @@ def main():
                 index1.append(title[0])
                 index2.append(title[1] + title[2])
                 index3.append(title[3])
-            if index3[-1][0] == 'U':
-                index3[-1] = index3[-1][:4]
     indexes = [index1, index2, index3]
     
     # create dataframe
