@@ -254,6 +254,8 @@ def main(cfg: DictConfig) -> None:
             Q = update(Q, Q_tmp, dt)
 
             # update via viscosity
+            #d_min = jnp.min(Q[0])
+            #dt_vis = Courant_vis_HD(dx, dy, dz, eta/d_min, zeta/d_min) * cfg.args.CFL  # for realistic viscosity
             dt_vis = Courant_vis_HD(dx, dy, dz, cfg.args.eta, cfg.args.zeta) * cfg.args.CFL
             dt_vis = jnp.min(jnp.array([dt_vis, dt]))
             t_vis = 0.
@@ -323,61 +325,152 @@ def main(cfg: DictConfig) -> None:
 
     @jit
     def update_vis(carry):
+        def _update_vis_x(carry):
+            Q, dt = carry
+            # calculate conservative variables
+            D0 = Q[0]
+            Mx = Q[1] * D0
+            My = Q[2] * D0
+            Mz = Q[3] * D0
+            E0 = Q[4] * gamminv1 + 0.5 * (Mx * Q[1] + My * Q[2] + Mz * Q[3])
+
+            # calculate flux
+            dtdx = dt * dx_inv
+            # here the viscosity is eta*D0, so that dv/dt = eta*d^2v/dx^2 (not realistic viscosity but fast to calculate)
+            Dm = 0.5 * (D0[2:-1, 2:-2, 2:-2] + D0[1:-2, 2:-2, 2:-2])
+
+            fMx = (eta + visc) * Dm * dx_inv * (\
+                          Q[1, 2:-1, 2:-2, 2:-2] - Q[1, 1:-2, 2:-2, 2:-2])
+            fMy = eta * Dm * dx_inv * (\
+                          Q[2, 2:-1, 2:-2, 2:-2] - Q[2, 1:-2, 2:-2, 2:-2])
+            fMz = eta * Dm * dx_inv * (\
+                          Q[3, 2:-1, 2:-2, 2:-2] - Q[3, 1:-2, 2:-2, 2:-2])
+            fE = 0.5 * (eta + visc) * Dm * dx_inv * (\
+                        Q[1, 2:-1, 2:-2, 2:-2] ** 2 - Q[1, 1:-2, 2:-2, 2:-2] ** 2)\
+                 + 0.5 * eta * Dm * dx_inv * (\
+                     (Q[2, 2:-1, 2:-2, 2:-2] ** 2 - Q[2, 1:-2, 2:-2, 2:-2] ** 2)\
+                   + (Q[3, 2:-1, 2:-2, 2:-2] ** 2 - Q[3, 1:-2, 2:-2, 2:-2] ** 2))
+
+            D0 = D0[2:-2, 2:-2, 2:-2]
+            Mx = Mx[2:-2, 2:-2, 2:-2]
+            My = My[2:-2, 2:-2, 2:-2]
+            Mz = Mz[2:-2, 2:-2, 2:-2]
+            E0 = E0[2:-2, 2:-2, 2:-2]
+
+            Mx += dtdx * (fMx[1:, :, :] - fMx[:-1, :, :])
+            My += dtdx * (fMy[1:, :, :] - fMy[:-1, :, :])
+            Mz += dtdx * (fMz[1:, :, :] - fMz[:-1, :, :])
+            E0 += dtdx * (fE[1:, :, :] - fE[:-1, :, :])
+
+            # reverse primitive variables
+            Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
+            Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
+            Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
+            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5 * (Mx ** 2 + My ** 2 + Mz ** 2) / D0))  # p
+
+            return Q, dt
+
+        def _update_vis_y(carry):
+            Q, dt = carry
+            # calculate conservative variables
+            D0 = Q[0]
+            Mx = Q[1] * D0
+            My = Q[2] * D0
+            Mz = Q[3] * D0
+            E0 = Q[4] * gamminv1 + 0.5 * (Mx * Q[1] + My * Q[2] + Mz * Q[3])
+
+            # calculate flux
+            dtdy = dt * dy_inv
+            # here the viscosity is eta*D0, so that dv/dt = eta*d^2v/dx^2 (not realistic viscosity but fast to calculate)
+            Dm = 0.5 * (D0[2:-2, 2:-1, 2:-2] + D0[2:-2, 1:-2, 2:-2])
+
+            fMx = eta * Dm * dy_inv * (\
+                          Q[1, 2:-2, 2:-1, 2:-2] - Q[1, 2:-2, 1:-2, 2:-2])
+            fMy = (eta + visc) * Dm * dy_inv * (\
+                          Q[2, 2:-2, 2:-1, 2:-2] - Q[2, 2:-2, 1:-2, 2:-2])
+            fMz = eta * Dm * dy_inv * (\
+                          Q[3, 2:-2, 2:-1, 2:-2] - Q[3, 2:-2, 1:-2, 2:-2])
+            fE = 0.5 * (eta + visc) * Dm * dy_inv * (\
+                        Q[2, 2:-2, 2:-1, 2:-2] ** 2 - Q[2, 2:-2, 1:-2, 2:-2] ** 2)\
+                 + 0.5 * eta * Dm * dy_inv * ( \
+                     (Q[3, 2:-2, 2:-1, 2:-2] ** 2 - Q[3, 2:-2, 1:-2, 2:-2] ** 2) \
+                   + (Q[1, 2:-2, 2:-1, 2:-2] ** 2 - Q[1, 2:-2, 1:-2, 2:-2] ** 2))
+
+            D0 = D0[2:-2, 2:-2, 2:-2]
+            Mx = Mx[2:-2, 2:-2, 2:-2]
+            My = My[2:-2, 2:-2, 2:-2]
+            Mz = Mz[2:-2, 2:-2, 2:-2]
+            E0 = E0[2:-2, 2:-2, 2:-2]
+
+            Mx += dtdy * (fMx[:, 1:, :] - fMx[:, :-1, :])
+            My += dtdy * (fMy[:, 1:, :] - fMy[:, :-1, :])
+            Mz += dtdy * (fMz[:, 1:, :] - fMz[:, :-1, :])
+            E0 += dtdy * (fE[:, 1:, :] - fE[:, :-1, :])
+
+            # reverse primitive variables
+            Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
+            Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
+            Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
+            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5 * (Mx ** 2 + My ** 2 + Mz ** 2) / D0))  # p
+
+            return Q, dt
+
+        def _update_vis_z(carry):
+            Q, dt = carry
+            # calculate conservative variables
+            D0 = Q[0]
+            Mx = Q[1] * D0
+            My = Q[2] * D0
+            Mz = Q[3] * D0
+            E0 = Q[4] * gamminv1 + 0.5 * (Mx * Q[1] + My * Q[2] + Mz * Q[3])
+
+            # calculate flux
+            dtdz = dt * dz_inv
+            # here the viscosity is eta*D0, so that dv/dt = eta*d^2v/dx^2 (not realistic viscosity but fast to calculate)
+            Dm = 0.5 * (D0[2:-2, 2:-2, 2:-1] + D0[2:-2, 2:-2, 1:-2])
+
+            fMx = eta * Dm * dz_inv * (\
+                          Q[1, 2:-2, 2:-2, 2:-1] - Q[1, 2:-2, 2:-2, 1:-2])
+            fMy = eta * Dm * dz_inv * (\
+                          Q[2, 2:-2, 2:-2, 2:-1] - Q[2, 2:-2, 2:-2, 1:-2])
+            fMz = (eta + visc) * Dm * dz_inv * (\
+                          Q[3, 2:-2, 2:-2, 2:-1] - Q[3, 2:-2, 2:-2, 1:-2])
+            fE = 0.5 * (eta + visc) * Dm * dz_inv * (\
+                        Q[3, 2:-2, 2:-2, 2:-1] ** 2 - Q[3, 2:-2, 2:-2, 1:-2] ** 2)\
+                 + 0.5 * eta * Dm * dz_inv * ( \
+                     (Q[1, 2:-2, 2:-2, 2:-1] ** 2 - Q[1, 2:-2, 2:-2, 1:-2] ** 2) \
+                   + (Q[2, 2:-2, 2:-2, 2:-1] ** 2 - Q[2, 2:-2, 2:-2, 1:-2] ** 2))
+
+            D0 = D0[2:-2, 2:-2, 2:-2]
+            Mx = Mx[2:-2, 2:-2, 2:-2]
+            My = My[2:-2, 2:-2, 2:-2]
+            Mz = Mz[2:-2, 2:-2, 2:-2]
+            E0 = E0[2:-2, 2:-2, 2:-2]
+
+            Mx += dtdz * (fMx[:, :, 1:] - fMx[:, :, :-1])
+            My += dtdz * (fMy[:, :, 1:] - fMy[:, :, :-1])
+            Mz += dtdz * (fMz[:, :, 1:] - fMz[:, :, :-1])
+            E0 += dtdz * (fE[:, :, 1:] - fE[:, :, :-1])
+
+            # reverse primitive variables
+            Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
+            Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
+            Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
+            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5 * (Mx ** 2 + My ** 2 + Mz ** 2) / D0))  # p
+
+            return Q, dt
+
         Q, dt, dt_vis, t_vis = carry
         Q = bc_HD(Q, mode=cfg.args.bc)  # index 2 for _U is equivalent with index 0 for u
-        Q = bc_HD_vis(Q)  # index 2 for _U is equivalent with index 0 for u
         dt_ev = jnp.min(jnp.array([dt, dt_vis, dt - t_vis]))
+
+        carry = Q, dt_ev
+        # directional split
+        carry = _update_vis_x(carry)  # x
+        carry = _update_vis_y(carry)  # y
+        Q, d_ev = _update_vis_z(carry)  # z
+
         t_vis += dt_ev
-        # calculate conservative variables
-        D0 = Q[0]
-        Mx = Q[1] * D0
-        My = Q[2] * D0
-        Mz = Q[3] * D0
-        E0 = Q[4] * gamminv1 + 0.5*(Mx*Q[1] + My*Q[2] + Mz*Q[3])
-
-        D0 = D0[2:-2, 2:-2, 2:-2]
-        Mx = Mx[2:-2, 2:-2, 2:-2]
-        My = My[2:-2, 2:-2, 2:-2]
-        Mz = Mz[2:-2, 2:-2, 2:-2]
-        E0 = E0[2:-2, 2:-2, 2:-2]
-
-        # update conservative variables
-        dtdxdx, dtdxdy, dtdxdz = dt_ev * dx_inv * dx_inv, dt_ev * dx_inv * dy_inv, dt_ev * dx_inv * dz_inv
-        dtdydy, dtdydz = dt_ev * dy_inv * dy_inv, dt_ev * dy_inv * dz_inv
-        dtdzdz = dt_ev * dz_inv * dz_inv
-
-        Mx += (visc + cfg.args.eta) * D0 * dtdxdx * (
-                          Q[1, 3:-1, 2:-2, 2:-2] - 2. * Q[1, 2:-2, 2:-2, 2:-2] + Q[1, 1:-3, 2:-2, 2:-2]) \
-              + cfg.args.eta * D0 * dtdydy * (
-                          Q[1, 2:-2, 3:-1, 2:-2] - 2. * Q[1, 2:-2, 2:-2, 2:-2] + Q[1, 2:-2, 1:-3, 2:-2]) \
-              + cfg.args.eta * D0 * dtdzdz * (
-                          Q[1, 2:-2, 2:-2, 3:-1] - 2. * Q[1, 2:-2, 2:-2, 2:-2] + Q[1, 2:-2, 2:-2, 1:-3]) \
-            + visc * D0 * 0.5 * (dtdxdy * (Q[2, 3:-1, 3:-1, 2:-2] - 2. * Q[2, 2:-2, 2:-2, 2:-2] + Q[2, 1:-3, 1:-3, 2:-2]) \
-                               + dtdxdz * (Q[3, 3:-1, 2:-2, 3:-1] - 2. * Q[3, 1:-3, 2:-2, 1:-3] + Q[3, 1:-3, 2:-2, 1:-3]))
-
-        My += cfg.args.eta * D0 * dtdxdx * (
-                          Q[2, 3:-1, 2:-2, 2:-2] - 2. * Q[2, 2:-2, 2:-2, 2:-2] + Q[2, 1:-3, 2:-2, 2:-2]) \
-              + (visc + cfg.args.eta) * D0 * dtdydy * (
-                          Q[2, 2:-2, 3:-1, 2:-2] - 2. * Q[2, 2:-2, 2:-2, 2:-2] + Q[2, 2:-2, 1:-3, 2:-2]) \
-              + cfg.args.eta * D0 * dtdzdz * (
-                          Q[2, 2:-2, 2:-2, 3:-1] - 2. * Q[2, 2:-2, 2:-2, 2:-2] + Q[2, 2:-2, 2:-2, 1:-3]) \
-            + visc * D0 * 0.5 * (dtdydz * (Q[3, 2:-2, 3:-1, 3:-1] - 2. * Q[3, 2:-2, 2:-2, 2:-2] + Q[3, 2:-2, 1:-3, 1:-3])\
-                               + dtdxdy * (Q[1, 3:-1, 3:-1, 2:-2] - 2. * Q[1, 2:-2, 2:-2, 2:-2] + Q[1, 1:-3, 1:-3, 2:-2]))
-
-        Mz += cfg.args.eta * D0 * dtdxdx * (
-                          Q[3, 3:-1, 2:-2, 2:-2] - 2. * Q[3, 2:-2, 2:-2, 2:-2] + Q[3, 1:-3, 2:-2, 2:-2]) \
-              + cfg.args.eta * D0 * dtdydy * (
-                          Q[3, 2:-2, 3:-1, 2:-2] - 2. * Q[3, 2:-2, 2:-2, 2:-2] + Q[3, 2:-2, 1:-3, 2:-2]) \
-              + (visc + cfg.args.eta) * D0 * dtdzdz * (
-                          Q[3, 2:-2, 2:-2, 3:-1] - 2. * Q[3, 2:-2, 2:-2, 2:-2] + Q[3, 2:-2, 2:-2, 1:-3]) \
-            + visc * D0 * 0.5 * (dtdydz * (Q[2, 2:-2, 3:-1, 3:-1] - 2. * Q[2, 2:-2, 2:-2, 2:-2] + Q[2, 2:-2, 1:-3, 1:-3])\
-                               + dtdxdz * (Q[1, 3:-1, 2:-2, 3:-1] - 2. * Q[1, 2:-2, 2:-2, 2:-2] + Q[1, 1:-3, 2:-2, 1:-3]))
-
-        # reverse primitive variables
-        Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
-        Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
-        Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
-        Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5*(Mx**2 + My**2 + Mz**2) / D0))  # p
 
         return Q, dt, dt_vis, t_vis
 
