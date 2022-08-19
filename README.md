@@ -225,17 +225,6 @@ Additionally, the pretrained models are also available to be downloaded [here](h
 ## Citations
 
 ```
-@online{PDEBenchDataset,
-  author = {Makoto Takamoto and  Timothy Pradita and Raphael Leiteritz and Dan MacKinlay and Francesco Alesiani and Dirk Pflüger and Mathias Niepert},
-  title = {{PDEBench}: A Diverse and Comprehensive Benchmark for Scientific Machine Learning},
-  year = 2022,
-  doi = {doi:10.18419/darus-2986},
-  urldoi = {http://dx.doi.org/10.18419/darus-2986},
-  url = {https://darus.uni-stuttgart.de/privateurl.xhtml?token=1be27526-348a-40ed-9fd0-c62f588efc01},
-  urldate = {2022-06-06}
-}
-
-
 @data{darus-2986_2022,
 author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
 publisher = {DaRUS},
@@ -243,46 +232,6 @@ title = {{PDEBench Datasets}},
 year = {2022},
 doi = {10.18419/darus-2986},
 url = {https://doi.org/10.18419/darus-2986}
-}
-
-@data{darus-2987_2022,
-author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
-publisher = {DaRUS},
-title = {{PDEBench Pretrained Models}},
-year = {2022},
-doi = {10.18419/darus-2987},
-url = {https://doi.org/10.18419/darus-2987}
-}
-
-
-@misc{li2020fourier,
-  title={Fourier Neural Operator for Parametric Partial Differential Equations}, 
-  author={Zongyi Li and Nikola Kovachki and Kamyar Azizzadenesheli and Burigede Liu and Kaushik Bhattacharya and Andrew Stuart and Anima Anandkumar},
-  year={2020},
-  eprint={2010.08895},
-  archivePrefix={arXiv},
-  primaryClass={cs.LG}
-}
-
-@article{buda2019association,
-  title={Association of genomic subtypes of lower-grade gliomas with shape features automatically extracted by a deep learning algorithm},
-  author={Buda, Mateusz and Saha, Ashirbani and Mazurowski, Maciej A},
-  journal={Computers in Biology and Medicine},
-  volume={109},
-  year={2019},
-  publisher={Elsevier},
-  doi={10.1016/j.compbiomed.2019.05.002}
-}
-
-@article{raissi2019pinn,
-title = {Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations},
-journal = {Journal of Computational Physics},
-volume = {378},
-pages = {686-707},
-year = {2019},
-issn = {0021-9991},
-doi = {https://doi.org/10.1016/j.jcp.2018.10.045},
-author = {M. Raissi and P. Perdikaris and G.E. Karniadakis}
 }
 ```
 
