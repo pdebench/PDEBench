@@ -1,151 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-       <NAME OF THE PROGRAM THIS FILE BELONGS TO>
-
-  File:     utils.py
-  Authors:  Makoto Takamoto (makoto.takamoto@neclab.eu)
-
-NEC Laboratories Europe GmbH, Copyright (c) <year>, All rights reserved.
-
-       THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
-
-       PROPRIETARY INFORMATION ---
-
-SOFTWARE LICENSE AGREEMENT
-
-ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
-
-BY USING OR DOWNLOADING THE SOFTWARE, YOU ARE AGREEING TO THE TERMS OF THIS
-LICENSE AGREEMENT.  IF YOU DO NOT AGREE WITH THESE TERMS, YOU MAY NOT USE OR
-DOWNLOAD THE SOFTWARE.
-
-This is a license agreement ("Agreement") between your academic institution
-or non-profit organization or self (called "Licensee" or "You" in this
-Agreement) and NEC Laboratories Europe GmbH (called "Licensor" in this
-Agreement).  All rights not specifically granted to you in this Agreement
-are reserved for Licensor.
-
-RESERVATION OF OWNERSHIP AND GRANT OF LICENSE: Licensor retains exclusive
-ownership of any copy of the Software (as defined below) licensed under this
-Agreement and hereby grants to Licensee a personal, non-exclusive,
-non-transferable license to use the Software for noncommercial research
-purposes, without the right to sublicense, pursuant to the terms and
-conditions of this Agreement. NO EXPRESS OR IMPLIED LICENSES TO ANY OF
-LICENSOR'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. As used in this
-Agreement, the term "Software" means (i) the actual copy of all or any
-portion of code for program routines made accessible to Licensee by Licensor
-pursuant to this Agreement, inclusive of backups, updates, and/or merged
-copies permitted hereunder or subsequently supplied by Licensor,  including
-all or any file structures, programming instructions, user interfaces and
-screen formats and sequences as well as any and all documentation and
-instructions related to it, and (ii) all or any derivatives and/or
-modifications created or made by You to any of the items specified in (i).
-
-CONFIDENTIALITY/PUBLICATIONS: Licensee acknowledges that the Software is
-proprietary to Licensor, and as such, Licensee agrees to receive all such
-materials and to use the Software only in accordance with the terms of this
-Agreement.  Licensee agrees to use reasonable effort to protect the Software
-from unauthorized use, reproduction, distribution, or publication. All
-publication materials mentioning features or use of this software must
-explicitly include an acknowledgement the software was developed by NEC
-Laboratories Europe GmbH.
-
-COPYRIGHT: The Software is owned by Licensor.
-
-PERMITTED USES:  The Software may be used for your own noncommercial
-internal research purposes. You understand and agree that Licensor is not
-obligated to implement any suggestions and/or feedback you might provide
-regarding the Software, but to the extent Licensor does so, you are not
-entitled to any compensation related thereto.
-
-DERIVATIVES: You may create derivatives of or make modifications to the
-Software, however, You agree that all and any such derivatives and
-modifications will be owned by Licensor and become a part of the Software
-licensed to You under this Agreement.  You may only use such derivatives and
-modifications for your own noncommercial internal research purposes, and you
-may not otherwise use, distribute or copy such derivatives and modifications
-in violation of this Agreement.
-
-BACKUPS:  If Licensee is an organization, it may make that number of copies
-of the Software necessary for internal noncommercial use at a single site
-within its organization provided that all information appearing in or on the
-original labels, including the copyright and trademark notices are copied
-onto the labels of the copies.
-
-USES NOT PERMITTED:  You may not distribute, copy or use the Software except
-as explicitly permitted herein. Licensee has not been granted any trademark
-license as part of this Agreement.  Neither the name of NEC Laboratories
-Europe GmbH nor the names of its contributors may be used to endorse or
-promote products derived from this Software without specific prior written
-permission.
-
-You may not sell, rent, lease, sublicense, lend, time-share or transfer, in
-whole or in part, or provide third parties access to prior or present
-versions (or any parts thereof) of the Software.
-
-ASSIGNMENT: You may not assign this Agreement or your rights hereunder
-without the prior written consent of Licensor. Any attempted assignment
-without such consent shall be null and void.
-
-TERM: The term of the license granted by this Agreement is from Licensee's
-acceptance of this Agreement by downloading the Software or by using the
-Software until terminated as provided below.
-
-The Agreement automatically terminates without notice if you fail to comply
-with any provision of this Agreement.  Licensee may terminate this Agreement
-by ceasing using the Software.  Upon any termination of this Agreement,
-Licensee will delete any and all copies of the Software. You agree that all
-provisions which operate to protect the proprietary rights of Licensor shall
-remain in force should breach occur and that the obligation of
-confidentiality described in this Agreement is binding in perpetuity and, as
-such, survives the term of the Agreement.
-
-FEE: Provided Licensee abides completely by the terms and conditions of this
-Agreement, there is no fee due to Licensor for Licensee's use of the
-Software in accordance with this Agreement.
-
-DISCLAIMER OF WARRANTIES:  THE SOFTWARE IS PROVIDED "AS-IS" WITHOUT WARRANTY
-OF ANY KIND INCLUDING ANY WARRANTIES OF PERFORMANCE OR MERCHANTABILITY OR
-FITNESS FOR A PARTICULAR USE OR PURPOSE OR OF NON- INFRINGEMENT.  LICENSEE
-BEARS ALL RISK RELATING TO QUALITY AND PERFORMANCE OF THE SOFTWARE AND
-RELATED MATERIALS.
-
-SUPPORT AND MAINTENANCE: No Software support or training by the Licensor is
-provided as part of this Agreement.
-
-EXCLUSIVE REMEDY AND LIMITATION OF LIABILITY: To the maximum extent
-permitted under applicable law, Licensor shall not be liable for direct,
-indirect, special, incidental, or consequential damages or lost profits
-related to Licensee's use of and/or inability to use the Software, even if
-Licensor is advised of the possibility of such damage.
-
-EXPORT REGULATION: Licensee agrees to comply with any and all applicable
-export control laws, regulations, and/or other laws related to embargoes and
-sanction programs administered by law.
-
-SEVERABILITY: If any provision(s) of this Agreement shall be held to be
-invalid, illegal, or unenforceable by a court or other tribunal of competent
-jurisdiction, the validity, legality and enforceability of the remaining
-provisions shall not in any way be affected or impaired thereby.
-
-NO IMPLIED WAIVERS: No failure or delay by Licensor in enforcing any right
-or remedy under this Agreement shall be construed as a waiver of any future
-or other exercise of such right or remedy by Licensor.
-
-GOVERNING LAW: This Agreement shall be construed and enforced in accordance
-with the laws of Germany without reference to conflict of laws principles.
-You consent to the personal jurisdiction of the courts of this country and
-waive their rights to venue outside of Germany.
-
-ENTIRE AGREEMENT AND AMENDMENTS: This Agreement constitutes the sole and
-entire agreement between Licensee and Licensor as to the matter set forth
-herein and supersedes any previous agreements, understandings, and
-arrangements between the parties relating hereto.
-
-       THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
-"""
-
 import math as mt
 import jax
 import numpy as np
@@ -921,7 +775,7 @@ def init_multi_HD_2DTurb(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
     assert zc.shape[0] == 1, 'nz is assumed to be 1!!'
     assert numbers % jax.device_count() == 0, 'numbers should be : GPUs x integer!!'
 
-    def __create_2DTurb_init(u):
+    def __create_2DTurb_init(u, keys):
         nx, ny, nz = xc.shape[0], yc.shape[0], zc.shape[0]
         d0 = 1.
         cs = 1./M0
@@ -935,9 +789,9 @@ def init_multi_HD_2DTurb(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         qLy = dy * ny
 
         ## random velocity field
-        vx, vy = np.zeros([nx, ny, nz]), np.zeros([nx, ny, nz])
+        vx, vy = jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz])
 
-        key = random.PRNGKey(init_key)
+        key = random.PRNGKey(keys)
 
         kx0 = jnp.pi * 2. / qLx
         ky0 = jnp.pi * 2. / qLy
@@ -961,18 +815,18 @@ def init_multi_HD_2DTurb(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
 
         # Helmholtz decomposition to subtract expansion: k.vk
         dfx, dfy = 1. / qLx, 1. / qLy
-        fx = dfx * (np.arange(nx) - 1. - nx // 2)
-        fy = dfy * (np.arange(ny) - 1. - ny // 2)
+        fx = dfx * (jnp.arange(nx) - 1. - nx // 2)
+        fy = dfy * (jnp.arange(ny) - 1. - ny // 2)
 
-        vkx = np.fft.fftn(vx) * dx * dy
-        vky = np.fft.fftn(vy) * dx * dy
+        vkx = jnp.fft.fftn(vx) * dx * dy
+        vky = jnp.fft.fftn(vy) * dx * dy
 
         # shift to kxi=0 is at the center
-        vkx = np.fft.fftshift(vkx)
-        vky = np.fft.fftshift(vky)
+        vkx = jnp.fft.fftshift(vkx)
+        vky = jnp.fft.fftshift(vky)
 
         fi = fx[:, None, None] ** 2 + fy[None, :, None] ** 2
-        fi = np.where(fi > 1.e-8, 1. / fi, 0.)
+        fi = jnp.where(fi > 1.e-8, 1. / fi, 0.)
 
         fdv = (fx[:, None, None] * vkx + fy[None, :, None] * vky) * fi
         vkx -= fdv * fx[:, None, None]
@@ -980,25 +834,27 @@ def init_multi_HD_2DTurb(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         del (fi, fdv)
 
         # shift back to original order
-        vkx = np.fft.ifftshift(vkx)
-        vky = np.fft.ifftshift(vky)
+        vkx = jnp.fft.ifftshift(vkx)
+        vky = jnp.fft.ifftshift(vky)
 
         # inverse FFT
-        vx = np.fft.ifftn(vkx).real * dfx * dfy
-        vy = np.fft.ifftn(vky).real * dfx * dfy
+        vx = jnp.fft.ifftn(vkx).real * dfx * dfy
+        vy = jnp.fft.ifftn(vky).real * dfx * dfy
 
         # renormalize total velocity
-        vtot = np.sqrt(vx ** 2 + vy ** 2).mean()
+        vtot = jnp.sqrt(vx ** 2 + vy ** 2).mean()
         vx *= u0 / vtot
         vy *= u0 / vtot
 
         u = u.at[0].set(d0)
-        u = u.at[1, 2:-2, 2:-2, 2:-2].set(jnp.array(vx))
-        u = u.at[2, 2:-2, 2:-2, 2:-2].set(jnp.array(vy))
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2, 2:-2, 2:-2, 2:-2].set(vy)
         u = u.at[4].add(p0)
         return u
 
-    u = jax.vmap(__create_2DTurb_init, axis_name='i')(u)
+    key = random.PRNGKey(init_key)
+    keys = random.randint(key, [numbers,], minval=0, maxval=10000000)
+    u = jax.vmap(__create_2DTurb_init, axis_name='i')(u, keys)
 
     return u
 
@@ -1029,7 +885,7 @@ def init_multi_HD_2DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         xx, yy, value, xL, xR, yL, yR, trns = lax.cond(cond == 1, _window, _pass, carry)
         return cond, value, xx, yy, xL, xR, yL, yR, trns
 
-    def __create_2DRand_init(u, d0, T0, delD, delP):
+    def __create_2DRand_init(u, d0, T0, delD, delP, keys):
         nx, ny, nz = xc.shape[0], yc.shape[0], zc.shape[0]
 
         p0 = d0 * T0
@@ -1045,7 +901,7 @@ def init_multi_HD_2DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         ## random velocity field
         d, p, vx, vy = jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz])
 
-        key = random.PRNGKey(init_key)
+        key = random.PRNGKey(keys)
         kx0 = jnp.pi * 2. / qLx
         ky0 = jnp.pi * 2. / qLy
 
@@ -1069,7 +925,7 @@ def init_multi_HD_2DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         del (kdx, uk, phs)
 
         # renormalize total velocity
-        vtot = np.sqrt(vx ** 2 + vy ** 2).mean()
+        vtot = jnp.sqrt(vx ** 2 + vy ** 2).mean()
         vx *= u0 / vtot
         vy *= u0 / vtot
         #d = d0 + delD * d / jnp.abs(d).mean()
@@ -1091,7 +947,11 @@ def init_multi_HD_2DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
     T0 = random.uniform(key, shape=([numbers, 1]), minval=1.e-1, maxval=TMx)
     key, subkey = random.split(key)
     delP = random.uniform(key, shape=([numbers, 1]), minval=1.e-2, maxval=0.2)
-    u = jax.vmap(__create_2DRand_init, axis_name='i')(u, d0, T0, delD, delP)
+
+    key, subkey = random.split(key)
+    keys = random.randint(key, shape=([numbers, ]), minval=0, maxval=10000000)
+    u = jax.vmap(__create_2DRand_init, axis_name='i')(u, d0, T0, delD, delP, keys)
+
 
     # perform window function
     key, subkey = random.split(key)
@@ -1122,7 +982,7 @@ def init_multi_HD_3DTurb(u, xc, yc, zc, numbers=100, init_key=2022, M0=0.1, k_to
     """
     assert numbers % jax.device_count() == 0, 'numbers should be : GPUs x integer!!'
 
-    def __create_3DTurb_init(u):
+    def __create_3DTurb_init(u, keys):
         nx, ny, nz = xc.shape[0], yc.shape[0], zc.shape[0]
         d0 = 1.
         cs = 1./M0
@@ -1138,9 +998,9 @@ def init_multi_HD_3DTurb(u, xc, yc, zc, numbers=100, init_key=2022, M0=0.1, k_to
         qLz = dz * nz
 
         ## random velocity field
-        vx, vy, vz = np.zeros([nx, ny, nz]), np.zeros([nx, ny, nz]), np.zeros([nx, ny, nz])
+        vx, vy, vz = jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz])
 
-        key = random.PRNGKey(init_key)
+        key = random.PRNGKey(keys)
 
         kx0 = jnp.pi * 2. / qLx
         ky0 = jnp.pi * 2. / qLy
@@ -1168,21 +1028,21 @@ def init_multi_HD_3DTurb(u, xc, yc, zc, numbers=100, init_key=2022, M0=0.1, k_to
 
         # Helmholtz decomposition to subtract expansion: k.vk
         dfx, dfy, dfz = 1./qLx, 1./qLy, 1./qLz
-        fx = dfx * (np.arange(nx) - 1. - nx//2)
-        fy = dfy * (np.arange(ny) - 1. - ny//2)
-        fz = dfz * (np.arange(nz) - 1. - nz//2)
+        fx = dfx * (jnp.arange(nx) - 1. - nx//2)
+        fy = dfy * (jnp.arange(ny) - 1. - ny//2)
+        fz = dfz * (jnp.arange(nz) - 1. - nz//2)
 
-        vkx = np.fft.fftn(vx) * dx * dy * dz
-        vky = np.fft.fftn(vy) * dx * dy * dz
-        vkz = np.fft.fftn(vz) * dx * dy * dz
+        vkx = jnp.fft.fftn(vx) * dx * dy * dz
+        vky = jnp.fft.fftn(vy) * dx * dy * dz
+        vkz = jnp.fft.fftn(vz) * dx * dy * dz
 
         # shift to kxi=0 is at the center
-        vkx = np.fft.fftshift(vkx)
-        vky = np.fft.fftshift(vky)
-        vkz = np.fft.fftshift(vkz)
+        vkx = jnp.fft.fftshift(vkx)
+        vky = jnp.fft.fftshift(vky)
+        vkz = jnp.fft.fftshift(vkz)
 
         fi = fx[:,None,None]**2 + fy[None,:,None]**2 + fz[None,None,:]**2
-        fi = np.where(fi > 1.e-8, 1./fi, 0.)
+        fi = jnp.where(fi > 1.e-8, 1./fi, 0.)
 
         fdv = (fx[:,None,None] * vkx + fy[None,:,None] * vky + fz[None,None,:] * vkz) * fi
         vkx -= fdv * fx[:,None,None]
@@ -1191,29 +1051,31 @@ def init_multi_HD_3DTurb(u, xc, yc, zc, numbers=100, init_key=2022, M0=0.1, k_to
         del(fi, fdv)
 
         # shift back to original order
-        vkx = np.fft.ifftshift(vkx)
-        vky = np.fft.ifftshift(vky)
-        vkz = np.fft.ifftshift(vkz)
+        vkx = jnp.fft.ifftshift(vkx)
+        vky = jnp.fft.ifftshift(vky)
+        vkz = jnp.fft.ifftshift(vkz)
 
         # inverse FFT
-        vx = np.fft.ifftn(vkx).real * dfx * dfy * dfz
-        vy = np.fft.ifftn(vky).real * dfx * dfy * dfz
-        vz = np.fft.ifftn(vkz).real * dfx * dfy * dfz
+        vx = jnp.fft.ifftn(vkx).real * dfx * dfy * dfz
+        vy = jnp.fft.ifftn(vky).real * dfx * dfy * dfz
+        vz = jnp.fft.ifftn(vkz).real * dfx * dfy * dfz
 
         # renormalize total velocity
-        vtot = np.sqrt(vx**2 + vy**2 + vz**2).mean()
+        vtot = jnp.sqrt(vx**2 + vy**2 + vz**2).mean()
         vx *= u0 / vtot
         vy *= u0 / vtot
         vz *= u0 / vtot
 
         u = u.at[0].set(d0)
-        u = u.at[1, 2:-2, 2:-2, 2:-2].set(jnp.array(vx))
-        u = u.at[2, 2:-2, 2:-2, 2:-2].set(jnp.array(vy))
-        u = u.at[3, 2:-2, 2:-2, 2:-2].set(jnp.array(vz))
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2, 2:-2, 2:-2, 2:-2].set(vy)
+        u = u.at[3, 2:-2, 2:-2, 2:-2].set(vz)
         u = u.at[4].add(p0)
         return u
 
-    u = jax.vmap(__create_3DTurb_init, axis_name='i')(u)
+    key = random.PRNGKey(init_key)
+    keys = random.randint(key, [numbers,], minval=0, maxval=10000000)
+    u = jax.vmap(__create_3DTurb_init, axis_name='i')(u, keys)
 
     return u
 
@@ -1244,7 +1106,7 @@ def init_multi_HD_3DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         xx, yy, zz, value, xL, xR, yL, yR, zL, zR, trns = lax.cond(cond == 1, _window, _pass, carry)
         return cond, value, xx, yy, zz, xL, xR, yL, yR, zL, zR, trns
 
-    def __create_3DRand_init(u, d0, T0, delD, delP):
+    def __create_3DRand_init(u, d0, T0, delD, delP, keys):
         nx, ny, nz = xc.shape[0], yc.shape[0], zc.shape[0]
 
         p0 = d0 * T0
@@ -1263,7 +1125,7 @@ def init_multi_HD_3DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         d, p, vx, vy, vz = jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz]), \
                            jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz]), jnp.zeros([nx, ny, nz])
 
-        key = random.PRNGKey(init_key)
+        key = random.PRNGKey(keys)
         kx0 = jnp.pi * 2. / qLx
         ky0 = jnp.pi * 2. / qLy
         kz0 = jnp.pi * 2. / qLz
@@ -1291,7 +1153,7 @@ def init_multi_HD_3DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
         del(kdx, uk, phs)
 
         # renormalize total velocity
-        vtot = np.sqrt(vx ** 2 + vy ** 2 + vz ** 2).mean()
+        vtot = jnp.sqrt(vx ** 2 + vy ** 2 + vz ** 2).mean()
         vx *= u0 / vtot
         vy *= u0 / vtot
         vz *= u0 / vtot
@@ -1315,8 +1177,10 @@ def init_multi_HD_3DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
     T0 = random.uniform(key, shape=([numbers, 1]), minval=1.e-1, maxval=TMx)
     key, subkey = random.split(key)
     delP = random.uniform(key, shape=([numbers, 1]), minval=1.e-2, maxval=0.2)
-    
-    u = jax.vmap(__create_3DRand_init, axis_name='i')(u, d0, T0, delD, delP)
+
+    key, subkey = random.split(key)
+    keys = random.randint(key, [numbers,], minval=0, maxval=10000000)
+    u = jax.vmap(__create_3DRand_init, axis_name='i')(u, d0, T0, delD, delP, keys)
 
     # perform window function
     key, subkey = random.split(key)
@@ -1443,7 +1307,7 @@ def bc_HD(u, mode):
         u = u.at[:, 2:-2, -1, 2:-2].set(u[:, 2:-2, -4, 2:-2])
         u = u.at[:, 2:-2, 2:-2, -1].set(u[:, 2:-2, 2:-2, -4])
     return u
-    
+
 def bc_HD_vis(u, if_periodic=True):  # for viscosity
     """
     for the moment, assuming periodic/copy boundary
@@ -1472,53 +1336,6 @@ def bc_HD_vis(u, if_periodic=True):  # for viscosity
         u = u.at[:, Nx:Nx + 2, 2:-2, 0:2].set(u[:, Nx:Nx-2, 2:-2, 4:2])  # xTzB
         u = u.at[:, Nx:Nx + 2, Ny:Ny + 2, 2:-2].set(u[:, Nx:Nx-2, Ny:Ny-2, 2:-2])  # xTyT
         u = u.at[:, Nx:Nx + 2, 2:-2, Nz:Nz + 2].set(u[:, Nx:Nx-2, 2:-2, Nz:Nz-2])  # xTzT
-
-    return u
-
-def bc_HD_vis(u, if_periodic=True):  # for viscosity
-    """
-    for the moment, assuming periodic/copy boundary
-    seemingly, copy boundary does not work well...
-    """
-    _, Nx, Ny, Nz = u.shape
-    Nx -= 2
-    Ny -= 2
-    Nz -= 2
-
-    if if_periodic:
-        u = u.at[:, 0:2, 0:2 + 2, 2:-2].set(u[:, Nx - 2:Nx, Ny - 2:Ny, 2:-2])  # xByB
-        u = u.at[:, 0:2, 2:-2, 0:2].set(u[:, Nx - 2:Nx, 2:-2, Nz - 2:Nz])  # xBzB
-        u = u.at[:, 0:2, Ny:Ny + 2, 2:-2].set(u[:, Nx - 2:Nx, 2:4, 2:-2])  # xByT
-        u = u.at[:, 0:2, 2:-2, Nz:Nz + 2].set(u[:, Nx - 2:Nx, 2:-2, 2:4])  # xBzT
-        u = u.at[:, Nx:Nx + 2, 0:2, 2:-2].set(u[:, 2:4, Ny - 2:Ny, 2:-2])  # xTyB
-        u = u.at[:, Nx:Nx + 2, 2:-2, 0:2].set(u[:, 2:4, 2:-2, Nz - 2:Nz])  # xTzB
-        u = u.at[:, Nx:Nx + 2, Ny:Ny + 2, 2:-2].set(u[:, 2:4, 2:4, 2:-2])  # xTyT
-        u = u.at[:, Nx:Nx + 2, 2:-2, Nz:Nz + 2].set(u[:, 2:4, 2:-2, 2:4])  # xTzT
-    else: # trans
-        u = u.at[:, 0:2, 0:2 + 2, 2:-2].set(u[:, 4:2, Ny:Ny-2, 2:-2])  # xByT
-        u = u.at[:, 0:2, 2:-2, 0:2].set(u[:, 4:2, 2:-2, 4:2])  # xBzB
-        u = u.at[:, 0:2, Ny:Ny + 2, 2:-2].set(u[:, 4:2, Ny:Ny-2, 2:-2])  # xByB
-        u = u.at[:, 0:2, 2:-2, Nz:Nz + 2].set(u[:, 4:2, 2:-2, Nz:Nz-2])  # xBzT
-        u = u.at[:, Nx:Nx + 2, 0:2, 2:-2].set(u[:, Nx:Nx-2, 4:2, 2:-2])  # xTyB
-        u = u.at[:, Nx:Nx + 2, 2:-2, 0:2].set(u[:, Nx:Nx-2, 2:-2, 4:2])  # xTzB
-        u = u.at[:, Nx:Nx + 2, Ny:Ny + 2, 2:-2].set(u[:, Nx:Nx-2, Ny:Ny-2, 2:-2])  # xTyT
-        u = u.at[:, Nx:Nx + 2, 2:-2, Nz:Nz + 2].set(u[:, Nx:Nx-2, 2:-2, Nz:Nz-2])  # xTzT
-        
-    return u
-
-def bc_HD_vis(u):  # for viscosity
-    _, Nx, Ny, Nz = u.shape
-    Nx -= 2
-    Ny -= 2
-    Nz -= 2
-
-    u = u.at[:, 0:2, 2:-2, 0:2].set(u[:, 2:4, 2:-2, 2:4])  # xBzB
-    u = u.at[:, 0:2, Ny:Ny+2, 2:-2].set(u[:, 2:4, Ny-2:Ny, 2:-2])  # xByT
-    u = u.at[:, 0:2, 2:-2, Nz:Nz+2].set(u[:, 2:4, 2:-2, Nz-2:Nz])  # xBzT
-    u = u.at[:, Nx:Nx+2, 0:2, 2:-2].set(u[:, Nx-2:Nx, 2:4, 2:-2])  # xTyB
-    u = u.at[:, Nx:Nx+2, 2:-2, 0:2].set(u[:, Nx-2:Nx, 2:-2, 2:4])  # xTzB
-    u = u.at[:, Nx:Nx+2, Ny:Ny+2, 2:-2].set(u[:, Nx-2:Nx, Ny-2:Ny, 2:-2])  # xTyT
-    u = u.at[:, Nx:Nx+2, 2:-2, Nz:Nz+2].set(u[:, Nx-2:Nx, 2:-2, Nz-2:Nz])  # xTzT
 
     return u
 
