@@ -687,7 +687,7 @@ def main(cfg: DictConfig) -> None:
         Q = init_multi_HD_KH(Q, xc, yc, zc, numbers=cfg.args.numbers,
                              init_key=cfg.args.init_key,
                              M0=cfg.args.M0, dkMx=cfg.args.dkMx, gamma = cfg.args.gamma)
-    elif cfg.args.init_mode_Multi == '2DTurbs':
+    elif cfg.args.init_mode_Multi == '2D_Turbs':
         print('now we are coming into 2DTurbs......')
         Q = init_multi_HD_2DTurb(Q, xc, yc, zc, numbers=cfg.args.numbers,
                                  init_key=cfg.args.init_key,
@@ -698,7 +698,7 @@ def main(cfg: DictConfig) -> None:
         Q = init_multi_HD_2DRand(Q, xc, yc, zc, numbers=cfg.args.numbers,
                                  init_key=cfg.args.init_key,
                                  M0=cfg.args.M0, k_tot=cfg.args.k_tot, gamma=cfg.args.gamma)
-    elif cfg.args.init_mode_Multi == '3DTurbs':
+    elif cfg.args.init_mode_Multi == '3D_Turbs':
         print('now we are coming into 3DTurbs......')
         Q = init_multi_HD_3DTurb(Q, xc, yc, zc, numbers=cfg.args.numbers,
                                  init_key=cfg.args.init_key,

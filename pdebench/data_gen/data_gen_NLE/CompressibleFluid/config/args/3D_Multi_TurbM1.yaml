@@ -21,7 +21,7 @@ if_show: 1
 show_steps: 400
 p_floor: 1.e-4
 numbers: 20
-init_mode_Multi: '3DTurbs'
+init_mode_Multi: '3D_Turbs'
 M0 : 1.
 k_tot: 4
 init_key: 2022
