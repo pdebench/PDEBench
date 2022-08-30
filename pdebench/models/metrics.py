@@ -471,7 +471,7 @@ def metrics(val_loader, model, Lx, Ly, Lz, plot, channel_plot, model_name, x_min
         # plt.savefig(filename)
         
         filename = model_name + 'mse_time.npz'
-        np.savez(filename, t=torch.arange(initial_step,yy.shape[-2]),
+        np.savez(filename, t=torch.arange(initial_step,yy.shape[-2]).cpu(),
                  mse=val_l2_time[initial_step:].detach().cpu())
 
     return err_MSE, err_nMSE, err_CSV, err_Max, err_BD, err_F
