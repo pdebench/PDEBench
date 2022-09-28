@@ -3,7 +3,7 @@
 By : Makoto Takamoto `<makoto.takamoto@neclab.eu, takamtmk@gmail.com>`, Timothy Praditia `<timothy.praditia@iws.uni-stuttgart.de>`, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk Pflüger and Mathias Niepert
 
 This repository contains the code for the paper:
-PDEBench: An Extensive Benchmark for Scientific Machine Learning
+[PDEBench: An Extensive Benchmark for Scientific Machine Learning](https://openreview.net/pdf?id=dh_MkX0QfrK)
 
 In this work, we provide a diverse and comprehensive benchmark for scientific machine learning, including a variety of challenging and representative range of physical problems.
 This repository consists of the codes used to generate the datasets, upload and download the datasets from the data repository, train and evaluate different machine learning models as baseline.
@@ -225,6 +225,15 @@ Additionally, the pretrained models are also available to be downloaded [here](h
 ## Citations
 
 ```
+@inproceedings{PDEBench2022,
+author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
+title = {{PDEBench: An Extensive Benchmark for Scientific Machine Learning}},
+year = {2022},
+booktitle = {36th Conference on Neural Information Processing Systems (NeurIPS 2022) Track on Datasets and Benchmarks],
+url = {https://doi.org/10.18419/darus-2986}
+}
+
+
 @data{darus-2986_2022,
 author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
 publisher = {DaRUS},
