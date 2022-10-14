@@ -5,7 +5,7 @@ Created and maintained by Makoto Takamoto `<makoto.takamoto@neclab.eu, takamtmk@
 This repository contains the code for the PDEBench paper
 [PDEBench: An Extensive Benchmark for Scientific Machine Learning](https://openreview.net/pdf?id=dh_MkX0QfrK)
 
-PDEBench provides a diverse and comprehensive set of benchmarks for scientific machine learning, including a variety of challenging and representative range of physical problems. The repository consists of the code used to generate the datasets, to upload and download the datasets from the data repository, as well as to train and evaluate different machine learning models as baseline. PDEBench features a much wider range of PDEs than existing approaches including realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial or boundary conditions and model parameters, and extensible source codes.
+PDEBench provides a diverse and comprehensive set of benchmarks for scientific machine learning, including numerous challenging and representative set of physical problems. The repository consists of the code used to generate the datasets, to upload and download the datasets from the data repository, as well as to train and evaluate different machine learning models as baseline. PDEBench features a much wider range of PDEs than existing benchmarks and included realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial and boundary conditions, and PDE parameters. Moreover, PDEBench was crated to make the source code extensible and we invite active participation to improve and extent the benchmark.
 
 ## Datasets and Pretrained Models
 
