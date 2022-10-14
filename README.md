@@ -7,6 +7,10 @@ This repository contains the code for the PDEBench paper
 
 PDEBench provides a diverse and comprehensive set of benchmarks for scientific machine learning, including challenging and realistic physical problems. The repository consists of the code used to generate the datasets, to upload and download the datasets from the data repository, as well as to train and evaluate different machine learning models as baseline. PDEBench features a much wider range of PDEs than existing benchmarks and included realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial and boundary conditions, and PDE parameters. Moreover, PDEBench was crated to make the source code extensible and we invite active participation to improve and extent the benchmark.
 
+
+![Visualizations of some PDE problems covered by the benchmark.](https://github.com/pdebench/PDEBench/blob/main/pdebench_examples.PNG)
+
+
 ## Datasets and Pretrained Models
 
 We also provide datasets and pretrained machine learning models.
