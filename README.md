@@ -1,20 +1,20 @@
 # PDEBench
 
-By : Makoto Takamoto `<makoto.takamoto@neclab.eu, takamtmk@gmail.com>`, Timothy Praditia `<timothy.praditia@iws.uni-stuttgart.de>`, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk Pflüger and Mathias Niepert
+Created and maintained by Makoto Takamoto `<makoto.takamoto@neclab.eu, takamtmk@gmail.com>`, Timothy Praditia `<timothy.praditia@iws.uni-stuttgart.de>`, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk Pflüger and Mathias Niepert.
 
-This repository contains the code for the paper:
+This repository contains the code for the PDEBench paper
 [PDEBench: An Extensive Benchmark for Scientific Machine Learning](https://openreview.net/pdf?id=dh_MkX0QfrK)
 
-In this work, we provide a diverse and comprehensive benchmark for scientific machine learning, including a variety of challenging and representative range of physical problems.
-This repository consists of the codes used to generate the datasets, upload and download the datasets from the data repository, train and evaluate different machine learning models as baseline.
-PDEBench features a much wider range of PDEs than existing approaches including realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial or boundary conditions and model parameters, and extensible source codes.
+PDEBench provides a diverse and comprehensive set of benchmarks for scientific machine learning, including a variety of challenging and representative range of physical problems. The repository consists of the code used to generate the datasets, to upload and download the datasets from the data repository, as well as to train and evaluate different machine learning models as baseline. PDEBench features a much wider range of PDEs than existing approaches including realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial or boundary conditions and model parameters, and extensible source codes.
 
 ## Dataset
 
-PDEBench Dataset
+We also provide datasets and pretrained machine learning models.
+
+PDEBench Datasets:
 https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2986
 
-PDEBench Pre-Trained Models
+PDEBench Pre-Trained Models:
 https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2987
 
 
