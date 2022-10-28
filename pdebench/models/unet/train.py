@@ -284,7 +284,7 @@ def run_training(if_training,
 
             if training_type in ['single']:
                 x = xx[..., 0 , :]
-                y = yy[..., t_train:t_train+1 , :]
+                y = yy[..., t_train-1:t_train, :]
                 pred = model(x.permute([0, 2, 1])).permute([0, 2, 1])
                 _batch = yy.size(0)
                 loss += loss_fn(pred.reshape(_batch, -1), y.reshape(_batch, -1))
@@ -330,12 +330,13 @@ def run_training(if_training,
                 
                             val_l2_step += loss.item()
                             _batch = yy.size(0)
-                            _yy = yy[..., :t_train, :]
-                            val_l2_full += loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1)).item()
+                            _pred = pred[..., initial_step:t_train, :]
+                            _yy = yy[..., initial_step:t_train, :]
+                            val_l2_full += loss_fn(_pred.reshape(_batch, -1), _yy.reshape(_batch, -1)).item()
                     
                     if training_type in ['single']:
                         x = xx[..., 0 , :]
-                        y = yy[..., t_train:t_train+1 , :]
+                        y = yy[..., t_train-1:t_train, :]
                         pred = model(x.permute([0, 2, 1])).permute([0, 2, 1])
                         _batch = yy.size(0)
                         loss += loss_fn(pred.reshape(_batch, -1), y.reshape(_batch, -1))
@@ -451,8 +452,9 @@ def run_training(if_training,
             
                         val_l2_step += loss.item()
                         _batch = yy.size(0)
-                        _yy = yy[..., :t_train, :]  # if t_train is not -1
-                        val_l2_full += loss_fn(pred.reshape(_batch, -1), _yy.reshape(_batch, -1)).item()
+                        _pred = pred[..., initial_step:t_train, :]
+                        _yy = yy[..., initial_step:t_train, :]  # if t_train is not -1
+                        val_l2_full += loss_fn(_pred.reshape(_batch, -1), _yy.reshape(_batch, -1)).item()
                     
                     if  val_l2_full < loss_val_min:
                         loss_val_min = val_l2_full
