@@ -241,7 +241,7 @@ class UNetDatasetSingle(Dataset):
                     _data = np.transpose(_data, (0, 2, 3, 1))
                     self.data[...,3] = _data   # batch, x, t, ch
                     
-            if len(idx_cfd)==5:  # 3D
+                if len(idx_cfd)==5:  # 3D
                     self.data = np.zeros([idx_cfd[0]//reduced_batch,
                                           idx_cfd[2]//reduced_resolution,
                                           idx_cfd[3]//reduced_resolution,

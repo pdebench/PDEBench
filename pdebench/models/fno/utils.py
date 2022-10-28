@@ -254,7 +254,7 @@ class FNODatasetSingle(Dataset):
                     X, Y = torch.meshgrid(x, y)
                     self.grid = torch.stack((X, Y), axis=-1)[::reduced_resolution, ::reduced_resolution]
             
-            if len(idx_cfd)==5:  # 3D
+                if len(idx_cfd)==5:  # 3D
                     self.data = np.zeros([idx_cfd[0]//reduced_batch,
                                           idx_cfd[2]//reduced_resolution,
                                           idx_cfd[3]//reduced_resolution,
