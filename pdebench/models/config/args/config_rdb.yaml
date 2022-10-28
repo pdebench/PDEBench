@@ -4,7 +4,7 @@ continue_training: False
 num_workers: 2
 batch_size: 5
 initial_step: 10
-t_train: 100
+t_train: 101
 model_update: 10
 filename: '2D_rdb_NA_NA'
 single_file: False
