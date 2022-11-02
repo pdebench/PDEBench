@@ -232,7 +232,7 @@ Additionally, the pretrained models are also available to be downloaded [here](h
 author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
 title = {{PDEBench: An Extensive Benchmark for Scientific Machine Learning}},
 year = {2022},
-booktitle = {36th Conference on Neural Information Processing Systems (NeurIPS 2022) Track on Datasets and Benchmarks],
+booktitle = {36th Conference on Neural Information Processing Systems (NeurIPS 2022) Track on Datasets and Benchmarks},
 url = {https://doi.org/10.18419/darus-2986}
 }
 
