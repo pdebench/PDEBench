@@ -206,10 +206,7 @@ def setup_pde1D(filename="1D_Advection_Sols_beta0.1.hdf5",
         timedomain = dde.geometry.TimeDomain(0, 1.0)
         pde = lambda x, y : pde_diffusion_reaction_1d(x, y, aux_params[0], aux_params[1])
     else:
-        if 'Advection' in filename:
-            timedomain = dde.geometry.TimeDomain(0, 2.0)
-            pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
-        elif filename.split('_')[1][0]=='A':
+        if filename.split('_')[1][0]=='A':
             timedomain = dde.geometry.TimeDomain(0, 2.0)
             pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
         elif filename.split('_')[1][0] == 'B':
