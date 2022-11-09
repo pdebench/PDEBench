@@ -235,6 +235,7 @@ def main(cfg: DictConfig):
             learning_rate=cfg.args.learning_rate,
             model_update=cfg.args.model_update,
             flnm=cfg.args.filename,
+            root_path=cfg.args.root_path,
             seed=cfg.args.seed,
         )
 
