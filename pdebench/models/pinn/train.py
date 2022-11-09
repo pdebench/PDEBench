@@ -10,7 +10,7 @@ from typing import Tuple
 
 sys.path.append(".")
 
-from .utils import (
+from pdebench.models.pinn.utils import (
     PINNDatasetRadialDambreak,
     PINNDatasetDiffReact,
     PINNDataset2D,
@@ -20,7 +20,7 @@ from .utils import (
     PINNDataset2Dpde,
     PINNDataset3Dpde,
 )
-from .pde_definitions import (
+from pdebench.models.pinn.pde_definitions import (
     pde_diffusion_reaction,
     pde_swe2d,
     pde_diffusion_sorption,
@@ -33,7 +33,7 @@ from .pde_definitions import (
     pde_CFD3d,
 )
 
-from metrics import metrics, metric_func
+from pdebench.models.metrics import metrics, metric_func
 
 
 def setup_diffusion_sorption(filename, seed):
@@ -201,11 +201,15 @@ def setup_pde1D(filename="1D_Advection_Sols_beta0.1.hdf5",
     # TODO: read from dataset config file
     geom = dde.geometry.Interval(xL, xR)
     boundary_r = lambda x, on_boundary: _boundary_r(x, on_boundary, xL, xR)
+    print(filename)
     if filename[0] == 'R':
         timedomain = dde.geometry.TimeDomain(0, 1.0)
         pde = lambda x, y : pde_diffusion_reaction_1d(x, y, aux_params[0], aux_params[1])
     else:
-        if filename.split('_')[1][0]=='A':
+        if 'Advection' in filename:
+            timedomain = dde.geometry.TimeDomain(0, 2.0)
+            pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
+        elif filename.split('_')[1][0]=='A':
             timedomain = dde.geometry.TimeDomain(0, 2.0)
             pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
         elif filename.split('_')[1][0] == 'B':

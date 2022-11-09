@@ -159,7 +159,7 @@ import jax.numpy as jnp
 from jax import device_put, lax
 
 sys.path.append('..')
-from utils import init_multi, Courant, save_data, bc, limiting
+from pdebench.data_gen.data_gen_NLE.utils import init_multi, Courant, save_data, bc, limiting
 
 
 def _pass(carry):
