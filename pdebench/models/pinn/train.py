@@ -201,7 +201,6 @@ def setup_pde1D(filename="1D_Advection_Sols_beta0.1.hdf5",
     # TODO: read from dataset config file
     geom = dde.geometry.Interval(xL, xR)
     boundary_r = lambda x, on_boundary: _boundary_r(x, on_boundary, xL, xR)
-    print(filename)
     if filename[0] == 'R':
         timedomain = dde.geometry.TimeDomain(0, 1.0)
         pde = lambda x, y : pde_diffusion_reaction_1d(x, y, aux_params[0], aux_params[1])
