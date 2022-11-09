@@ -13,3 +13,4 @@ period: 5000
 val_time: 2.0
 val_batch_idx: 10
 aux_params: [0.1]
+seed: 0
