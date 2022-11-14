@@ -19,3 +19,6 @@ The complete explanation of the arguments can be found in the [README file](/REA
 | 2D_rdb_NA_NA_Unet-1-step.pt			| config_rdb.yaml 			| False		| False			| N/A			| N/A		| N/A		|
 | 2D_rdb_NA_NA_Unet-AR.pt				| config_rdb.yaml 			| True		| False			| N/A			| N/A		| N/A		|
 | 2D_rdb_NA_NA_Unet-PF-20.pt			| config_rdb.yaml 			| True		| True			| 20			| N/A		| N/A		|
+| 1D_diff-sorp_NA_NA_0001.h5_PINN.pt-15000.pt  | config_pinn_diff-sorp.yaml | N/A | N/A | N/A | N/A | N/A |
+| 2D_diff-react_NA_NA_0000.h5_PINN.pt-15000.pt | config_pinn_diff-react.yaml | N/A | N/A | N/A | N/A | N/A |
+| 2D_rdb_NA_NA_0000.h5_PINN.pt-15000.pt | config_pinn_swe2d.yaml | N/A | N/A | N/A | N/A | N/A |
