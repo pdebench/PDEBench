@@ -5,8 +5,6 @@ Since the default config files for all problems are already provided, this file 
 N/A values mean that the default values can be used.
 The complete explanation of the arguments can be found in the [README file](/README.md)
 
-## 2D Shallow Water Equation
-
 | Pre-trained model						| Config filename 			| ar_mode	| pushforward	| unroll_step 	| modes 	| width 	|
 | :---        							| :----    					| :---		| :---			|	---:		|	---:	|	---:	| 
 | 1D_diff-sorp_NA_NA_FNO.pt 			| config_diff-sorp.yaml 	| N/A 		| N/A 			| N/A			| 16		| 64		|
