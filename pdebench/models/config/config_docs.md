@@ -3,7 +3,7 @@
 This is the documentation of the config files that were used to generate the provided [pre-trained models](https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2987).
 Since the default config files for all problems are already provided, this file only provides the values for the arguments that need to be changed.
 N/A values mean that the default values can be used.
-The complete explanation of the arguments can be found in the [README file](./README.md)
+The complete explanation of the arguments can be found in the [README file](/README.md)
 
 ## 2D Shallow Water Equation
 
