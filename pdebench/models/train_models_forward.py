@@ -236,6 +236,12 @@ def main(cfg: DictConfig):
             model_update=cfg.args.model_update,
             flnm=cfg.args.filename,
             seed=cfg.args.seed,
+            input_ch=cfg.args.input_ch,
+            output_ch=cfg.args.output_ch,
+            root_path=cfg.args.root_path,
+            val_num=cfg.args.val_num,
+            if_periodic_bc=cfg.args.if_periodic_bc,
+            aux_params=cfg.args.aux_params
         )
 
 
