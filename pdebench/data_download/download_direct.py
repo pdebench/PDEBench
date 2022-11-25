@@ -88,8 +88,7 @@ if __name__ == "__main__":
     arg_parser.add_argument(
         "--root_folder",
         type=str,
-        default="./data",
-        required=False,
+        required=True,
         help="Root folder where the data will be downloaded",
     )
     arg_parser.add_argument(
