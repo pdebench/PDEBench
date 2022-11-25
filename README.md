@@ -142,9 +142,12 @@ There is an example in `example.env`.
 
 
 ## Data Download
-The data download codes are contained in [data_download](./pdebench/data_download):
-- `download.py` to download the data.
-- `config` directory contains the yaml files storing the configuration for the data downloader. Anyfiles in the dataset matching `args.filename` will be downloaded into `args.data_folder`.
+The download scripts are provided in [data_download](./pdebench/data_download). There are two options to download data.
+
+1) Using `download_direct.py`  (**recommended**)
+   - Retrieves data shards directly using URLs. Sample command for each PDE is given the README file in the [data_download](./pdebench/data_download) directory.
+2) Using `download_easydataverse.py` (might encounter errors/issues, hence not recommended)
+   - Use the config files from the `config` directory that contains the yaml files storing the configuration. Any files in the dataset matching `args.filename` will be downloaded into `args.data_folder`.
 
 
 ## Baseline Models
@@ -219,9 +222,9 @@ An example to run the forward model training can be found in [run_forward_1D.sh]
 - t_max: float, end of temporal domain.
 
 ## Datasets and pretrained models
-We provide the benchmark datasets we used in the paper through our [data repository](https://darus.uni-stuttgart.de/privateurl.xhtml?token=1be27526-348a-40ed-9fd0-c62f588efc01).
+We provide the benchmark datasets we used in the paper through our [DaRUS data repository](https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2986).
 The data generation configuration can be found in the paper.
-Additionally, the pretrained models are also available to be downloaded [here](https://darus.uni-stuttgart.de/privateurl.xhtml?token=cd862f8c-8e1b-49d2-b4da-b35f8df5ac85). To use the pretrained models, users can specify the argument `continue_training: True` in the [config file](./pdebench/models/config/config.yaml).
+Additionally, the pretrained models are also available to be downloaded from [PDEBench Pretrained Models](https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2987) DaRus repository. To use the pretrained models, users can specify the argument `continue_training: True` in the [config file](./pdebench/models/config/config.yaml).
 
 
 ## Citations
