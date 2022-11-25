@@ -1,6 +1,7 @@
-import argparse
 import os
+import argparse
 
+from tqdm import tqdm
 import pandas as pd
 from torchvision.datasets.utils import download_url
 
@@ -73,7 +74,7 @@ def download_data(root_folder, pde_name):
     pde_df = parse_metadata(pde_name)
 
     # Iterate filtered dataframe and download the files
-    for index, row in pde_df.iterrows():
+    for index, row in tqdm(pde_df.iterrows(), total=pde_df.shape[0]):
         file_path = os.path.join(root_folder, row["Path"])
         download_url(row["URL"], file_path, row["Filename"], md5=row["MD5"])
 
