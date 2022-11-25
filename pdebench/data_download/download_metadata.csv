@@ -92,6 +92,14 @@ Diff_Sorp,1D_diff-sorp_NA_NA.h5,https://darus.uni-stuttgart.de/api/access/datafi
 1D_ReacDiff,ReacDiff_react_Nu5.0_Rho10.0.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/133174,1D/ReactionDiffusion/Test/,b04c22629bf86d85929386aaf4a5f95d
 1D_ReacDiff,ReacDiff_react_Nu5.0_Rho2.0.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/133175,1D/ReactionDiffusion/Test/,1738e4374456af974e4d0058d3426a69
 1D_ReacDiff,ReacDiff_react_Nu5.0_Rho5.0.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/133176,1D/ReactionDiffusion/Test/,4e3cf0ac66e85dbb77c79861076db8e8
+2D_CFD,2D_CFD_Rand_M0.1_Eta0.01_Zeta0.01_periodic_128_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164687,2D/CFD/2D_Train_Rand/,5b21dcccaef4d2145ca579a71153c580
+2D_CFD,2D_CFD_Rand_M0.1_Eta0.1_Zeta0.1_periodic_128_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164688,2D/CFD/2D_Train_Rand/,b2733888745a1d64e36df813e979910b
+2D_CFD,2D_CFD_Rand_M0.1_Eta1e-08_Zeta1e-08_periodic_512_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164689,2D/CFD/2D_Train_Rand/,ae2552864d0856f58dc74132a2f95d20
+2D_CFD,2D_CFD_Rand_M1.0_Eta0.01_Zeta0.01_periodic_128_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164690,2D/CFD/2D_Train_Rand/,21969082d0e9524bcc4708e216148e60
+2D_CFD,2D_CFD_Rand_M1.0_Eta0.1_Zeta0.1_periodic_128_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164691,2D/CFD/2D_Train_Rand/,75a34f34a3dcd9bc8ae4b7adf8bf372c
+2D_CFD,2D_CFD_Rand_M1.0_Eta1e-08_Zeta1e-08_periodic_512_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164692,2D/CFD/2D_Train_Rand/,04fcc44c39acea69e2869b84cd653d4a
+2D_CFD,2D_CFD_Turb_M0.1_Eta1e-08_Zeta1e-08_periodic_512_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164685,2D/CFD/2D_Train_Turb/,844555000d342d2947162c6cf46798e7
+2D_CFD,2D_CFD_Turb_M1.0_Eta1e-08_Zeta1e-08_periodic_512_Train.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/164686,2D/CFD/2D_Train_Turb/,3f2c7376cde5fb072db0f9814f1c6992
 2D_CFD,2D_shock.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/133193,2D/CFD/Test/2DShock/,b4098c20e2e0a25cd8ee229c9294b899
 2D_CFD,KH_M01_dk10_Re1e3.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/133209,2D/CFD/Test/KH/,54e278b3a7419107a5cd6a8a019225d5
 2D_CFD,KH_M01_dk1_Re1e3.hdf5,https://darus.uni-stuttgart.de/api/access/datafile/133210,2D/CFD/Test/KH/,29ce31d3ce61de3b90ac0b42716c061c
