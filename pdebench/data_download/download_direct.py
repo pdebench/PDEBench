@@ -38,7 +38,7 @@ def parse_metadata(pde_names):
         "advection",
         "burgers",
         "1d_cfd",
-        "diff-sorp",
+        "diff_sorp",
         "1d_reacdiff",
         "2d_cfd",
         "darcy",
