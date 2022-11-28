@@ -213,7 +213,11 @@ def main():
     models = index.get_level_values(2).drop_duplicates()
     num_models = len(models)
     x = np.arange(num_pdes)
-    width = 0.5/(num_models-1)
+    
+    if num_models == 1:
+        width = 0.5
+    else:
+        width = 0.5/(num_models-1)
     
     fig, ax = plt.subplots(figsize=(8,6))
     for i in range(num_models):
