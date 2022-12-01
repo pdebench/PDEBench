@@ -16,6 +16,6 @@ Here we enumerate the list of all available PDEs in PDEBench and the commands to
 | 2d_cfd      | ```python download_direct.py --root_folder $proj_home/data --pde_name 2d_cfd``` | 551 GB       |
 | 3d_cfd      | ```python download_direct.py --root_folder $proj_home/data --pde_name 3d_cfd``` | 285 GB       |
 | darcy       | ```python download_direct.py --root_folder $proj_home/data --pde_name darcy``` | 6.2 GB       |
-| ns_incom    | ```python download_direct.py --root_folder $proj_home/data --pde_name ns_incom``` | TBD          |
+| ns_incom    | ```python download_direct.py --root_folder $proj_home/data --pde_name ns_incom``` | 2.3 TB       |
 | swe         | ```python download_direct.py --root_folder $proj_home/data --pde_name swe``` | 6.2 GB       |
 
