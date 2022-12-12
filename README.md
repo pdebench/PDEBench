@@ -251,16 +251,18 @@ url = {https://doi.org/10.18419/darus-2986}
 
 ## Code contributors
 
-* [Makato Takamoto](https://github.com/mtakamoto-D)
-* [Timothy Praditia](https://github.com/timothypraditia)
-* [Raphael Leiteritz](https://github.com/leiterrl)
-* [Francesco Alesiani](https://github.com/falesiani)
-* [Dan MacKinlay](https://danmackinlay.name/)
-* [John Kim](https://github.com/johnmjkim)
-* [Gefei Shan](https://github.com/davecatmeow)
-* [Yizhou Yang](https://github.com/verdantwynnd)
-* [Ran Zhang](https://github.com/maphyca)
-* [Simon Brown](https://github.com/SimonSyBrown)
+
+* [Makato Takamoto](https://github.com/mtakamoto-D) ([NEC laboratories Europe](https://www.neclab.eu/))
+* [Timothy Praditia](https://github.com/timothypraditia) ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
+* [Raphael Leiteritz](https://github.com/leiterrl) ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
+* [Francesco Alesiani](https://github.com/falesiani) ([NEC laboratories Europe](https://www.neclab.eu/))
+* [Dan MacKinlay](https://danmackinlay.name/) ([CSIRO’s Data61](https://data61.csiro.au/))
+* [Mario Kalimuthu](https://github.com/kmario23) ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
+* [John Kim](https://github.com/johnmjkim) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Gefei Shan](https://github.com/davecatmeow) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Yizhou Yang](https://github.com/verdantwynnd) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Ran Zhang](https://github.com/maphyca) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Simon Brown](https://github.com/SimonSyBrown) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
 
 
 ## License 
