@@ -206,9 +206,9 @@ An example to run the forward model training can be found in [run_forward_1D.sh]
  -  mcmc_num_chains: 1
  -  num_samples_max: 1000
  -  in_channels_hid: 64
- -  inverse_model_type: striung, type of inverse inference model, ProbRasterLatent, InitialConditionInterp    
- -  inverse_epochs: int, number of epochs for the  gradint based method
- -  inverse_learning_rate: float, learning rate for the gradint based method
+ -  inverse_model_type: string, type of inverse inference model, ProbRasterLatent, InitialConditionInterp    
+ -  inverse_epochs: int, number of epochs for the  gradient based method
+ -  inverse_learning_rate: float, learning rate for the gradient based method
  -  inverse_verbose_flag: bool, some printing
 
 #### Plotting specific args:
