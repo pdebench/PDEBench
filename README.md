@@ -235,7 +235,7 @@ author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacK
 title = {{PDEBench: An Extensive Benchmark for Scientific Machine Learning}},
 year = {2022},
 booktitle = {36th Conference on Neural Information Processing Systems (NeurIPS 2022) Track on Datasets and Benchmarks},
-url = {https://doi.org/10.18419/darus-2986}
+url = {https://arxiv.org/abs/2210.07182}
 }
 
 
