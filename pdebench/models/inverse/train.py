@@ -260,7 +260,7 @@ def main(cfg: DictConfig):
                             initial_step=cfg.args.initial_step).to(device)                
 
         if dimensions == 6:
-            model = FNO2d(num_channels=cfg.args.num_channels,
+            model = FNO3d(num_channels=cfg.args.num_channels,
                             width=cfg.args.width,
                             modes1=cfg.args.modes,
                             modes2=cfg.args.modes,
