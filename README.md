@@ -226,6 +226,65 @@ We provide the benchmark datasets we used in the paper through our [DaRUS data r
 The data generation configuration can be found in the paper.
 Additionally, the pretrained models are also available to be downloaded from [PDEBench Pretrained Models](https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/darus-2987) DaRus repository. To use the pretrained models, users can specify the argument `continue_training: True` in the [config file](./pdebench/models/config/config.yaml).
 
+-------
+
+## Directory Tour
+
+Below is an illustration of the directory structure of PDEBench.
+
+```
+📂 pdebench
+|_📁 models
+  |_📁 pinn    # Model: Physics-Informed Neural Network 
+    |_📄 train.py  
+    |_📄 utils.py
+    |_📄 pde_definitions.py
+  |_📁 fno     # Model: Fourier Neural Operator
+    |_📄 train.py
+    |_📄 utils.py
+    |_📄 fno.py
+  |_📁 unet    # Model: U-Net
+    |_📄 train.py
+    |_📄 utils.py
+    |_📄 unet.py
+  |_📁 inverse # Model: Gradient-Based Inverse Method
+    |_📄 train.py
+    |_📄 utils.py
+    |_📄 inverse.py
+  |_📁 config  # Config: All config files reside here
+  |_📄 train_models_inverse.py
+  |_📄 run_forward_1D.sh
+  |_📄 analyse_result_inverse.py
+  |_📄 train_models_forward.py
+  |_📄 run_inverse.sh
+  |_📄 metrics.py
+  |_📄 analyse_result_forward.py
+|_📁 data_download  # Data: Scripts to download data from DaRUS
+  |_📁 config
+  |_📄 download_direct.py
+  |_📄 download_easydataverse.py
+  |_📄 visualize_pdes.py
+  |_📄 README.md
+  |_📄 download_metadata.csv
+|_📁 data_gen   # Data: Scripts to generate data
+  |_📁 configs
+  |_📁 data_gen_NLE
+  |_📁 src
+  |_📁 notebooks
+  |_📄 gen_diff_sorp.py
+  |_📄 plot.py
+  |_📄 example.env
+  |_📄 gen_ns_incomp.py
+  |_📄 gen_diff_react.py
+  |_📄 uploader.py
+  |_📄 gen_radial_dam_break.py
+|_📄 __init__.py
+```
+
+
+
+------
+
 
 ## Citations
 
