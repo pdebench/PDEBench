@@ -48,24 +48,33 @@ def simulator(config, i):
 
     seed_str = str(i).zfill(4)
     
-    with h5py.File(utils.expand_path(config.output_path), "a") as data_f:
-        ## Chunking for compression and data access
-        ## https://docs.h5py.org/en/stable/high/dataset.html#chunked-storage
-        ## should be by batch and less than 1MB
-        ## lzf compression for float32 is kind of pointless though.
-        data_f.create_dataset(
-            f"{seed_str}/data", data=data_sample, dtype="float32", compression="lzf"
-        )
-        data_f.create_dataset(
-            f"{seed_str}/grid/x", data = sim_obj.x, dtype="float32", compression="lzf"
-        )
-        data_f.create_dataset(
-            f"{seed_str}/grid/y", data=sim_obj.y, dtype="float32", compression="lzf" 
-        )
-        data_f.create_dataset(
-            f"{seed_str}/grid/t", data=sim_obj.t, dtype="float32", compression="lzf" 
-        )
-        data_f.attrs[f"{seed_str}/config"] = OmegaConf.to_yaml(config)
+    while True:
+        try:
+            with h5py.File(utils.expand_path(config.output_path), "a") as data_f:
+                ## Chunking for compression and data access
+                ## https://docs.h5py.org/en/stable/high/dataset.html#chunked-storage
+                ## should be by batch and less than 1MB
+                ## lzf compression for float32 is kind of pointless though.
+                data_f.create_dataset(
+                    f"{seed_str}/data", data=data_sample, dtype="float32", compression="lzf"
+                )
+                data_f.create_dataset(
+                    f"{seed_str}/grid/x", data = sim_obj.x, dtype="float32", compression="lzf"
+                )
+                data_f.create_dataset(
+                    f"{seed_str}/grid/y", data=sim_obj.y, dtype="float32", compression="lzf" 
+                )
+                data_f.create_dataset(
+                    f"{seed_str}/grid/t", data=sim_obj.t, dtype="float32", compression="lzf" 
+                )
+                data_f.attrs[f"{seed_str}/config"] = OmegaConf.to_yaml(config)
+        except IOError:
+            time.sleep(0.1)
+            continue
+        else:
+            break
+
+    
 
 
 @hydra.main(config_path="configs/", config_name="diff-react")

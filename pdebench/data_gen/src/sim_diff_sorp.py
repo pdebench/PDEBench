@@ -124,6 +124,6 @@ class Simulator:
         y_t = c_t
         
         # Log the simulation progress
-        self.log.info('t = ' + str(t))
+        # self.log.info('t = ' + str(t))
        
         return y_t

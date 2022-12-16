@@ -32,13 +32,13 @@ from src import utils
 import numpy as np
 from uploader import dataverse_upload
 import time
+from src.sim_radial_dam_break import RadialDamBreak2D
 
 log = logging.getLogger(__name__)
 
 
 def simulator(base_config, i):
     
-    from src.sim_radial_dam_break.py import RadialDamBreak2D
     
     config = deepcopy(base_config)
     config.sim.seed = i
@@ -58,12 +58,19 @@ def simulator(base_config, i):
     start_time = time.time()
     scenario.run(T=config.sim.T_end, tsteps=config.sim.n_time_steps, plot=False)
     duration = time.time() - start_time
-    log.info(f"Seed {config.sim.seed} took {duration} to finish")
-    config.output_path = config.output_path + "_" + str(i).zfill(4) + ".h5"
-    scenario.save_state_to_disk(filepath=config.output_path)
+    seed_str = str(i).zfill(4)
+    log.info(f"Seed {seed_str} took {duration} to finish")
     
-    with h5py.File(config.output_path, "r+") as f:
-        f.attrs["config"] = OmegaConf.to_yaml(config)
+    while True:
+        try:
+            with h5py.File(utils.expand_path(config.output_path), "a") as h5_file:
+                scenario.save_state_to_disk(h5_file, seed_str)
+                h5_file.attrs["config"] = OmegaConf.to_yaml(config)
+        except IOError:
+            time.sleep(0.1)
+            continue
+        else:
+            break
 
     if config.upload:
         dataverse_upload(
@@ -98,7 +105,7 @@ def main(config: DictConfig):
     output_path = os.path.join(work_path, config.data_dir, config.output_path)
     if not os.path.isdir(output_path):
         os.makedirs(output_path)
-    config.output_path = os.path.join(output_path, config.output_path)
+    config.output_path = os.path.join(output_path, config.output_path) + '.h5'
 
     num_samples_init = 0
     num_samples_final = 1000
