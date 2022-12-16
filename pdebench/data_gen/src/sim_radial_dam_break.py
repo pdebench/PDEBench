@@ -90,13 +90,11 @@ class Basic2DScenario(ABC):
         for key, getter in self.state_getters.items():
             self.save_state[key] = [getter()]
 
-    def save_state_to_disk(self, data_f, seed):
+    def save_state_to_disk(self, data_f, seed_str):
         T = np.asarray(self.save_state["t"])
         X = np.asarray(self.save_state["x"])
         Y = np.asarray(self.save_state["y"])
         H = np.expand_dims(np.asarray(self.save_state["h"]), -1)
-        
-        seed_str = str(seed).zfill(4)
 
         data_f.create_dataset(f"{seed_str}/data", data=H, dtype="f")
         data_f.create_dataset(f"{seed_str}/grid/x", data=X, dtype="f")
@@ -116,10 +114,10 @@ class Basic2DScenario(ABC):
         start = time.time()
         for tstep in range(1, tsteps + 1):
             t = tstep * dt
-            print("Simulating timestep {}/{} at t={:f}".format(tstep, tsteps, t))
+            # print("Simulating timestep {}/{} at t={:f}".format(tstep, tsteps, t))
             self.simulate(t)
             self.add_save_state()
-        print("Simulation took: {}".format(time.time() - start))
+        # print("Simulation took: {}".format(time.time() - start))
 
 
 class RadialDamBreak2D(Basic2DScenario):
