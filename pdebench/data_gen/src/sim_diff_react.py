@@ -149,6 +149,6 @@ class Simulator:
         y_t = np.concatenate((u_t,v_t))
         
         # Log the simulation progress
-        self.log.info('t = ' + str(t))
+        # self.log.info('t = ' + str(t))
        
         return y_t
