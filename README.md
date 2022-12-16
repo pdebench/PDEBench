@@ -324,5 +324,7 @@ url = {https://doi.org/10.18419/darus-2986}
 * [Simon Brown](https://github.com/SimonSyBrown) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
 
 
-## License 
-MIT for solver code and baseline code, and NLE Academic License for selected code 
+## License
+
+MIT licensed, except where otherwise stated.
+See `LICENSE.txt` file.
