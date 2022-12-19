@@ -463,15 +463,15 @@ if __name__ == "__main__":
         visualize_burgers(args.data_path, args.param)
     elif args.pde_name == "advection":
         visualize_advection(args.data_path, args.param)
-    elif args.pde_name == "1d-cfd":
+    elif args.pde_name == "1d_cfd":
         visualize_1d_cfd(args.data_path, args.params)
-    elif args.pde_name == "2d-cfd":
+    elif args.pde_name == "2d_cfd":
         visualize_2d_cfd(args.data_path, args.params)
-    elif args.pde_name == "3d-cfd":
+    elif args.pde_name == "3d_cfd":
         visualize_3d_cfd(args.data_path, args.params)
     elif args.pde_name == "darcy":
         visualize_darcy(args.data_path, args.param)
-    elif args.pde_name == "1d-reacdiff":
+    elif args.pde_name == "1d_reacdiff":
         visualize_1d_reacdiff(args.data_path, args.params)
 
     else:
