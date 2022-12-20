@@ -8,9 +8,7 @@ import torch
 
 from typing import Tuple
 
-sys.path.append(".")
-
-from .utils import (
+from pdebench.models.pinn.utils import (
     PINNDatasetRadialDambreak,
     PINNDatasetDiffReact,
     PINNDataset2D,
@@ -20,7 +18,7 @@ from .utils import (
     PINNDataset2Dpde,
     PINNDataset3Dpde,
 )
-from .pde_definitions import (
+from pdebench.models.pinn.pde_definitions import (
     pde_diffusion_reaction,
     pde_swe2d,
     pde_diffusion_sorption,
@@ -33,7 +31,7 @@ from .pde_definitions import (
     pde_CFD3d,
 )
 
-from metrics import metrics, metric_func
+from pdebench.models.metrics import metrics, metric_func
 
 
 def setup_diffusion_sorption(filename, seed):
@@ -498,7 +496,7 @@ if __name__ == "__main__":
         epochs=100,
         learning_rate=1e-3,
         model_update=500,
-        flnm="2D_diff-react_NA_NA_0000.h5",
+        flnm="2D_diff-react_NA_NA.h5",
         seed="0000",
     )
     # run_training(

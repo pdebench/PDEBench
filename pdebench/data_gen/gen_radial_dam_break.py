@@ -28,11 +28,11 @@ import h5py
 import logging
 import multiprocessing as mp
 from itertools import repeat
-from src import utils
+from pdebench.data_gen.src import utils
 import numpy as np
-from uploader import dataverse_upload
+from pdebench.data_gen.uploader import dataverse_upload
 import time
-from src.sim_radial_dam_break import RadialDamBreak2D
+from pdebench.data_gen.src.sim_radial_dam_break import RadialDamBreak2D
 
 log = logging.getLogger(__name__)
 

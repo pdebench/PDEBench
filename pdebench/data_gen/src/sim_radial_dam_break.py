@@ -12,9 +12,6 @@ from clawpack import riemann
 from clawpack import pyclaw
 
 
-sys.path.append(os.path.join(sys.path[0], "..", "utils"))
-
-
 class Basic2DScenario(ABC):
     name = ""
 
