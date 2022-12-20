@@ -67,7 +67,8 @@ def simulator(config, i):
                 data_f.create_dataset(
                     f"{seed_str}/grid/t", data=sim_obj.t, dtype="float32", compression="lzf" 
                 )
-                data_f.attrs[f"{seed_str}/config"] = OmegaConf.to_yaml(config)
+                seed_group = data_f[seed_str]
+                seed_group.attrs["config"] = OmegaConf.to_yaml(config)
         except IOError:
             time.sleep(0.1)
             continue
