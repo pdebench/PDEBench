@@ -2,7 +2,14 @@ model_name: 'PINN'
 
 scenario: 'diff-sorp'
 model_update: 500
-filename: '2D_diff-react_NA_NA_0000.h5'
+filename: '1D_diff-sorp_NA_NA/1D_diff-sorp_NA_NA.h5'
 epochs: 15000
 learning_rate: 1.e-3
 seed: '0000'
+# unused arguments
+input_ch: 0
+output_ch: 1
+root_path: '.'
+val_num: 1
+if_periodic_bc: False
+aux_params: 0
