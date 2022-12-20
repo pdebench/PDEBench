@@ -1,5 +1,7 @@
-import argparse
 import os
+import argparse
+
+from tqdm import tqdm
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,12 +34,14 @@ def visualize_diff_sorp(path, seed=None):
 
     # Read the h5 file and store the data
     h5_file = h5py.File(os.path.join(path, "1D_diff-sorp_NA_NA.h5"), "r")
-
+    num_samples = len(h5_file.keys())
+    
+    # randomly choose a seed for picking a sample that will subsequently be visualized 
     if not seed:
-        seed = np.random.randint(0, len(h5_file.keys()))
+        seed = np.random.randint(0, num_samples) 
 
     # Ensure the seed number is defined
-    assert seed < data.shape[0], "Seed number too high!"
+    assert seed < num_samples, "Seed number too high!"
 
     seed = str(seed).zfill(4)
     data = np.array(h5_file[f"{seed}/data"], dtype="f")  # dim = [101, 1024, 1]
@@ -49,19 +53,20 @@ def visualize_diff_sorp(path, seed=None):
 
     # Store the plot handle at each time step in the 'ims' list
     ims = []
-    for i in range(data.shape[0]):
-        im = ax.plot(data[i].squeeze(), animated=True)
+    for i in tqdm(range(data.shape[0])):
         if i == 0:
-            ax.plot(data[0].squeeze())  # show an initial one first
+           im = ax.plot(data[0].squeeze(), animated=True, color="blue")  # show an initial one first
+        else:
+           im = ax.plot(data[i].squeeze(), animated=True, color="blue")
         ax.plot
-        ims.append([im])
+        ims.append([im[0]])
 
     # Animate the plot
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie.gif", writer=writer)
-    print("saved")
+    ani.save("movie_diff_sorp.gif", writer=writer)
+    print("Animation saved")
 
 
 def visualize_2d_reacdiff(path, seed=None):
@@ -75,12 +80,14 @@ def visualize_2d_reacdiff(path, seed=None):
 
     # Read the h5 file and store the data
     h5_file = h5py.File(os.path.join(path, "2D_diff-react_NA_NA.h5"), "r")
+    num_samples = len(h5_file.keys())
 
+    # randomly choose a seed for picking a sample that will subsequently be visualized 
     if not seed:
-        seed = np.random.randint(0, len(h5_file.keys()))
+        seed = np.random.randint(0, num_samples) 
 
     # Ensure the seed number is defined
-    assert seed < data.shape[0], "Seed number too high!"
+    assert seed < num_samples, "Seed number too high!"
 
     seed = str(seed).zfill(4)
     data = np.array(h5_file[f"{seed}/data"], dtype="f")  # dim = [101, 128, 128, 2]
@@ -92,7 +99,7 @@ def visualize_2d_reacdiff(path, seed=None):
 
     # Store the plot handle at each time step in the 'ims' list
     ims = []
-    for i in range(data.shape[0]):
+    for i in tqdm(range(data.shape[0])):
         im1 = ax[0].imshow(data[i, ..., 0].squeeze(), animated=True)
         im2 = ax[1].imshow(data[i, ..., 1].squeeze(), animated=True)
         if i == 0:
@@ -104,8 +111,8 @@ def visualize_2d_reacdiff(path, seed=None):
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie.gif", writer=writer)
-    print("saved")
+    ani.save("movie_2d_reacdiff.gif", writer=writer)
+    print("Animation saved")
 
 
 def visualize_swe(path, seed=None):
@@ -119,12 +126,14 @@ def visualize_swe(path, seed=None):
 
     # Read the h5 file and store the data
     h5_file = h5py.File(os.path.join(path, "2D_rdb_NA_NA.h5"), "r")
-
+    num_samples = len(h5_file.keys())
+   
+    # randomly choose a seed for picking a sample that will subsequently be visualized 
     if not seed:
-        seed = np.random.randint(0, len(h5_file.keys()))
+        seed = np.random.randint(0, num_samples) 
 
     # Ensure the seed number is defined
-    assert seed < data.shape[0], "Seed number too high!"
+    assert seed < num_samples, "Seed number too high!"
 
     seed = str(seed).zfill(4)
     data = np.array(h5_file[f"{seed}/data"], dtype="f")  # dim = [101, 128, 128, 1]
@@ -136,7 +145,7 @@ def visualize_swe(path, seed=None):
 
     # Store the plot handle at each time step in the 'ims' list
     ims = []
-    for i in range(data.shape[0]):
+    for i in tqdm(range(data.shape[0])):
         im = ax.imshow(data[i].squeeze(), animated=True)
         if i == 0:
             ax.imshow(data[0].squeeze())  # show an initial one first
@@ -146,8 +155,8 @@ def visualize_swe(path, seed=None):
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie.gif", writer=writer)
-    print("saved")
+    ani.save("movie_swe.gif", writer=writer)
+    print("Animation saved")
 
 
 def visualize_burgers(path, param=None):
@@ -156,7 +165,7 @@ def visualize_burgers(path, param=None):
 
     Args:
     path : path to the desired file
-    param: PDE parameter to be visualized
+    param: PDE parameter of the data shard to be visualized
     """
 
     # Read the h5 file and store the data
@@ -177,28 +186,29 @@ def visualize_burgers(path, param=None):
     # Store the plot handle at each time step in the 'ims' list
     ims = []
 
-    for i in range(data.shape[0]):
-        im,  = ax.plot(xcrd, data[i].squeeze(), animated=True)
+    for i in tqdm(range(data.shape[0])):
         if i == 0:
-            ax.plot(xcrd, data[i].squeeze())  # show an initial one first
+            im = ax.plot(xcrd, data[i].squeeze(), animated=True, color="blue")
+        else:
+            im = ax.plot(xcrd, data[i].squeeze(), animated=True, color="blue")  # show an initial one first
         ax.plot
-        ims.append([im])
+        ims.append([im[0]])
 
     # Animate the plot
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie.gif", writer=writer)
-    print("saved")
+    ani.save("movie_burgers.gif", writer=writer)
+    print("Animation saved")
 
 
 def visualize_advection(path, param=None):
     """
-    This function animates the Burgers equation
+    This function animates the Advection equation
 
     Args:
     path : path to the desired file
-    param: PDE parameter to be visualized
+    param: PDE parameter of the data shard to be visualized
     """
 
     # Read the h5 file and store the data
@@ -218,19 +228,19 @@ def visualize_advection(path, param=None):
 
     # Store the plot handle at each time step in the 'ims' list
     ims = []
-    for i in range(data.shape[0]):
-        im,  = ax.plot(xcrd, data[i].squeeze(), animated=True)
+    for i in tqdm(range(data.shape[0])):
+        im = ax.plot(xcrd, data[i].squeeze(), animated=True)
         if i == 0:
             ax.plot(xcrd, data[i].squeeze())  # show an initial one first
         ax.plot
-        ims.append([im])
+        ims.append([im[0]])
 
     # Animate the plot
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie.gif", writer=writer)
-    print("saved")
+    ani.save("movie_advection.gif", writer=writer)
+    print("Animation saved")
 
 
 def visualize_1d_cfd(path, param=None):
@@ -239,7 +249,7 @@ def visualize_1d_cfd(path, param=None):
 
     Args:
     path : path to the desired file
-    param: PDE parameter to be visualized
+    param: PDE parameter of the data shard to be visualized
     """
 
     # Read the h5 file and store the data
@@ -261,22 +271,30 @@ def visualize_1d_cfd(path, param=None):
     # Store the plot handle at each time step in the 'ims' list
     ims = []
     ax.set_title('density')
-    for i in range(dd.shape[0]):
-        im,  = ax.plot(xcrd, dd[i].squeeze(), animated=True)
+    for i in tqdm(range(dd.shape[0])):
+        im = ax.plot(xcrd, dd[i].squeeze(), animated=True)
         if i == 0:
             ax.plot(xcrd, dd[i].squeeze())  # show an initial one first
         ax.plot
-        ims.append([im])
+        ims.append([im[0]])
 
     # Animate the plot
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie.gif", writer=writer)
-    print("saved")
+    ani.save("movie_1d_cfd.gif", writer=writer)
+    print("Animation saved")
 
 
 def visualize_2d_cfd(path, param=None):
+    """
+    This function animates the Burgers equation
+
+    Args:
+    path : path to the desired file
+    param: PDE parameter of the data shard to be visualized
+    """
+
     # Read the h5 file and store the data
     if param is not None:
         assert len(param) == 6, 'param should include type,M,eta,zeta,boundary, resolution as list'
@@ -344,11 +362,11 @@ def visualize_ns_incom():
 
 def visualize_darcy(path, param=None):
     """
-    This function animates the Burgers equation
+    This function animates Darcy Flow equation
 
     Args:
     path : path to the desired file
-    param: PDE parameter to be visualized
+    param: PDE parameter of the data shard to be visualized
     """
 
     # Read the h5 file and store the data
@@ -371,16 +389,16 @@ def visualize_darcy(path, param=None):
     ax[0].set_title('Data u')
     ax[1].set_title('diffusion coefficient nu')
     plt.savefig('2D_DarcyFlow.pdf')
-    print("saved")
+    print("plot saved")
 
 
 def visualize_1d_reacdiff(path, param=None):
     """
-    This function animates the Burgers equation
+    This function animates 1D Reaction Diffusion equation
 
     Args:
     path : path to the desired file
-    param: PDE parameter to be visualized
+    param: PDE parameter of the data shard to be visualized
     """
 
     # Read the h5 file and store the data
@@ -401,19 +419,19 @@ def visualize_1d_reacdiff(path, param=None):
 
     # Store the plot handle at each time step in the 'ims' list
     ims = []
-    for i in range(data.shape[0]):
-        im,  = ax.plot(xcrd, data[i].squeeze(), animated=True)
+    for i in tqdm(range(data.shape[0])):
+        im = ax.plot(xcrd, data[i].squeeze(), animated=True)
         if i == 0:
             ax.plot(xcrd, data[i].squeeze())  # show an initial one first
         ax.plot
-        ims.append([im])
+        ims.append([im[0]])
 
     # Animate the plot
     ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
-    ani.save("movie.gif", writer=writer)
-    print("saved")
+    ani.save("movie_1d_reacdiff.gif", writer=writer)
+    print("Animation saved")
 
 
 if __name__ == "__main__":
@@ -473,6 +491,6 @@ if __name__ == "__main__":
         visualize_darcy(args.data_path, args.param)
     elif args.pde_name == "1d_reacdiff":
         visualize_1d_reacdiff(args.data_path, args.params)
-
     else:
         raise ValueError("PDE name not recognized!")
+
