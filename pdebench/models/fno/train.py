@@ -16,10 +16,9 @@ from timeit import default_timer
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-sys.path.append('.')
-from .fno import FNO1d, FNO2d, FNO3d
-from .utils import FNODatasetSingle, FNODatasetMult
-from metrics import metrics
+from pdebench.models.fno.fno import FNO1d, FNO2d, FNO3d
+from pdebench.models.fno.utils import FNODatasetSingle, FNODatasetMult
+from pdebench.models.metrics import metrics
 
 def run_training(if_training,
                  continue_training,

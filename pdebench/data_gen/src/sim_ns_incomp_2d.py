@@ -11,8 +11,8 @@ import imageio
 import numpy as np
 from tqdm import tqdm 
 import hydra
-from src import data_io
-from src import image_processor
+from pdebench.data_gen.src import data_io
+from pdebench.data_gen.src import image_processor
 
 log = logging.getLogger(__name__)
 

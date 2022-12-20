@@ -28,16 +28,16 @@ import multiprocessing as mp
 from itertools import repeat
 import numpy as np
 
-from src import utils
+from pdebench.data_gen.src import utils
 import h5py
-from uploader import dataverse_upload
+from pdebench.data_gen.uploader import dataverse_upload
 
 log = logging.getLogger(__name__)
 
 
 def simulator(config, i):
     
-    from src import sim_diff_sorp
+    from pdebench.data_gen.src import sim_diff_sorp
     
     config.sim.seed = i
     log.info(f"Starting seed {i}")

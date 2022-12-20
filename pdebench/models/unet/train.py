@@ -18,10 +18,9 @@ from timeit import default_timer
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-sys.path.append('.')
-from .unet import UNet1d, UNet2d, UNet3d
-from .utils import UNetDatasetSingle, UNetDatasetMult
-from metrics import metrics
+from pdebench.models.unet.unet import UNet1d, UNet2d, UNet3d
+from pdebench.models.unet.utils import UNetDatasetSingle, UNetDatasetMult
+from pdebench.models.metrics import metrics
 
 def run_training(if_training,
                  continue_training,
