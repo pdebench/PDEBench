@@ -28,11 +28,11 @@ import h5py
 import logging
 import multiprocessing as mp
 from itertools import repeat
-from src import utils
+from pdebench.data_gen.src import utils
 import numpy as np
-from uploader import dataverse_upload
+from pdebench.data_gen.uploader import dataverse_upload
 import time
-from src.sim_radial_dam_break import RadialDamBreak2D
+from pdebench.data_gen.src.sim_radial_dam_break import RadialDamBreak2D
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +65,8 @@ def simulator(base_config, i):
         try:
             with h5py.File(utils.expand_path(config.output_path), "a") as h5_file:
                 scenario.save_state_to_disk(h5_file, seed_str)
-                h5_file.attrs["config"] = OmegaConf.to_yaml(config)
+                seed_group = h5_file[seed_str]
+                seed_group.attrs["config"] = OmegaConf.to_yaml(config)
         except IOError:
             time.sleep(0.1)
             continue
@@ -108,7 +109,7 @@ def main(config: DictConfig):
     config.output_path = os.path.join(output_path, config.output_path) + '.h5'
 
     num_samples_init = 0
-    num_samples_final = 1000
+    num_samples_final = 10000
     
     pool = mp.Pool(mp.cpu_count())
     seed = np.arange(num_samples_init, num_samples_final)

@@ -154,10 +154,9 @@ from functools import partial
 
 from timeit import default_timer
 
-sys.path.append('.')
-from fno.train import run_training as run_training_FNO
-from pinn.train import run_training as run_training_PINN
-from unet.train import run_training as run_training_Unet
+from pdebench.models.fno.train import run_training as run_training_FNO
+from pdebench.models.pinn.train import run_training as run_training_PINN
+from pdebench.models.unet.train import run_training as run_training_Unet
 
 
 @hydra.main(config_path='config', config_name='config')

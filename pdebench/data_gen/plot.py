@@ -12,7 +12,7 @@ import numpy as np
 import h5py
 import matplotlib.pyplot as plt
 from hydra.utils import get_original_cwd
-from src.plots import plot_data
+from pdebench.data_gen.src.plots import plot_data
 
 @hydra.main(config_path="configs/", config_name="diff-sorp")
 def main(config: DictConfig):
