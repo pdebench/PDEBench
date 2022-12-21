@@ -314,7 +314,7 @@ def visualize_3d_cfd(path, param=None):
         flnm = "3D_CFD_" + str(param[0]) + "_M" + str(param[1]) + "_Eta" + str(param[2]) + '_Zeta' + str(param[3]) + "_" + str(param[4]) + "_Train.hdf5"
         assert os.path.isfile(path + flnm), 'no such file! '+ path + flnm
     else:
-        flnm = "3D_CFD_Rand_M0.1_Eta1e-8_Zeta1e-8_periodic_Train.hdf5"
+        flnm = "3D_CFD_Rand_M1.0_Eta1e-8_Zeta1e-8_periodic_Train.hdf5"
 
     nb = 0
     with h5py.File(os.path.join(path, flnm), "r") as h5_file:
