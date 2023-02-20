@@ -1,0 +1,72 @@
+name: PDE-Darcy  
+environment:
+    image:
+        gpu: docker.io/junhongshen/nb360:srconly
+hyperparameters:
+    dataset: PDE-Darcy
+    embedder_dataset: CIFAR10
+    objective: otdd-exact
+    weight: base
+    maxsamples: 128  
+    
+    experiment_id: 0
+    seed: 0
+    epochs: 100
+    embedder_epochs: 60
+    predictor_epochs: 0
+    finetune_method: all
+    target_seq_len: 64
+    
+    drop_out: 0
+    batch_size: 4 
+    eval_batch_size: 100
+    accum: 1
+    clip: -1
+    validation_freq: 1
+
+    optimizer:
+        name: AdamW 
+        params:
+            lr: 0.0001 
+            betas: [0.9, 0.98]
+            weight_decay: 0.00001
+            momentum: 0.99
+    
+    scheduler:  
+        name: WarmupLR 
+        params:
+            warmup_epochs: 5
+            decay_epochs: 200
+            sched: [30, 60, 90]
+            base: 0.2
+
+    no_warmup_scheduler:  
+        name: StepLR
+        params:
+            warmup_epochs: 10
+            decay_epochs: 100
+            sched: [20, 40, 60]
+            base: 0.2
+
+    num_workers: 4
+    reproducibility: False
+    valid_split: False
+
+min_validation_period:
+    epochs: 1
+bind_mounts:
+    - host_path: /tmp
+      container_path: /data
+    - host_path: /tmp
+      container_path: /root/.cache
+resources:
+  slots_per_trial: 1
+records_per_epoch: 50000
+searcher:
+  name:  single
+  metric: accuracy
+  smaller_is_better: false
+  max_length:
+    epochs: 1
+max_restarts: 0
+entrypoint: python3 -W ignore main.py

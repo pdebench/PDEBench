@@ -1,0 +1,32 @@
+name: otdd
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.8.10
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - pytorch
+  - torchvision=0.9.1
+  - torchtext
+  - tqdm
+  - attrdict
+  - seaborn
+  - adjustText
+  - h5py
+  - cmake # for geomloss
+  - watermark
+  - jupyterlab
+  - conda-build
+  - ipywidgets
+  - pip:
+    - pot
+    - pykeops
+    - git+https://github.com/jeanfeydy/geomloss
+    - opentsne
+    - munkres
+    - celluloid
+    - git+https://github.com/rossant/ipycache
