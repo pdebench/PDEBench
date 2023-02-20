@@ -1,6 +1,6 @@
 ## Cross-Modal Fine-Tuning: Align then Refine
 
-Original PyTorch implementation of ORCA proposed in the paper "[Cross-Modal Fine-Tuning: Align then Refine](https://arxiv.org/abs/)". 
+Original PyTorch implementation of ORCA proposed in the paper "[Cross-Modal Fine-Tuning: Align then Refine](https://arxiv.org/abs/2302.05738)". 
 ORCA is developed for effectively solving  ML problems in diverse modalities using large-scale pretrained transformers. 
 It adapts to a target task via an align-then-refine workflow: given the target input, ORCA first learns an embedding network that aligns the embedded feature distribution with the pretraining modality. The pretrained model is then fine-tuned on the embedded data to exploit the knowledge shared across modalities. 
 
