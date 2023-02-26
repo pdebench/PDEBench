@@ -33,7 +33,7 @@ python tune_navier_stokes.py \
 --aug_ratio 0.0
 ```
 
-* Train on 1D Burgers': 
+* Train on **1D Burgers'** PDE: 
 
 ```bash
 python train_burgers.py \
