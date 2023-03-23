@@ -157,7 +157,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def metric_func(pred, target, if_mean=True, Lx=1., Ly=1., Lz=1., iLow=4, iHigh=12):
     """
     code for calculate metrics discussed in the Brain-storming session
-    MSE, normalized MSE, max error, MSE at the boundaries, conserved variables, MSE in Fourier space, temporal sensitivity
+    RMSE, normalized RMSE, max error, RMSE at the boundaries, conserved variables, RMSE in Fourier space, temporal sensitivity
     """
     pred, target = pred.to(device), target.to(device)
     # (batch, nx^i..., timesteps, nc)
@@ -174,11 +174,11 @@ def metric_func(pred, target, if_mean=True, Lx=1., Ly=1., Lz=1., iLow=4, iHigh=1
     idxs = target.size()
     nb, nc, nt = idxs[0], idxs[1], idxs[-1]
 
-    # MSE
+    # RMSE
     err_mean = torch.sqrt(torch.mean((pred.view([nb, nc, -1, nt]) - target.view([nb, nc, -1, nt])) ** 2, dim=2))
-    err_MSE = torch.mean(err_mean, axis=0)
+    err_RMSE = torch.mean(err_mean, axis=0)
     nrm = torch.sqrt(torch.mean(target.view([nb, nc, -1, nt]) ** 2, dim=2))
-    err_nMSE = torch.mean(err_mean / nrm, dim=0)
+    err_nRMSE = torch.mean(err_mean / nrm, dim=0)
 
     err_CSV = torch.sqrt(torch.mean(
         (torch.sum(pred.view([nb, nc, -1, nt]), dim=2) - torch.sum(target.view([nb, nc, -1, nt]), dim=2)) ** 2,
@@ -261,14 +261,14 @@ def metric_func(pred, target, if_mean=True, Lx=1., Ly=1., Lz=1., iLow=4, iHigh=1
     err_F[:,2] += torch.mean(_err_F[:,iHigh:], dim=1)  # high freq
 
     if if_mean:
-        return torch.mean(err_MSE, dim=[0, -1]), \
-               torch.mean(err_nMSE, dim=[0, -1]), \
+        return torch.mean(err_RMSE, dim=[0, -1]), \
+               torch.mean(err_nRMSE, dim=[0, -1]), \
                torch.mean(err_CSV, dim=[0, -1]), \
                torch.mean(err_Max, dim=[0, -1]), \
                torch.mean(err_BD, dim=[0, -1]), \
                torch.mean(err_F, dim=[0, -1])
     else:
-        return err_MSE, err_nMSE, err_CSV, err_Max, err_BD, err_F
+        return err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F
 
 def metrics(val_loader, model, Lx, Ly, Lz, plot, channel_plot, model_name, x_min,
             x_max, y_min, y_max, t_min, t_max, mode='FNO', initial_step=None, ):
@@ -299,18 +299,18 @@ def metrics(val_loader, model, Lx, Ly, Lz, plot, channel_plot, model_name, x_min
                     pred = torch.cat((pred, im), -2)
                     xx = torch.cat((xx[..., 1:, :], im), dim=-2)
 
-                _err_MSE, _err_nMSE, _err_CSV, _err_Max, _err_BD, _err_F \
+                _err_RMSE, _err_nRMSE, _err_CSV, _err_Max, _err_BD, _err_F \
                     = metric_func(pred, yy, if_mean=True, Lx=Lx, Ly=Ly, Lz=Lz)
 
                 if itot == 0:
-                    err_MSE, err_nMSE, err_CSV, err_Max, err_BD, err_F \
-                        = _err_MSE, _err_nMSE, _err_CSV, _err_Max, _err_BD, _err_F
+                    err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F \
+                        = _err_RMSE, _err_nRMSE, _err_CSV, _err_Max, _err_BD, _err_F
                     pred_plot = pred[:1]
                     target_plot = yy[:1]
                     val_l2_time = torch.zeros(yy.shape[-2]).to(device)
                 else:
-                    err_MSE += _err_MSE
-                    err_nMSE += _err_nMSE
+                    err_RMSE += _err_RMSE
+                    err_nRMSE += _err_nRMSE
                     err_CSV += _err_CSV
                     err_Max += _err_Max
                     err_BD += _err_BD
@@ -343,17 +343,17 @@ def metrics(val_loader, model, Lx, Ly, Lz, plot, channel_plot, model_name, x_min
                     pred = torch.cat((pred, im), -2)
                     xx = torch.cat((xx[..., 1:, :], im), dim=-2)
 
-                _err_MSE, _err_nMSE, _err_CSV, _err_Max, _err_BD, _err_F \
+                _err_RMSE, _err_nRMSE, _err_CSV, _err_Max, _err_BD, _err_F \
                     = metric_func(pred, yy, if_mean=True, Lx=Lx, Ly=Ly, Lz=Lz)
                 if itot == 0:
-                    err_MSE, err_nMSE, err_CSV, err_Max, err_BD, err_F \
-                        = _err_MSE, _err_nMSE, _err_CSV, _err_Max, _err_BD, _err_F
+                    err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F \
+                        = _err_RMSE, _err_nRMSE, _err_CSV, _err_Max, _err_BD, _err_F
                     pred_plot = pred[:1]
                     target_plot = yy[:1]
                     val_l2_time = torch.zeros(yy.shape[-2]).to(device)
                 else:
-                    err_MSE += _err_MSE
-                    err_nMSE += _err_nMSE
+                    err_RMSE += _err_RMSE
+                    err_nRMSE += _err_nRMSE
                     err_CSV += _err_CSV
                     err_Max += _err_Max
                     err_BD += _err_BD
@@ -370,18 +370,18 @@ def metrics(val_loader, model, Lx, Ly, Lz, plot, channel_plot, model_name, x_min
         raise NotImplementedError
 
 
-    err_MSE = np.array(err_MSE.data.cpu()/itot)
-    err_nMSE = np.array(err_nMSE.data.cpu()/itot)
+    err_RMSE = np.array(err_RMSE.data.cpu()/itot)
+    err_nRMSE = np.array(err_nRMSE.data.cpu()/itot)
     err_CSV = np.array(err_CSV.data.cpu()/itot)
     err_Max = np.array(err_Max.data.cpu()/itot)
     err_BD = np.array(err_BD.data.cpu()/itot)
     err_F = np.array(err_F.data.cpu()/itot)
-    print('MSE: {0:.5f}'.format(err_MSE))
-    print('normalized MSE: {0:.5f}'.format(err_nMSE))
-    print('MSE of conserved variables: {0:.5f}'.format(err_CSV))
+    print('RMSE: {0:.5f}'.format(err_RMSE))
+    print('normalized RMSE: {0:.5f}'.format(err_nRMSE))
+    print('RMSE of conserved variables: {0:.5f}'.format(err_CSV))
     print('Maximum value of rms error: {0:.5f}'.format(err_Max))
-    print('MSE at boundaries: {0:.5f}'.format(err_BD))
-    print('MSE in Fourier space: {0}'.format(err_F))
+    print('RMSE at boundaries: {0:.5f}'.format(err_BD))
+    print('RMSE in Fourier space: {0}'.format(err_F))
     
     val_l2_time = val_l2_time/itot
     
