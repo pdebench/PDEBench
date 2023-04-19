@@ -150,9 +150,7 @@ arrangements between the parties relating hereto.
 
 import torch
 from torch.utils.data import Dataset, IterableDataset
-from torch.utils.data import DataLoader
 import os
-import glob
 import h5py
 import numpy as np
 import math as mt
@@ -165,6 +163,9 @@ class FNODataset(Dataset):
                  reduced_resolution_t=1,
                  reduced_batch=1,
                  if_test=False,
+                 if_val=False,
+                 if_CV=False,
+                 n_itr=1,
                  test_ratio=0.1,
                  num_samples_max = -1
                  ):
@@ -347,11 +348,37 @@ class FNODataset(Dataset):
             self.data = self.data[:test_idx]
         else:
             self.data = self.data[test_idx:num_samples_max]
+            if if_CV:
+                _n_itr = min(n_itr, num_samples_max - test_idx)
+                train, val = self.custom_cv_kfolds(self.data, n_itr=_n_itr, N_cv=int(1 / test_ratio))
+                if if_val:
+                    self.data = val
+                else:
+                    self.data = train
 
         # Time steps used as initial conditions
         self.initial_step = initial_step
 
         self.data = torch.tensor(self.data)
+
+    @staticmethod
+    def custom_cv_kfolds(data, n_itr, N_cv, if_fix_seed=False):
+        import random
+        if not if_fix_seed:
+            random.seed(2023)
+        nb = data.shape[0]
+        index = [i for i in range(nb)]
+        random.shuffle(index)
+        ncv = nb // N_cv
+        if n_itr == 0:
+            return data[ncv:], data[:ncv]
+        elif n_itr == 9:
+            return data[:-ncv], data[-ncv:]
+        else:
+            train_1 = data[:(n_itr + 1)*ncv]
+            train_2 = data[(n_itr + 2)*ncv:]
+            train = np.concatenate([train_1, train_2], axis=0)
+            return train, data[(n_itr + 1)*ncv:(n_itr + 2)*ncv]
 
     def __len__(self):
         return len(self.data)
