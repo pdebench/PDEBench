@@ -17,7 +17,7 @@ from timeit import default_timer
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 from pdebench.models.fno.fno import FNO1d, FNO2d, FNO3d
-from pdebench.models.fno.utils import FNODatasetSingle, FNODatasetMult
+from pdebench.models.fno.utils import FNODataset
 from pdebench.models.metrics import metrics
 
 def run_training(if_training,
@@ -35,7 +35,6 @@ def run_training(if_training,
                  scheduler_gamma,
                  model_update,
                  flnm,
-                 single_file,
                  reduced_resolution,
                  reduced_resolution_t,
                  reduced_batch,
@@ -57,45 +56,26 @@ def run_training(if_training,
     # load data
     ################################################################
     
-    if single_file:
-        # filename
-        model_name = flnm[:-5] + '_FNO'
-        print("FNODatasetSingle")
+    # filename
+    model_name = flnm[:-5] + '_FNO'
+    print("FNODataset")
 
-        # Initialize the dataset and dataloader
-        train_data = FNODatasetSingle(flnm,
-                                reduced_resolution=reduced_resolution,
-                                reduced_resolution_t=reduced_resolution_t,
-                                reduced_batch=reduced_batch,
-                                initial_step=initial_step,
-                                saved_folder = base_path
-                                )
-        val_data = FNODatasetSingle(flnm,
-                              reduced_resolution=reduced_resolution,
-                              reduced_resolution_t=reduced_resolution_t,
-                              reduced_batch=reduced_batch,
-                              initial_step=initial_step,
-                              if_test=True,
-                              saved_folder = base_path
-                              )
-        
-    else:
-        # filename
-        model_name = flnm + '_FNO'
-    
-        print("FNODatasetMult")
-        train_data = FNODatasetMult(flnm,
-                                reduced_resolution=reduced_resolution,
-                                reduced_resolution_t=reduced_resolution_t,
-                                reduced_batch=reduced_batch,
-                                saved_folder = base_path
-                                )
-        val_data = FNODatasetMult(flnm,
-                              reduced_resolution=reduced_resolution,
-                              reduced_resolution_t=reduced_resolution_t,
-                              reduced_batch=reduced_batch,
-                              if_test=True,
-                              saved_folder = base_path)
+    # Initialize the dataset and dataloader
+    train_data = FNODataset(flnm,
+                            reduced_resolution=reduced_resolution,
+                            reduced_resolution_t=reduced_resolution_t,
+                            reduced_batch=reduced_batch,
+                            initial_step=initial_step,
+                            saved_folder = base_path
+                            )
+    val_data = FNODataset(flnm,
+                          reduced_resolution=reduced_resolution,
+                          reduced_resolution_t=reduced_resolution_t,
+                          reduced_batch=reduced_batch,
+                          initial_step=initial_step,
+                          if_test=True,
+                          saved_folder = base_path
+                          )
 
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,
                                                num_workers=num_workers, shuffle=True)

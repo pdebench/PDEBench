@@ -19,7 +19,7 @@ from timeit import default_timer
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 from pdebench.models.unet.unet import UNet1d, UNet2d, UNet3d
-from pdebench.models.unet.utils import UNetDatasetSingle, UNetDatasetMult
+from pdebench.models.unet.utils import UNetDataset
 from pdebench.models.metrics import metrics
 
 def run_training(if_training,
@@ -39,7 +39,6 @@ def run_training(if_training,
                  scheduler_gamma,
                  model_update,
                  flnm,
-                 single_file,
                  reduced_resolution,
                  reduced_resolution_t,
                  reduced_batch,
@@ -60,41 +59,24 @@ def run_training(if_training,
     ################################################################
     # load data
     ################################################################
+
+    # filename
+    model_name = flnm[:-5] + '_Unet'
     
-    if single_file:
-        # filename
-        model_name = flnm[:-5] + '_Unet'
-    
-        # Initialize the dataset and dataloader
-        train_data = UNetDatasetSingle(flnm,
-                                saved_folder=base_path,
-                                reduced_resolution=reduced_resolution,
-                                reduced_resolution_t=reduced_resolution_t,
-                                reduced_batch=reduced_batch,
-                                initial_step=initial_step)
-        val_data = UNetDatasetSingle(flnm,
-                              saved_folder=base_path,
-                              reduced_resolution=reduced_resolution,
-                              reduced_resolution_t=reduced_resolution_t,
-                              reduced_batch=reduced_batch,
-                              initial_step=initial_step,
-                              if_test=True)
-        
-    else:
-        # filename
-        model_name = flnm + '_Unet'
-    
-        train_data = UNetDatasetMult(flnm,
-                                reduced_resolution=reduced_resolution,
-                                reduced_resolution_t=reduced_resolution_t,
-                                reduced_batch=reduced_batch,
-                                saved_folder=base_path)
-        val_data = UNetDatasetMult(flnm,
-                              reduced_resolution=reduced_resolution,
-                              reduced_resolution_t=reduced_resolution_t,
-                              reduced_batch=reduced_batch,
-                              if_test=True,
-                              saved_folder=base_path)
+    # Initialize the dataset and dataloader
+    train_data = UNetDataset(flnm,
+                            saved_folder=base_path,
+                            reduced_resolution=reduced_resolution,
+                            reduced_resolution_t=reduced_resolution_t,
+                            reduced_batch=reduced_batch,
+                            initial_step=initial_step)
+    val_data = UNetDataset(flnm,
+                          saved_folder=base_path,
+                          reduced_resolution=reduced_resolution,
+                          reduced_resolution_t=reduced_resolution_t,
+                          reduced_batch=reduced_batch,
+                          initial_step=initial_step,
+                          if_test=True)
 
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,
                                                num_workers=num_workers, shuffle=True)

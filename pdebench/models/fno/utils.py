@@ -157,7 +157,7 @@ import h5py
 import numpy as np
 import math as mt
 
-class FNODatasetSingle(Dataset):
+class FNODataset(Dataset):
     def __init__(self, filename,
                  initial_step=10,
                  saved_folder='../data/',
@@ -359,85 +359,3 @@ class FNODatasetSingle(Dataset):
     def __getitem__(self, idx):
         
         return self.data[idx,...,:self.initial_step,:], self.data[idx], self.grid
-
-
-class FNODatasetMult(Dataset):
-    def __init__(self, filename,
-                 initial_step=10,
-                 saved_folder='../data/',
-                 reduced_resolution=1,
-                 reduced_resolution_t=1,
-                 reduced_batch=1,
-                 if_test=False, test_ratio=0.1
-                 ):
-        """
-        
-        :param filename: filename that contains the dataset
-        :type filename: STR
-        :param filenum: array containing indices of filename included in the dataset
-        :type filenum: ARRAY
-        :param initial_step: time steps taken as initial condition, defaults to 10
-        :type initial_step: INT, optional
-
-        """
-        
-        # Define path to files
-        self.file_path = os.path.abspath(saved_folder + filename + ".h5")
-        
-        # Extract list of seeds
-        with h5py.File(self.file_path, 'r') as h5_file:
-            data_list = sorted(h5_file.keys())
-
-        test_idx = int(len(data_list) * (1-test_ratio))
-        if if_test:
-            self.data_list = np.array(data_list[test_idx:])
-        else:
-            self.data_list = np.array(data_list[:test_idx])
-        
-        # Time steps used as initial conditions
-        self.initial_step = initial_step
-
-    def __len__(self):
-        return len(self.data_list)
-    
-    def __getitem__(self, idx):
-        
-        # Open file and read data
-        with h5py.File(self.file_path, 'r') as h5_file:
-            seed_group = h5_file[self.data_list[idx]]
-        
-            # data dim = [t, x1, ..., xd, v]
-            data = np.array(seed_group["data"], dtype='f')
-            data = torch.tensor(data, dtype=torch.float)
-            
-            # convert to [x1, ..., xd, t, v]
-            permute_idx = list(range(1,len(data.shape)-1))
-            permute_idx.extend(list([0, -1]))
-            data = data.permute(permute_idx)
-            
-            # Extract spatial dimension of data
-            dim = len(data.shape) - 2                                               
-            
-            # x, y and z are 1-D arrays
-            # Convert the spatial coordinates to meshgrid
-            if dim == 1:
-                grid = np.array(seed_group["grid"]["x"], dtype='f')
-                grid = torch.tensor(grid, dtype=torch.float).unsqueeze(-1)
-            elif dim == 2:
-                x = np.array(seed_group["grid"]["x"], dtype='f')
-                y = np.array(seed_group["grid"]["y"], dtype='f')
-                x = torch.tensor(x, dtype=torch.float)
-                y = torch.tensor(y, dtype=torch.float)
-                X, Y = torch.meshgrid(x, y)
-                grid = torch.stack((X,Y),axis=-1)
-            elif dim == 3:
-                x = np.array(seed_group["grid"]["x"], dtype='f')
-                y = np.array(seed_group["grid"]["y"], dtype='f')
-                z = np.array(seed_group["grid"]["z"], dtype='f')
-                x = torch.tensor(x, dtype=torch.float)
-                y = torch.tensor(y, dtype=torch.float)
-                z = torch.tensor(z, dtype=torch.float)
-                X, Y, Z = torch.meshgrid(x, y, z)
-                grid = torch.stack((X,Y,Z),axis=-1)
-        
-        return data[...,:self.initial_step,:], data, grid
