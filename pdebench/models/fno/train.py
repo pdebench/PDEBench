@@ -99,12 +99,20 @@ def run_training(if_training,
     else:
         val_data = test_data
 
+    if device == 'cpu':
+        gen_device = device
+    else:
+        gen_device = 'cuda'
+
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,
-                                               num_workers=num_workers, shuffle=True)
+                                               num_workers=num_workers, shuffle=True,
+                                               generator=torch.Generator(device=gen_device))
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size,
-                                              num_workers=num_workers, shuffle=False)
+                                              num_workers=num_workers, shuffle=False,
+                                              generator = torch.Generator(device=gen_device))
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=batch_size,
-                                             num_workers=num_workers, shuffle=False)
+                                             num_workers=num_workers, shuffle=False,
+                                             generator=torch.Generator(device=gen_device))
 
     ################################################################
     # training and evaluation
