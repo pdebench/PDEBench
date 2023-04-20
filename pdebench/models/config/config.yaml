@@ -22,6 +22,9 @@ args:
     reduced_resolution: 1
     reduced_resolution_t: 1
     reduced_batch: 1
+    if_val: True
+    if_CV: True
+    n_CV_itr: 1
     epochs: 500
     learning_rate: 1.e-3
     scheduler_step: 100

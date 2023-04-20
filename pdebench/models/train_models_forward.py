@@ -145,15 +145,8 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
-import sys, os
 import hydra
 from omegaconf import DictConfig
-
-import operator
-from functools import reduce
-from functools import partial
-
-from timeit import default_timer
 
 from pdebench.models.fno.train import run_training as run_training_FNO
 from pdebench.models.pinn.train import run_training as run_training_PINN
@@ -183,6 +176,9 @@ def main(cfg: DictConfig):
             reduced_resolution=cfg.args.reduced_resolution,
             reduced_resolution_t=cfg.args.reduced_resolution_t,
             reduced_batch=cfg.args.reduced_batch,
+            if_val=cfg.args.if_val,
+            if_CV=cfg.args.if_CV,
+            n_CV_itr=cfg.args.n_CV_itr,
             plot=cfg.args.plot,
             channel_plot=cfg.args.channel_plot,
             x_min=cfg.args.x_min,
@@ -215,6 +211,9 @@ def main(cfg: DictConfig):
             reduced_resolution=cfg.args.reduced_resolution,
             reduced_resolution_t=cfg.args.reduced_resolution_t,
             reduced_batch=cfg.args.reduced_batch,
+            if_val=cfg.args.if_val,
+            if_CV=cfg.args.if_CV,
+            n_CV_itr=cfg.args.n_CV_itr,
             plot=cfg.args.plot,
             channel_plot=cfg.args.channel_plot,
             x_min=cfg.args.x_min,

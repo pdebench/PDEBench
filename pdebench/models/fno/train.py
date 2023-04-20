@@ -38,6 +38,9 @@ def run_training(if_training,
                  reduced_resolution,
                  reduced_resolution_t,
                  reduced_batch,
+                 if_val,
+                 if_CV,
+                 n_CV_itr,
                  plot,
                  channel_plot,
                  x_min,
@@ -66,15 +69,21 @@ def run_training(if_training,
                             reduced_resolution_t=reduced_resolution_t,
                             reduced_batch=reduced_batch,
                             initial_step=initial_step,
-                            saved_folder = base_path
+                            saved_folder = base_path,
+                            if_val=if_val,
+                            if_CV=if_CV,
+                            n_CV_itr=n_CV_itr
                             )
     val_data = FNODataset(flnm,
                           reduced_resolution=reduced_resolution,
                           reduced_resolution_t=reduced_resolution_t,
                           reduced_batch=reduced_batch,
                           initial_step=initial_step,
-                          if_test=True,
-                          saved_folder = base_path
+                          saved_folder = base_path,
+                          if_val = if_val,
+                          if_CV = if_CV,
+                          n_CV_itr = n_CV_itr,
+                          if_test=True
                           )
 
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,

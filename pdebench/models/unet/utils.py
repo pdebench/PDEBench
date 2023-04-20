@@ -165,7 +165,7 @@ class UNetDataset(Dataset):
                  if_test=False,
                  if_val=False,
                  if_CV=False,
-                 n_itr=1,
+                 n_CV_itr=1,
                  test_ratio=0.1,
                  num_samples_max = -1):
         """
@@ -316,8 +316,8 @@ class UNetDataset(Dataset):
         else:
             self.data = self.data[test_idx:num_samples_max]
             if if_CV:
-                _n_itr = min(n_itr, num_samples_max - test_idx)
-                train, val = self.custom_cv_kfolds(self.data, n_itr=_n_itr, N_cv=int(1 / test_ratio))
+                _n_CV_itr = min(n_CV_itr, num_samples_max - test_idx)
+                train, val = self.custom_cv_kfolds(self.data, n_itr=_n_CV_itr, N_cv=int(1 / test_ratio))
                 if if_val:
                     self.data = val
                 else:
