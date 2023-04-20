@@ -77,7 +77,7 @@ def run_training(if_training,
                              if_CV=if_CV,
                              n_CV_itr=n_CV_itr
                              )
-    val_data = UNetDataset(flnm,
+    test_data = UNetDataset(flnm,
                            saved_folder=base_path,
                            reduced_resolution=reduced_resolution,
                            reduced_resolution_t=reduced_resolution_t,
@@ -88,12 +88,27 @@ def run_training(if_training,
                            n_CV_itr=n_CV_itr,
                            if_test=True
                            )
+    if if_val:  # validation != test
+        val_data = UNetDataset(flnm,
+                               saved_folder=base_path,
+                               reduced_resolution=reduced_resolution,
+                               reduced_resolution_t=reduced_resolution_t,
+                               reduced_batch=reduced_batch,
+                               initial_step=initial_step,
+                               if_val=if_val,
+                               if_CV=if_CV,
+                               n_CV_itr=n_CV_itr
+                               )
+    else:  # validation = test
+        val_data = test_data
 
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,
                                                num_workers=num_workers, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_data, batch_size=batch_size,
+                                              num_workers=num_workers, shuffle=False)
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=batch_size,
-                                             num_workers=num_workers, shuffle=False)    
-    
+                                             num_workers=num_workers, shuffle=False)
+
     ################################################################
     # training and evaluation
     ################################################################
@@ -153,7 +168,7 @@ def run_training(if_training,
         model.to(device)
         model.eval()
         Lx, Ly, Lz = 1., 1., 1.
-        errs = metrics(val_loader, model, Lx, Ly, Lz, plot, channel_plot,
+        errs = metrics(test_loader, model, Lx, Ly, Lz, plot, channel_plot,
                        model_name, x_min, x_max, y_min, y_max,
                        t_min, t_max, mode='Unet', initial_step=initial_step)
         pickle.dump(errs, open(model_name+'.pickle', "wb"))
