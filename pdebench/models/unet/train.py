@@ -42,7 +42,7 @@ def run_training(if_training,
                  reduced_resolution,
                  reduced_resolution_t,
                  reduced_batch,
-                 if_val,
+                 if_use_val,
                  if_CV,
                  n_CV_itr,
                  plot,
@@ -73,7 +73,7 @@ def run_training(if_training,
                              reduced_resolution_t=reduced_resolution_t,
                              reduced_batch=reduced_batch,
                              initial_step=initial_step,
-                             if_val=if_val,
+                             if_use_val=if_use_val,
                              if_CV=if_CV,
                              n_CV_itr=n_CV_itr
                              )
@@ -83,21 +83,22 @@ def run_training(if_training,
                            reduced_resolution_t=reduced_resolution_t,
                            reduced_batch=reduced_batch,
                            initial_step=initial_step,
-                           if_val=if_val,
+                           if_use_val=if_use_val,
                            if_CV=if_CV,
                            n_CV_itr=n_CV_itr,
                            if_test=True
                            )
-    if if_val:  # validation != test
+    if if_use_val:  # validation != test
         val_data = UNetDataset(flnm,
                                saved_folder=base_path,
                                reduced_resolution=reduced_resolution,
                                reduced_resolution_t=reduced_resolution_t,
                                reduced_batch=reduced_batch,
                                initial_step=initial_step,
-                               if_val=if_val,
+                               if_use_val=if_use_val,
                                if_CV=if_CV,
-                               n_CV_itr=n_CV_itr
+                               n_CV_itr=n_CV_itr,
+                               if_val=True
                                )
     else:  # validation = test
         val_data = test_data

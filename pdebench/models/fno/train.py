@@ -38,7 +38,7 @@ def run_training(if_training,
                  reduced_resolution,
                  reduced_resolution_t,
                  reduced_batch,
-                 if_val,
+                 if_use_val,
                  if_CV,
                  n_CV_itr,
                  plot,
@@ -70,7 +70,7 @@ def run_training(if_training,
                             reduced_batch=reduced_batch,
                             initial_step=initial_step,
                             saved_folder = base_path,
-                            if_val=if_val,
+                            if_use_val=if_use_val,
                             if_CV=if_CV,
                             n_CV_itr=n_CV_itr
                             )
@@ -80,21 +80,22 @@ def run_training(if_training,
                            reduced_batch=reduced_batch,
                            initial_step=initial_step,
                            saved_folder = base_path,
-                           if_val = if_val,
+                           if_use_val = if_use_val,
                            if_CV = if_CV,
                            n_CV_itr = n_CV_itr,
                            if_test=True
                            )
-    if if_val:
+    if if_use_val:
         val_data = FNODataset(flnm,
                               reduced_resolution=reduced_resolution,
                               reduced_resolution_t=reduced_resolution_t,
                               reduced_batch=reduced_batch,
                               initial_step=initial_step,
                               saved_folder = base_path,
-                              if_val = if_val,
+                              if_use_val = if_use_val,
                               if_CV = if_CV,
-                              n_CV_itr = n_CV_itr
+                              n_CV_itr = n_CV_itr,
+                              if_val=True
                               )
     else:
         val_data = test_data
