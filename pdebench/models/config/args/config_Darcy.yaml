@@ -23,8 +23,8 @@ pushforward: False
 unroll_step: 1
 #FNO
 num_channels: 1
-modes: 12
-width: 20
+modes: 16
+width: 64
 #Inverse
 base_path: ../data/
 training_type: autoregressive

@@ -37,8 +37,8 @@ args:
     unroll_step: 20
     #FNO
     num_channels: 2
-    modes: 12
-    width: 20
+    modes: 16
+    width: 64
     #Inverse
     base_path: ../data/
     training_type: autoregressive

@@ -17,8 +17,8 @@ in_channels: 5
 out_channels: 5
 #FNO
 num_channels: 5
-modes: 12
-width: 20
+modes: 16
+width: 64
 scheduler_step: 100
 scheduler_gamma: 0.5
 initial_step: 10  # should be the same value to unroll_step ??

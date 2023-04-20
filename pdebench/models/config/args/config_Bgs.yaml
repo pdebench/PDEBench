@@ -20,8 +20,8 @@ pushforward: True
 unroll_step: 20
 #FNO
 num_channels: 1
-modes: 12
-width: 20
+modes: 16
+width: 64
 scheduler_step: 100
 scheduler_gamma: 0.5
 initial_step: 10
