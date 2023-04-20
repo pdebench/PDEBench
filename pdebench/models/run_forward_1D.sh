@@ -1,10 +1,10 @@
 ## 'FNO'
 # Advection
-CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.model_name='FNO'
+CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta0.1.hdf5' ++args.model_name='FNO'
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta0.4.hdf5' ++args.model_name='FNO'
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta1.0.hdf5' ++args.model_name='FNO'
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta4.0.hdf5' ++args.model_name='FNO'
-CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.if_training=False ++args.model_name='FNO'
+CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml  ++args.filename='1D_Advection_Sols_beta0.1.hdf5' ++args.model_name='FNO'++args.if_training=False
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta0.4.hdf5' ++args.model_name='FNO' ++args.if_training=False
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta1.0.hdf5' ++args.model_name='FNO' ++args.if_training=False
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta4.0.hdf5' ++args.model_name='FNO' ++args.if_training=False
@@ -28,11 +28,11 @@ CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Bgs.yaml +
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Bgs.yaml ++args.filename='1D_Burgers_Sols_Nu1.0.hdf5' ++args.model_name='FNO' ++args.if_training=False
 ## Unet
 # Advection
-CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml
+CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta0.1.hdf5' ++args.model_name='Unet'
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta0.4.hdf5' ++args.model_name='Unet'
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta1.0.hdf5' ++args.model_name='Unet'
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta4.0.hdf5' ++args.model_name='Unet'
-CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.if_training=False
+CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta0.1.hdf5' ++args.model_name='Unet'++args.if_training=False
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta0.4.hdf5' ++args.model_name='Unet' ++args.if_training=False
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta1.0.hdf5' ++args.model_name='Unet' ++args.if_training=False
 CUDA_VISIBLE_DEVICES='0' python3 train_models_forward.py +args=config_Adv.yaml ++args.filename='1D_Advection_Sols_beta4.0.hdf5' ++args.model_name='Unet' ++args.if_training=False
