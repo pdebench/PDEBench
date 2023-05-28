@@ -191,7 +191,7 @@ def run_training(if_training,
             xx = xx.to(device)
             yy = yy.to(device)
             grid = grid.to(device)
-            
+
             # Initialize the prediction tensor
             pred = yy[..., :initial_step, :]
             # Extract shape of the input tensor for reshaping (i.e. stacking the
@@ -311,3 +311,4 @@ if __name__ == "__main__":
     
     run_training()
     print("Done.")
+
