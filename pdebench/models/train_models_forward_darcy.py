@@ -156,23 +156,23 @@ from functools import partial
 from timeit import default_timer
 
 from pdebench.models.fno.train import run_training as run_training_FNO
-from pdebench.models.pinn.train import run_training as run_training_PINN
-from pdebench.models.unet.train import run_training as run_training_Unet
+#from pdebench.models.pinn.train import run_training as run_training_PINN
+#from pdebench.models.unet.train import run_training as run_training_Unet
 
 
-@hydra.main(version_base="1.2", config_path="config", config_name="config_darcy")
+@hydra.main(config_path="config", config_name="config_darcy")
 def main(cfg: DictConfig):
     if cfg.args.model_name == "FNO":
-        print("FNO")
+        print("FNO Arch")
         run_training_FNO(
             if_training=cfg.args.if_training,
+            training_type=cfg.args.training_type,
             continue_training=cfg.args.continue_training,
             num_workers=cfg.args.num_workers,
             modes=cfg.args.modes,
             width=cfg.args.width,
             initial_step=cfg.args.initial_step,
             t_train=cfg.args.t_train,
-            training_type=cfg.args.training_type,
             num_channels=cfg.args.num_channels,
             batch_size=cfg.args.batch_size,
             epochs=cfg.args.epochs,
@@ -186,14 +186,14 @@ def main(cfg: DictConfig):
             reduced_resolution=cfg.args.reduced_resolution,
             reduced_resolution_t=cfg.args.reduced_resolution_t,
             reduced_batch=cfg.args.reduced_batch,
-            plot=cfg.args.plot,
-            channel_plot=cfg.args.channel_plot,
-            x_min=cfg.args.x_min,
-            x_max=cfg.args.x_max,
-            y_min=cfg.args.y_min,
-            y_max=cfg.args.y_max,
-            t_min=cfg.args.t_min,
-            t_max=cfg.args.t_max,
+            # plot=cfg.args.plot,
+            # channel_plot=cfg.args.channel_plot,
+            # x_min=cfg.args.x_min,
+            # x_max=cfg.args.x_max,
+            # y_min=cfg.args.y_min,
+            # y_max=cfg.args.y_max,
+            # t_min=cfg.args.t_min,
+            # t_max=cfg.args.t_max,
         )
     elif cfg.args.model_name == "Unet":
         print("Unet")

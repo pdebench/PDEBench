@@ -1,0 +1,61 @@
+defaults:
+  - _self_
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+args:
+  model_name: 'FNO'
+  if_training: True
+  continue_training: False
+  num_workers: 2
+  batch_size: 50
+  initial_step: 1
+  t_train: 1     # steady-state
+  model_update: 2
+  filename: '2D_DarcyFlow_beta0.01_Train.hdf5'
+  single_file: True
+  reduced_resolution: 1
+  reduced_resolution_t: 1
+  reduced_batch: 1
+  epochs: 500
+  learning_rate: 1.e-3
+  scheduler_step: 100
+  scheduler_gamma: 0.5
+  #Unet
+  in_channels: 1
+  out_channels: 1
+  ar_mode: False
+  pushforward: False
+  unroll_step: 1
+  #FNO
+  num_channels: 1
+  modes: 12
+  width: 20
+  #Inverse
+  data_path: '../data/2D/DarcyFlow/Train/'
+  training_type: 'single'  #autoregressive
+  #Inverse MCMC
+  mcmc_num_samples: 20
+  mcmc_warmup_steps: 10
+  mcmc_num_chains: 1
+  num_samples_max: 1000
+  in_channels_hid: 64
+  inverse_model_type: InitialConditionInterp    
+  #Inverse grad
+  inverse_epochs: 100
+  inverse_learning_rate: 0.2
+  inverse_verbose_flag: False
+  #plotting
+  plot: False
+  channel_plot: 0 # Which channel/variable to be plotted
+  x_min: -1
+  x_max: 1    # spatial dimension x: [-1, 1]
+  y_min: -1
+  y_max: 1    # spatial dimension y: [-1, 1]
+  t_min: 0
+  t_max: 5    # time dimension t: [0, 5]
