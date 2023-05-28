@@ -175,3 +175,7 @@ debug/
 
 # macos
 .DS_Store
+
+# neural net, sciml artefacts
+.pt
+.hdf5
