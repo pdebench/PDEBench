@@ -285,11 +285,17 @@ Below is an illustration of the directory structure of PDEBench.
 ```
 
 
-
 ------
 
-
 ## Citations
+
+Please cite the following papers if you use PDEBench datasets and/or source code in your research.
+
+<details>
+<summary>
+    <a href="https://arxiv.org/abs/2210.07182">PDEBench: An Extensive Benchmark for Scientific Machine Learning - NeurIPS'2022 </a>
+</summary>
+<br/>
 
 ```
 @inproceedings{PDEBench2022,
@@ -299,8 +305,18 @@ year = {2022},
 booktitle = {36th Conference on Neural Information Processing Systems (NeurIPS 2022) Track on Datasets and Benchmarks},
 url = {https://arxiv.org/abs/2210.07182}
 }
+```
+
+</details>
 
 
+<details>
+<summary>
+    <a href="https://doi.org/10.18419/darus-2986">PDEBench Datasets - NeurIPS'2022 </a>
+</summary>
+<br/>
+
+```
 @data{darus-2986_2022,
 author = {Takamoto, Makoto and Praditia, Timothy and Leiteritz, Raphael and MacKinlay, Dan and Alesiani, Francesco and Pflüger, Dirk and Niepert, Mathias},
 publisher = {DaRUS},
@@ -310,6 +326,33 @@ doi = {10.18419/darus-2986},
 url = {https://doi.org/10.18419/darus-2986}
 }
 ```
+</details>
+
+<details>
+<summary>
+    <a href="https://arxiv.org/abs/2304.14118">Learning Neural PDE Solvers with Parameter-Guided Channel Attention - ICML'2023 </a>
+</summary>
+<br/>
+  
+ ```
+ @article{cape-takamoto:2023,
+      author   = {Makoto Takamoto and
+                  Francesco Alesiani and
+                  Mathias Niepert},
+  title        = {Learning Neural {PDE} Solvers with Parameter-Guided Channel Attention},
+  journal      = {CoRR},
+  volume       = {abs/2304.14118},
+  year         = {2023},
+  url          = {https://doi.org/10.48550/arXiv.2304.14118},
+  doi          = {10.48550/arXiv.2304.14118},
+  eprinttype    = {arXiv},
+  eprint       = {2304.14118},
+  }
+ ```
+  
+</details>
+
+------
 
 ## Code contributors
 
