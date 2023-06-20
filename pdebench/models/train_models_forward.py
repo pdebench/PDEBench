@@ -155,14 +155,12 @@ from functools import partial
 
 from timeit import default_timer
 
-from pdebench.models.fno.train import run_training as run_training_FNO
-from pdebench.models.pinn.train import run_training as run_training_PINN
-from pdebench.models.unet.train import run_training as run_training_Unet
 
 
 @hydra.main(version_base="1.2", config_path="config", config_name="config_darcy")
 def main(cfg: DictConfig):
     if cfg.args.model_name == "FNO":
+        from pdebench.models.fno.train import run_training as run_training_FNO
         print("FNO")
         run_training_FNO(
             if_training=cfg.args.if_training,
@@ -196,6 +194,7 @@ def main(cfg: DictConfig):
             t_max=cfg.args.t_max,
         )
     elif cfg.args.model_name == "Unet":
+        from pdebench.models.unet.train import run_training as run_training_Unet
         print("Unet")
         run_training_Unet(
             if_training=cfg.args.if_training,
@@ -229,6 +228,8 @@ def main(cfg: DictConfig):
             t_max=cfg.args.t_max,
         )
     elif cfg.args.model_name == "PINN":
+        # not importing globally as DeepXDE changes some global PyTorch settings
+        from pdebench.models.pinn.train import run_training as run_training_PINN
         print("PINN")
         run_training_PINN(
             scenario=cfg.args.scenario,
