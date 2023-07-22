@@ -1,14 +1,15 @@
 # PDEBench
 
 The code repository for the NeurIPS 2022 paper 
-[PDEBench: An Extensive Benchmark for Scientific Machine Learning](https://arxiv.org/abs/2210.07182)
+[PDEBench: An Extensive Benchmark for Scientific Machine Learning](https://arxiv.org/abs/2210.07182) :tada: **SimTech Best Paper Award 2023** :confetti_ball:  
 
 PDEBench provides a diverse and comprehensive set of benchmarks for scientific machine learning, including challenging and realistic physical problems. This repository consists of the code used to generate the datasets, to upload and download the datasets from the data repository, as well as to train and evaluate different machine learning models as baselines. PDEBench features a much wider range of PDEs than existing benchmarks and includes realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial and boundary conditions, and PDE parameters. Moreover, PDEBench was created to make the source code extensible and we invite active participation from the SciML community to improve and extend the benchmark.
 
 ![Visualizations of some PDE problems covered by the benchmark.](https://github.com/pdebench/PDEBench/blob/main/pdebench_examples.PNG)
 
-
 Created and maintained by Makoto Takamoto `<makoto.takamoto@neclab.eu, takamtmk@gmail.com>`, Timothy Praditia `<timothy.praditia@iws.uni-stuttgart.de>`, Raphael Leiteritz, Dan MacKinlay, Francesco Alesiani, Dirk Pflüger, and Mathias Niepert.
+
+---------------
 
 ## Datasets and Pretrained Models
 
@@ -333,7 +334,7 @@ url = {https://doi.org/10.18419/darus-2986}
     <a href="https://arxiv.org/abs/2304.14118">Learning Neural PDE Solvers with Parameter-Guided Channel Attention - ICML'2023 </a>
 </summary>
 <br/>
-  
+
  ```
  @article{cape-takamoto:2023,
       author   = {Makoto Takamoto and
@@ -349,7 +350,7 @@ url = {https://doi.org/10.18419/darus-2986}
   eprint       = {2304.14118},
   }
  ```
-  
+
 </details>
 
 ------
