@@ -1140,7 +1140,7 @@ def init_multi_HD_3DRand(u, xc, yc, zc, numbers=10000, init_key=2022, M0=0.1, k_
                         continue
                     # random phase
                     key, subkey = random.split(key)
-                    phs = 2. * jnp.pi * random.uniform(key, shape=[3])  # (vi, k)
+                    phs = 2. * jnp.pi * random.uniform(key, shape=[5])  # (vi, k)
 
                     uk = 1./jnp.sqrt(kx**2 + ky**2 + kz**2)
                     kdx = kx * xc[:,None,None] + ky * yc[None,:,None] + kz * zc[None,None,:]
