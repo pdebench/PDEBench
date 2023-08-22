@@ -29,21 +29,29 @@ DOIs
 
 ## Installation
 
-    pip install .
-
-## Requirements
-
 ### Using pip
+
+Locally:
 ```bash
-python3 -m venv ./venv --prompt pde_benchmark --system-site-packages 
-. ./venv/bin/activate
 pip install --upgrade pip wheel
-pip install -r requirements.txt
+pip install .
 ```
 
-The minimum required packages to train and run the baseline ML models are listed in [requirements.txt](./requirements.txt).
+From PyPI:
+```bash
+pip install pdebench
+```
 
-To run the data generation scripts, the complete package requirements are listed in [requirements_datagen.txt](./requirements_datagen.txt)
+To include dependencies for data generation:
+```bash
+pip install "pdebench[datagen]"
+```
+or
+```bash
+pip install ".[datagen]"
+```
+
+### GPU Support
 
 For GPU support there are additional platform-specific instructions:
 
@@ -51,7 +59,8 @@ For PyTorch, [see here](https://pytorch.org/get-started/locally/).
 
 For JAX, which is approximately 6 times faster for simulations than PyTorch in our tests, [see here](https://github.com/google/jax#installation)
 
-### Using conda:
+
+## Installation using conda:
 
 If you like you can also install dependencies using anaconda. We suggest using [miniforge](https://github.com/conda-forge/miniforge) (and possibly mamba) as distribution. Otherwise you may have to __enable the conda-forge__ channel for the following commands.
 
@@ -77,11 +86,6 @@ conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 Optional dependencies for data generation:
 ```
 conda install clawpack jax jaxlib python-dotenv
-```
-
-Optional dependencies for data downloading:
-```
-pip install pyDarus~=1.0.5
 ```
 
 ## Configuring DeepXDE
