@@ -38,7 +38,7 @@ Documentation = "https://github.com/pdebench/PDEBench"
 Repository = "https://github.com/pdebench/PDEBench"
 
 [project.optional-dependencies]
-datagen = [
+datagen310 = [
     "clawpack@git+https://github.com/clawpack/clawpack.git@d619d6835ce128a0421aa52d70d2a6c9d9d1ce93",
     "dash",
     "phiflow",
@@ -46,6 +46,15 @@ datagen = [
     "einops",
     "jax==0.4.14",
     "jaxlib @ https://storage.googleapis.com/jax-releases/cuda12/jaxlib-0.4.14+cuda12.cudnn89-cp310-cp310-manylinux2014_x86_64.whl",
+]
+datagen39 = [
+    "clawpack@git+https://github.com/clawpack/clawpack.git@d619d6835ce128a0421aa52d70d2a6c9d9d1ce93",
+    "dash",
+    "phiflow",
+    "imageio",
+    "einops",
+    "jax==0.4.14",
+    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda12/jaxlib-0.4.14+cuda12.cudnn89-cp39-cp39-manylinux2014_x86_64.whl",
 ]
 
 [tool.setuptools.dynamic]

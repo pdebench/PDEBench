@@ -44,11 +44,13 @@ pip install pdebench
 
 To include dependencies for data generation:
 ```bash
-pip install "pdebench[datagen]"
+pip install "pdebench[datagen310]"
+pip install ".[datagen310]" # locally
 ```
 or
 ```bash
-pip install ".[datagen]"
+pip install "pdebench[datagen39]"
+pip install ".[datagen39]" # locally
 ```
 
 ### GPU Support
