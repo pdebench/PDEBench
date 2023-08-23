@@ -44,8 +44,10 @@ datagen310 = [
     "phiflow",
     "imageio",
     "einops",
-    "jax==0.4.14",
-    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda12/jaxlib-0.4.14+cuda12.cudnn89-cp310-cp310-manylinux2014_x86_64.whl",
+    "torch @ https://download.pytorch.org/whl/cu117/torch-1.13.1%2Bcu117-cp310-cp310-linux_x86_64.whl",
+    "torchvision @ https://download.pytorch.org/whl/cu117/torchvision-0.14.1%2Bcu117-cp310-cp310-linux_x86_64.whl",
+    "jax==0.4.11",
+    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda11/jaxlib-0.4.11+cuda11.cudnn86-cp310-cp310-manylinux2014_x86_64.whl",
 ]
 datagen39 = [
     "clawpack@git+https://github.com/clawpack/clawpack.git@d619d6835ce128a0421aa52d70d2a6c9d9d1ce93",
@@ -53,8 +55,10 @@ datagen39 = [
     "phiflow",
     "imageio",
     "einops",
-    "jax==0.4.14",
-    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda12/jaxlib-0.4.14+cuda12.cudnn89-cp39-cp39-manylinux2014_x86_64.whl",
+    "torch @ https://download.pytorch.org/whl/cu117/torch-1.13.1%2Bcu117-cp39-cp39-linux_x86_64.whl",
+    "torchvision @ https://download.pytorch.org/whl/cu117/torchvision-0.14.1%2Bcu117-cp39-cp39-linux_x86_64.whl",
+    "jax==0.4.11",
+    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda11/jaxlib-0.4.11+cuda11.cudnn86-cp39-cp39-manylinux2014_x86_64.whl"
 ]
 
 [tool.setuptools.dynamic]
