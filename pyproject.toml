@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+requires-python = ">=3.9,<3.11"
+dynamic = ["readme"]
+name = "pdebench"
+version = "0.1.0"
+description = "PDEBench: An Extensive Benchmark for Scientific Machine Learning"
+authors = [
+    {name = "Makoto Takamoto", email = "Makoto.Takamoto@neclab.eu"},
+    {name = "Timothy Praditia", email = "timothy.praditia@iws.uni-stuttgart.de"},
+    {name = "Raphael Leiteritz", email = "raphael.leiteritz@ipvs.uni-stuttgart.de"},
+    {name = "Dan MacKinlay"},
+    {name = "Francesco Alesiani"},
+    {name = "Dirk Pflüger"},
+    {name = "Mathias Niepert"},
+]
+license = {file = "LICENSE.txt"}
+dependencies = [
+    "scipy",                   
+    "matplotlib",              
+    "h5py",                    
+    "pandas",                  
+    "python-dotenv",          
+    "hydra-core",              
+    "torch~=1.13.0",
+    "torchvision~=0.14.1",             
+    "deepxde~=1.1.3",                 
+    "pyro-ppl",                       
+    "tqdm",
+]
+
+[project.urls]
+Homepage = "https://github.com/pdebench/PDEBenchm"
+Documentation = "https://github.com/pdebench/PDEBench"
+Repository = "https://github.com/pdebench/PDEBench"
+
+[project.optional-dependencies]
+datagen310 = [
+    "clawpack@git+https://github.com/clawpack/clawpack.git@d619d6835ce128a0421aa52d70d2a6c9d9d1ce93",
+    "dash",
+    "phiflow",
+    "imageio",
+    "einops",
+    "torch @ https://download.pytorch.org/whl/cu117/torch-1.13.1%2Bcu117-cp310-cp310-linux_x86_64.whl",
+    "torchvision @ https://download.pytorch.org/whl/cu117/torchvision-0.14.1%2Bcu117-cp310-cp310-linux_x86_64.whl",
+    "jax==0.4.11",
+    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda11/jaxlib-0.4.11+cuda11.cudnn86-cp310-cp310-manylinux2014_x86_64.whl",
+]
+datagen39 = [
+    "clawpack@git+https://github.com/clawpack/clawpack.git@d619d6835ce128a0421aa52d70d2a6c9d9d1ce93",
+    "dash",
+    "phiflow",
+    "imageio",
+    "einops",
+    "torch @ https://download.pytorch.org/whl/cu117/torch-1.13.1%2Bcu117-cp39-cp39-linux_x86_64.whl",
+    "torchvision @ https://download.pytorch.org/whl/cu117/torchvision-0.14.1%2Bcu117-cp39-cp39-linux_x86_64.whl",
+    "jax==0.4.11",
+    "jaxlib @ https://storage.googleapis.com/jax-releases/cuda11/jaxlib-0.4.11+cuda11.cudnn86-cp39-cp39-manylinux2014_x86_64.whl"
+]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
