@@ -1,7 +1,9 @@
 # PDEBench
 
 The code repository for the NeurIPS 2022 paper 
-[PDEBench: An Extensive Benchmark for Scientific Machine Learning](https://arxiv.org/abs/2210.07182) :tada: **SimTech Best Paper Award 2023** :confetti_ball:  
+[PDEBench: An Extensive Benchmark for Scientific Machine Learning](https://arxiv.org/abs/2210.07182) 
+
+:tada: [**SimTech Best Paper Award 2023**](https://www.simtech.uni-stuttgart.de/press/SimTech-Best-Paper-Award-2023-Benchmark-for-ML-for-scientific-simulations) :confetti_ball:
 
 PDEBench provides a diverse and comprehensive set of benchmarks for scientific machine learning, including challenging and realistic physical problems. This repository consists of the code used to generate the datasets, to upload and download the datasets from the data repository, as well as to train and evaluate different machine learning models as baselines. PDEBench features a much wider range of PDEs than existing benchmarks and includes realistic and difficult problems (both forward and inverse), larger ready-to-use datasets comprising various initial and boundary conditions, and PDE parameters. Moreover, PDEBench was created to make the source code extensible and we invite active participation from the SciML community to improve and extend the benchmark.
 
@@ -57,14 +59,14 @@ pip install ".[datagen39]" # locally
 
 For GPU support there are additional platform-specific instructions:
 
-For PyTorch, [see here](https://pytorch.org/get-started/locally/).
+For PyTorch, the latest version we support is v1.13.1 [see previous-versions/#linux - CUDA 11.7](https://pytorch.org/get-started/previous-versions/#linux-and-windows-2).
 
-For JAX, which is approximately 6 times faster for simulations than PyTorch in our tests, [see here](https://github.com/google/jax#installation)
+For JAX, which is approximately 6 times faster for simulations than PyTorch in our tests, [see jax#pip-installation-gpu-cuda-installed-via-pip](https://github.com/google/jax#pip-installation-gpu-cuda-installed-via-pip-easier)
 
 
 ## Installation using conda:
 
-If you like you can also install dependencies using anaconda. We suggest using [miniforge](https://github.com/conda-forge/miniforge) (and possibly mamba) as distribution. Otherwise you may have to __enable the conda-forge__ channel for the following commands.
+If you like you can also install dependencies using anaconda, we suggest to use [mambaforge](https://github.com/conda-forge/miniforge#mambaforge) as a distribution. Otherwise you may have to __enable the conda-forge__ channel for the following commands.
 
 Starting from a fresh environment:
 
@@ -75,15 +77,23 @@ conda activate myenv
 
 Install dependencies for model training:
 ```
-conda install deepxde hydra-core h5py
+conda install deepxde hydra-core h5py -c conda-forge
 ```
 
-[Install PyTorch](https://pytorch.org/get-started/locally/) according to your hardware requirements: 
+According to your hardware availability, either install PyTorch with CUDA support:
 
-E.g.
+ - [see previous-versions/#linux - CUDA 11.7](https://pytorch.org/get-started/previous-versions/#linux-and-windows-2).
+
 ```
-conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia
 ```
+
+ - [or CPU only binaries](https://pytorch.org/get-started/previous-versions/#linux-and-windows-2).
+
+```
+conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 cpuonly -c pytorch
+```
+
 
 Optional dependencies for data generation:
 ```
