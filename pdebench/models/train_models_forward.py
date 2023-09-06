@@ -215,6 +215,7 @@ def main(cfg: DictConfig):
             model_update=cfg.args.model_update,
             flnm=cfg.args.filename,
             single_file=cfg.args.single_file,
+            base_path=cfg.args.data_path,
             reduced_resolution=cfg.args.reduced_resolution,
             reduced_resolution_t=cfg.args.reduced_resolution_t,
             reduced_batch=cfg.args.reduced_batch,
