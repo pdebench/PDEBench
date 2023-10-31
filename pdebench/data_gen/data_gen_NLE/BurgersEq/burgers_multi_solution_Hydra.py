@@ -262,7 +262,7 @@ def main(cfg: DictConfig) -> None:
         fL = 0.5*uL**2
         fR = 0.5*uR**2
         # upwind advection scheme
-        f_upwd = (fR[1:cfg.multi.nx+2] + fL[2:cfg.multi.nx+3]
+        f_upwd = 0.5 * (fR[1:cfg.multi.nx+2] + fL[2:cfg.multi.nx+3]
                - 0.5*jnp.abs(uL[2:cfg.multi.nx+3] + uR[1:cfg.multi.nx+2])*(uL[2:cfg.multi.nx+3] - uR[1:cfg.multi.nx+2]))
         # source term
         f_upwd += - epsilon*pi_inv*(_u[2:cfg.multi.nx+3] - _u[1:cfg.multi.nx+2])*dx_inv
