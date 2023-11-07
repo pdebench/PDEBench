@@ -338,7 +338,7 @@ class FNODatasetSingle(Dataset):
                         X, Y = torch.meshgrid(x, y)
                         self.grid = torch.stack((X, Y), axis=-1)[::reduced_resolution, ::reduced_resolution]
 
-        elif filename[-2:] == 'h5':
+        elif filename[-2:] == 'h5':  # SWE-2D (RDB)
             print(f".H5 file extension is assumed hereafter")
         
             with h5py.File(root_path, 'r') as f:
