@@ -252,7 +252,7 @@ class FNODatasetSingle(Dataset):
                         y = np.array(f["y-coordinate"], dtype=np.float32)
                         x = torch.tensor(x, dtype=torch.float)
                         y = torch.tensor(y, dtype=torch.float)
-                        X, Y = torch.meshgrid(x, y)
+                        X, Y = torch.meshgrid(x, y, indexing='ij')
                         self.grid = torch.stack((X, Y), axis=-1)[::reduced_resolution, ::reduced_resolution]
                 
                     if len(idx_cfd)==5:  # 3D
@@ -299,7 +299,7 @@ class FNODatasetSingle(Dataset):
                         x = torch.tensor(x, dtype=torch.float)
                         y = torch.tensor(y, dtype=torch.float)
                         z = torch.tensor(z, dtype=torch.float)
-                        X, Y, Z = torch.meshgrid(x, y, z)
+                        X, Y, Z = torch.meshgrid(x, y, z, indexing='ij')
                         self.grid = torch.stack((X, Y, Z), axis=-1)[::reduced_resolution,\
                                                                     ::reduced_resolution,\
                                                                     ::reduced_resolution]
@@ -335,7 +335,7 @@ class FNODatasetSingle(Dataset):
                         y = np.array(f["y-coordinate"], dtype=np.float32)
                         x = torch.tensor(x, dtype=torch.float)
                         y = torch.tensor(y, dtype=torch.float)
-                        X, Y = torch.meshgrid(x, y)
+                        X, Y = torch.meshgrid(x, y, indexing='ij')
                         self.grid = torch.stack((X, Y), axis=-1)[::reduced_resolution, ::reduced_resolution]
 
         elif filename[-2:] == 'h5':  # SWE-2D (RDB)
@@ -349,7 +349,7 @@ class FNODatasetSingle(Dataset):
                 _data = _data[::reduced_batch, ::reduced_resolution_t, ::reduced_resolution, ::reduced_resolution, ...]
                 _data = torch.permute(_data, (0, 2, 3, 1, 4))   # [batch, nx, ny, nt, nc]
                 gridx, gridy = np.array(f['0023']['grid']['x'], dtype=np.float32), np.array(f['0023']['grid']['y'], dtype=np.float32)
-                mgridX, mgridY = np.meshgrid(gridx, gridy)
+                mgridX, mgridY = np.meshgrid(gridx, gridy, indexing='ij')
                 _grid = torch.stack((torch.from_numpy(mgridX), torch.from_numpy(mgridY)), axis=-1)
                 grid = _grid[::reduced_resolution, ::reduced_resolution, ...]
                 _tsteps_t = torch.from_numpy(np.array(f['0023']['grid']['t'], dtype=np.float32))
@@ -449,7 +449,7 @@ class FNODatasetMult(Dataset):
                 y = np.array(seed_group["grid"]["y"], dtype='f')
                 x = torch.tensor(x, dtype=torch.float)
                 y = torch.tensor(y, dtype=torch.float)
-                X, Y = torch.meshgrid(x, y)
+                X, Y = torch.meshgrid(x, y, indexing='ij')
                 grid = torch.stack((X,Y),axis=-1)
             elif dim == 3:
                 x = np.array(seed_group["grid"]["x"], dtype='f')
@@ -458,7 +458,7 @@ class FNODatasetMult(Dataset):
                 x = torch.tensor(x, dtype=torch.float)
                 y = torch.tensor(y, dtype=torch.float)
                 z = torch.tensor(z, dtype=torch.float)
-                X, Y, Z = torch.meshgrid(x, y, z)
+                X, Y, Z = torch.meshgrid(x, y, z, indexing='ij')
                 grid = torch.stack((X,Y,Z),axis=-1)
         
         return data[...,:self.initial_step,:], data, grid
