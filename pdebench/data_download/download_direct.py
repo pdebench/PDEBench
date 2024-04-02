@@ -31,7 +31,7 @@ def parse_metadata(pde_names):
     pde_df : Filtered dataframe containing metadata of files to be downloaded
     """
 
-    meta_df = pd.read_csv("download_metadata.csv")
+    meta_df = pd.read_csv("pdebench_data_urls.csv")
 
     # Ensure the pde_name is defined
     pde_list = [
