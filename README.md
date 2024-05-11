@@ -304,7 +304,7 @@ Below is an illustration of the directory structure of PDEBench.
 
 ------
 
-## Citations
+## Publications & Citations
 
 Please cite the following papers if you use PDEBench datasets and/or source code in your research.
 
@@ -323,7 +323,6 @@ booktitle = {36th Conference on Neural Information Processing Systems (NeurIPS 2
 url = {https://arxiv.org/abs/2210.07182}
 }
 ```
-
 </details>
 
 
@@ -366,7 +365,22 @@ url = {https://doi.org/10.18419/darus-2986}
   eprint       = {2304.14118},
   }
  ```
+</details>
 
+<details>
+<summary>
+    <a href="https://openreview.net/forum?id=I4WlXAA9Gd"> Vectorized Conditional Neural Fields: A Framework for Solving Time-dependent Parametric Partial Differential Equations - ICLR-W'2024 & ICML'2024 </a>
+</summary>
+<br/>
+
+ ```
+@inproceedings{vcnef-vectorized-conditional-neural-fields-hagnberger:2024,
+author = {Hagnberger, Jan and Kalimuthu, Marimuthu and Musekamp, Daniel and Niepert, Mathias},
+title = {{Vectorized Conditional Neural Fields: A Framework for Solving Time-dependent Parametric Partial Differential Equations}},
+year = {2024},
+booktitle = {Proceedings of the 41st International Conference on Machine Learning (ICML 2024)}
+}
+ ```
 </details>
 
 ------
