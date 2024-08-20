@@ -65,8 +65,7 @@ def visualize_diff_sorp(path, seed=None):
         ims.append([im[0]])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_diff_sorp.gif", writer=writer)
@@ -115,8 +114,7 @@ def visualize_2d_reacdiff(path, seed=None):
         ims.append([im1, im2])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_2d_reacdiff.gif", writer=writer)
@@ -161,8 +159,7 @@ def visualize_swe(path, seed=None):
         ims.append([im])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_swe.gif", writer=writer)
@@ -209,8 +206,7 @@ def visualize_burgers(path, param=None):
         ims.append([im[0]])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_burgers.gif", writer=writer)
@@ -253,8 +249,7 @@ def visualize_advection(path, param=None):
         ims.append([im[0]])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_advection.gif", writer=writer)
@@ -272,8 +267,7 @@ def visualize_1d_cfd(path, param=None):
 
     # Read the h5 file and store the data
     if param is not None:
-        assert len(
-            param) == 4, "param should include type,eta,zeta,boundary as list"
+        assert len(param) == 4, "param should include type,eta,zeta,boundary as list"
         flnm = (
             "1D_CFD_"
             + str(param[0])
@@ -310,8 +304,7 @@ def visualize_1d_cfd(path, param=None):
         ims.append([im[0]])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_1d_cfd.gif", writer=writer)
@@ -368,8 +361,7 @@ def visualize_2d_cfd(path, param=None):
         ims.append([im])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie.gif", writer=writer)
@@ -379,8 +371,7 @@ def visualize_2d_cfd(path, param=None):
 def visualize_3d_cfd(path, param=None):
     # Read the h5 file and store the data
     if param is not None:
-        assert len(
-            param) == 5, "param should include type,M,eta,zeta,boundary as list"
+        assert len(param) == 5, "param should include type,M,eta,zeta,boundary as list"
         flnm = (
             "3D_CFD_"
             + str(param[0])
@@ -415,8 +406,7 @@ def visualize_3d_cfd(path, param=None):
         ims.append([im])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie.gif", writer=writer)
@@ -500,8 +490,7 @@ def visualize_1d_reacdiff(path, param=None):
         ims.append([im[0]])
 
     # Animate the plot
-    ani = animation.ArtistAnimation(
-        fig, ims, interval=50, blit=True, repeat_delay=1000)
+    ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_1d_reacdiff.gif", writer=writer)

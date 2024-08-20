@@ -49,14 +49,12 @@ class Basic2DScenario(ABC):
 
     def __get_u(self):
         return (
-            self.claw_state.q[self.momentumId_x, :] /
-            self.claw_state.q[self.depthId, :]
+            self.claw_state.q[self.momentumId_x, :] / self.claw_state.q[self.depthId, :]
         ).tolist()
 
     def __get_v(self):
         return (
-            self.claw_state.q[self.momentumId_y, :] /
-            self.claw_state.q[self.depthId, :]
+            self.claw_state.q[self.momentumId_y, :] / self.claw_state.q[self.depthId, :]
         ).tolist()
 
     def __get_hu(self):
