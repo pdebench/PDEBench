@@ -8,12 +8,13 @@
 bash data_gen/data_gen_NLE/ReactionDiffusionEq/run_DarcyFlow2D.sh
 ```
 
-which will in turn run the python script `data_gen/data_gen_NLE/ReactionDiffusionEq/reaction_diffusion_2D_multi_soluion_Hydra.py`
+which will in turn run the python script
+`data_gen/data_gen_NLE/ReactionDiffusionEq/reaction_diffusion_2D_multi_soluion_Hydra.py`
 
 - Update `data_gen/data_gen_NLE/config/config.yaml` to:
 
 ```yaml
-type: 'ReacDiff'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+type: "ReacDiff" # 'advection'/'ReacDiff'/'burgers'/'CFD'
 dim: 2
 ```
 
@@ -22,4 +23,3 @@ dim: 2
 ```bash
 python data_gen/data_gen_NLE/Data_Merge.py
 ```
-

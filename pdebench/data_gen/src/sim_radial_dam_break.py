@@ -1,15 +1,12 @@
-from abc import abstractmethod
-from abc import ABC
+from __future__ import annotations
 
 import os
-import sys
 import time
+from abc import ABC, abstractmethod
 
-import h5py
 import numpy as np
 import torch
-from clawpack import riemann
-from clawpack import pyclaw
+from clawpack import pyclaw, riemann
 
 
 class Basic2DScenario(ABC):
@@ -52,12 +49,14 @@ class Basic2DScenario(ABC):
 
     def __get_u(self):
         return (
-            self.claw_state.q[self.momentumId_x, :] / self.claw_state.q[self.depthId, :]
+            self.claw_state.q[self.momentumId_x, :] /
+            self.claw_state.q[self.depthId, :]
         ).tolist()
 
     def __get_v(self):
         return (
-            self.claw_state.q[self.momentumId_y, :] / self.claw_state.q[self.depthId, :]
+            self.claw_state.q[self.momentumId_y, :] /
+            self.claw_state.q[self.depthId, :]
         ).tolist()
 
     def __get_hu(self):

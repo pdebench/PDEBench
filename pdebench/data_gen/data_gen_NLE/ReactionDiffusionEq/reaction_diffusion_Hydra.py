@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -145,36 +144,37 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+from __future__ import annotations
 
-import time
 import sys
+import time
 from math import ceil
 
-# Hydra
-from omegaconf import DictConfig, OmegaConf
 import hydra
-
 import jax
 import jax.numpy as jnp
 from jax import device_put, lax
 
-sys.path.append('..')
-from utils import init, Courant_diff, save_data, bc
+# Hydra
+from omegaconf import DictConfig
+
+sys.path.append("..")
+from utils import Courant_diff, bc, init
 
 
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
-    print('nu: {0:.3f}, rho: {1:.3f}'.format(cfg.args.nu, cfg.args.rho))
+    print(f"nu: {cfg.args.nu:.3f}, rho: {cfg.args.rho:.3f}")
 
     # basic parameters
-    dx = (cfg.args.xR - cfg.args.xL)/cfg.args.nx
-    dx_inv = 1./dx
+    dx = (cfg.args.xR - cfg.args.xL) / cfg.args.nx
+    dx_inv = 1.0 / dx
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.args.xL, cfg.args.xR, cfg.args.nx + 1)
     # cell center coordinate
-    xc = xe[:-1] + 0.5*dx
+    xc = xe[:-1] + 0.5 * dx
     # t-coordinate
     it_tot = ceil((cfg.args.fin_time - cfg.args.ini_time) / cfg.args.dt_save) + 1
     tc = jnp.arange(it_tot + 1) * cfg.args.dt_save
@@ -185,7 +185,7 @@ def main(cfg: DictConfig) -> None:
         steps = 0
         i_save = 0
         tm_ini = time.time()
-        dt = 0.
+        dt = 0.0
 
         uu = jnp.zeros([it_tot, u.shape[0]])
         uu = uu.at[0].set(u)
@@ -196,14 +196,16 @@ def main(cfg: DictConfig) -> None:
                 tsave += cfg.args.dt_save
                 i_save += 1
 
-            if steps%cfg.args.show_steps==0 and cfg.args.if_show:
-                print('now {0:d}-steps, t = {1:.3f}, dt = {2:.3f}'.format(steps, t, dt))
+            if steps % cfg.args.show_steps == 0 and cfg.args.if_show:
+                print(f"now {steps:d}-steps, t = {t:.3f}, dt = {dt:.3f}")
 
             carry = (u, t, dt, steps, tsave)
-            u, t, dt, steps, tsave = lax.fori_loop(0, cfg.args.show_steps, simulation_fn, carry)
+            u, t, dt, steps, tsave = lax.fori_loop(
+                0, cfg.args.show_steps, simulation_fn, carry
+            )
 
         tm_fin = time.time()
-        print('total elapsed time is {} sec'.format(tm_fin - tm_ini))
+        print(f"total elapsed time is {tm_fin - tm_ini} sec")
         return uu, t
 
     @jax.jit
@@ -219,11 +221,12 @@ def main(cfg: DictConfig) -> None:
             # update using flux at t+dt/2-th time step
             u = update(u, u_tmp, dt)
             return u, dt
+
         def _pass(carry):
             return carry
 
         carry = u, dt
-        u, dt = lax.cond(t > 1.e-8, _update, _pass, carry)
+        u, dt = lax.cond(t > 1.0e-8, _update, _pass, carry)
 
         t += dt
         steps += 1
@@ -235,32 +238,45 @@ def main(cfg: DictConfig) -> None:
         u = Piecewise_Exact_Solution(u, dt)
         # diffusion
         f = flux(u_tmp)
-        u -= dt * dx_inv * (f[1:cfg.args.nx + 1] - f[0:cfg.args.nx])
+        u -= dt * dx_inv * (f[1 : cfg.args.nx + 1] - f[0 : cfg.args.nx])
         return u
 
     @jax.jit
     def flux(u):
-        _u = bc(u, dx, Ncell=cfg.args.nx) # index 2 for _U is equivalent with index 0 for u
+        _u = bc(
+            u, dx, Ncell=cfg.args.nx
+        )  # index 2 for _U is equivalent with index 0 for u
         # source term
-        f = - cfg.args.nu*(_u[2:cfg.args.nx+3] - _u[1:cfg.args.nx+2])*dx_inv
+        f = -cfg.args.nu * (_u[2 : cfg.args.nx + 3] - _u[1 : cfg.args.nx + 2]) * dx_inv
         return f
 
     @jax.jit
     def Piecewise_Exact_Solution(u, dt):  # Piecewise_Exact_Solution method
         # stiff equation
-        u = 1./(1. + jnp.exp(- cfg.args.rho*dt)*(1. - u)/u)
+        u = 1.0 / (1.0 + jnp.exp(-cfg.args.rho * dt) * (1.0 - u) / u)
         return u
 
     u = init(xc=xc, mode=cfg.args.init_mode)
     u = device_put(u)  # putting variables in GPU (not necessary??)
     uu, t = evolve(u)
-    print('final time is: {0:.3f}'.format(t))
+    print(f"final time is: {t:.3f}")
 
-    print('data saving...')
-    cwd = hydra.utils.get_original_cwd() + '/'
-    jnp.save(cwd + cfg.args.save + '/ReacDiff_' + cfg.args.init_mode + '_Nu' + str(cfg.args.nu) + '_Rho' + str(cfg.args.rho), uu)
-    jnp.save(cwd + cfg.args.save + '/x_coordinate', xc)
-    jnp.save(cwd + cfg.args.save + '/t_coordinate', tc)
+    print("data saving...")
+    cwd = hydra.utils.get_original_cwd() + "/"
+    jnp.save(
+        cwd
+        + cfg.args.save
+        + "/ReacDiff_"
+        + cfg.args.init_mode
+        + "_Nu"
+        + str(cfg.args.nu)
+        + "_Rho"
+        + str(cfg.args.rho),
+        uu,
+    )
+    jnp.save(cwd + cfg.args.save + "/x_coordinate", xc)
+    jnp.save(cwd + cfg.args.save + "/t_coordinate", tc)
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     main()
