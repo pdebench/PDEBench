@@ -318,7 +318,7 @@ class UNetDataset(Dataset):
             self.data = self.data[test_idx:num_samples_max]
             if if_use_val:
                 if if_CV:
-                    _n_CV_itr = min(n_CV_itr, num_samples_max - test_idx)
+                    _n_CV_itr = min(n_CV_itr, int(1 / test_ratio))
                 else:
                     _n_CV_itr = 0
                 train, val = self.custom_cv_kfolds(self.data, n_itr=_n_CV_itr, N_cv=int(1 / test_ratio))
@@ -333,13 +333,8 @@ class UNetDataset(Dataset):
         self.data = torch.tensor(self.data)
 
     @staticmethod
-    def custom_cv_kfolds(data, n_itr, N_cv, if_fix_seed=False):
-        import random
-        if not if_fix_seed:
-            random.seed(2023)
+    def custom_cv_kfolds(data, n_itr, N_cv):
         nb = data.shape[0]
-        index = [i for i in range(nb)]
-        random.shuffle(index)
         ncv = nb // N_cv
         if n_itr == 0:
             return data[ncv:], data[:ncv]
