@@ -20,7 +20,7 @@ authors = [
 license = {file = "LICENSE.txt"}
 dependencies = [
     "scipy",
-    "numpy",
+    "numpy<2",
     "matplotlib",
     "h5py",
     "pandas",
@@ -36,7 +36,6 @@ dependencies = [
 [project.optional-dependencies]
 datagen310 = [
     "six",
-    "numpy",
     "clawpack@git+https://github.com/clawpack/clawpack.git@d619d6835ce128a0421aa52d70d2a6c9d9d1ce93",
     "dash",
     "phiflow",
@@ -49,7 +48,6 @@ datagen310 = [
 ]
 datagen39 = [
     "six",
-    "numpy",
     "clawpack@git+https://github.com/clawpack/clawpack.git@d619d6835ce128a0421aa52d70d2a6c9d9d1ce93",
     "dash",
     "phiflow",

@@ -14,7 +14,7 @@
   "runArgs": ["--gpus", "all"],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "pip3 install --user -e .[dev,test,datagen310]"
+  "postCreateCommand": "sudo apt update -y && sudo apt upgrade -y && sudo apt install gfortran -y && pip3 install --user -e .[dev,test,datagen310]"
 
   // Configure tool-specific properties.
   // "customizations": {},

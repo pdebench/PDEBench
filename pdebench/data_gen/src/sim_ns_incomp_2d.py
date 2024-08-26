@@ -14,13 +14,14 @@ import numpy as np
 from pdebench.data_gen.src import data_io
 from tqdm import tqdm
 
-log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, filename=__name__)
+logging.root.setLevel(logging.INFO)
 
 
 # import wandb
 
 
-def call_many(fn_list, *args, **kwargs):
+def call_many(fn_list, *args, **kwargs) -> list[callable]:
     """
     Surely there is already a helper function for this somewhere.
     inverse map?
@@ -47,28 +48,21 @@ def ns_sim(
     n_steps: int = 10,
     DT: float = 0.01,
     frame_int: int = 1,
-    n_batch=1,
-    backend="jax",
-    device="GPU",
-    jit=True,
+    n_batch: int = 1,
+    backend: str = "jax",
+    device: str = "GPU",
+    jit: bool = True,
     profile: bool = False,
     upload: bool = False,
-    exec_dir: Optional[str] = None,
-    artefact_dir: Optional[
-        str
-    ] = None,  # hackish way of writing artefacts to a good location without fighting hydra's conf interpolation
     dataverse: Optional[dict] = None,
-    config={},
+    config: dict | None = None,
 ):
     """
     Run the actual simulation.
     """
 
-    # log.info(f"exec_dir {exec_dir}")
-    # log.info(f"orig_dir {hydra.utils.get_original_cwd()}")
-    # log.info(f"artefact_dir {artefact_dir}")
-    # log.info(f"WORKING_DIR {os.getenv('WORKING_DIR')}")
-    # log.info(f"cwd {os.getcwd()}")
+    if config is None:
+        config = {}
 
     if backend == "jax":
         from phi.jax.flow import (
@@ -121,7 +115,7 @@ def ns_sim(
 
     # from torch.profiler import profile, record_function, ProfilerActivity
 
-    def bounds_select(x, y):
+    def bounds_select(x: int | None = None, y: int | None = None) -> Box:
         """
         This function generates a 2D Phiflow Box with scale from zero to the number indicated by the bounds or infinite.
 
@@ -132,16 +126,15 @@ def ns_sim(
         Returns:
             Box: A Box type of Phiflow
         """
-        if x == None:
+        if x is None:
             return Box[:, 0:y]
-        elif y == None:
+        if y is None:
             return Box[0:x, :]
-        else:
-            return Box[0:x, 0:y]
+        return Box[0:x, 0:y]
 
     def cauchy_momentum_step(
-        velocity, particles, body_acceleration, NU, DT, obstacles=None
-    ):
+        velocity, particles, body_acceleration, NU, DT, obstacles: tuple | None = None
+    ) -> tuple[fluid.Field, fluid.Field]:
         """
         Navier-Stokes Simulation
         cauchy_momentum_step returns velocity and particles by solving cauchy momentum equation for one step
@@ -155,7 +148,7 @@ def ns_sim(
         **kwargs : Other obstacles (Simulation constraints etc)
         """
         # Set empty obstacle as empty tuple
-        if obstacles == None:
+        if obstacles is None:
             obstacles = ()
         # Computing velocity term first
         # Cauchy-momentum equation
@@ -194,7 +187,7 @@ def ns_sim(
 
         callbacks.append(_store)
         cleanups.append(lambda *args, **kwargs: data_store.close())
-        ## Move output to artefacts dir here
+        # Move output to artefacts dir here
         # if artefact_dir is not None:
         #     cleanups.append(
         #         lambda *args, **kwargs: data_store.close()
@@ -285,7 +278,7 @@ def ns_sim(
             prof=prof,
         )
 
-        def sim_step(velocity, particles):
+        def sim_step(velocity, particles) -> tuple[fluid.Field, fluid.Field]:
             return cauchy_momentum_step(velocity, particles, force, NU, DT, obstacles)
 
         if jit:
@@ -294,7 +287,6 @@ def ns_sim(
         ts = np.linspace(0, n_steps * DT, n_steps, endpoint=False)
         n_steps_actual = ((n_steps - 1) // frame_int) * frame_int + 1
         ts = ts[1:n_steps_actual]
-        # log.info("ts: {}".format(ts))
 
         for step, t in enumerate(tqdm(ts), start=1):
             velocity, particles = sim_step(
@@ -304,7 +296,8 @@ def ns_sim(
 
             if step % frame_int == 0:
                 frame_i = step // frame_int
-                log.info(f"step {step} frame_i {frame_i}")
+                msg = f"step {step} frame_i {frame_i}"
+                logging.info(msg)
                 call_many(
                     callbacks,
                     frame_i=frame_i,

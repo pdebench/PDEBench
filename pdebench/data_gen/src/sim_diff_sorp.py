@@ -21,7 +21,6 @@ class Simulator:
         x_left: float = 0.0,
         x_right: float = 1.0,
         xdim: int = 50,
-        n: int = 1,
         seed: int = 0,
     ):
         """
@@ -38,7 +37,6 @@ class Simulator:
         :param x_left: Left end of the 2D simulation field
         :param x_right: Right end of the 2D simulation field
         :param xdim: Number of spatial steps between x_left and x_right
-        :param n: Number of batches
         """
 
         # Set class parameters
@@ -68,15 +66,14 @@ class Simulator:
 
         self.seed = seed
 
-    def generate_sample(self):
+    def generate_sample(self) -> np.ndarray:
         """
         Single sample generation using the parameters of this simulator.
         :return: The generated sample as numpy array(t, x, y, num_features)
         """
-        np.random.seed(self.seed)
-
+        generator = np.random.default_rng(self.seed)
         # Generate initial condition
-        u0 = np.ones(self.Nx) * np.random.uniform(0, 0.2)
+        u0 = np.ones(self.Nx) * generator.uniform(0, 0.2)
 
         # Generate arrays as diagonal inputs to the Laplacian matrix
         main_diag = -2 * np.ones(self.Nx) / self.dx**2
@@ -101,7 +98,7 @@ class Simulator:
 
         return np.expand_dims(sample_c, axis=-1)
 
-    def rc_ode(self, t, y):
+    def rc_ode(self, t: float, y):
         """
         Solves a given equation for a particular time step.
         :param t: The current time step
@@ -109,26 +106,17 @@ class Simulator:
         :return: A finite volume solution
         """
 
-        c = y
-
         # Define left and right boundary conditions
         left_BC = self.sol
-        right_BC = (c[-2] - c[-1]) / self.dx * self.D
+        right_BC = (y[-2] - y[-1]) / self.dx * self.D
 
         # Calculate the Freundlich retardation factor
         retardation = 1 + (
             (1 - self.por) / self.por
-        ) * self.rho_s * self.k_f * self.n_f * (c + 1e-6) ** (self.n_f - 1)
+        ) * self.rho_s * self.k_f * self.n_f * (y + 1e-6) ** (self.n_f - 1)
 
         # Calculate the right hand side
         self.rhs[0] = self.D / retardation[0] / (self.dx**2) * left_BC
         self.rhs[-1] = self.D / retardation[-1] / (self.dx**2) * right_BC
 
-        # Calculate time derivative
-        c_t = self.D / retardation * (self.lap @ c) + self.rhs
-        y_t = c_t
-
-        # Log the simulation progress
-        # self.log.info('t = ' + str(t))
-
-        return y_t
+        return self.D / retardation * (self.lap @ y) + self.rhs

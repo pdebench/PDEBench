@@ -146,12 +146,17 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import logging
+
 import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
 from scipy.signal import welch
+
+logging.basicConfig(level=logging.INFO, filename=__name__)
+logging.root.setLevel(logging.INFO)
 
 
 def plot_ic_solution_mcmc(
@@ -273,7 +278,7 @@ def get_metric_name(filename, model_name, base_path, inverse_model_type):
 
     June 2022, F.Alesiani
     """
-    inverse_metric_filename = (
+    return (
         base_path
         + filename[:-5]
         + "_"
@@ -282,7 +287,6 @@ def get_metric_name(filename, model_name, base_path, inverse_model_type):
         + inverse_model_type
         + ".pickle"
     )
-    return inverse_metric_filename
 
 
 def read_results(
@@ -302,14 +306,16 @@ def read_results(
                 filename, model_name, base_path, inverse_model_type
             )
             if verbose:
-                print("reading result file: ", inverse_metric_filename)
-            df = pd.read_pickle(inverse_metric_filename)
-            df["model"] = model_name
-            df["pde"] = shortfilename
-            dfs += [df]
+                msg = f"reading result file: {inverse_metric_filename}"
+                logging.info(msg)
+
+            dframe = pd.read_pickle(inverse_metric_filename)
+            dframe["model"] = model_name
+            dframe["pde"] = shortfilename
+            dfs += [dframe]
     keys = ["pde", "model"]
-    df = pd.concat(dfs, axis=0)
-    return df, keys
+    dframe = pd.concat(dfs, axis=0)
+    return dframe, keys
 
 
 @hydra.main(config_path="../config", config_name="results")
@@ -319,7 +325,7 @@ def process_results(cfg: DictConfig):
 
     June 2022, F.Alesiani
     """
-    print(cfg.args)
+    logging.info(cfg.args)
 
     df, keys = read_results(
         cfg.args.model_names,
@@ -330,10 +336,12 @@ def process_results(cfg: DictConfig):
     )
     df1p3 = df[keys + list(cfg.args.results_values)]
     df2p3 = df1p3.groupby(by=keys).agg([np.mean, np.std]).reset_index()
-    print("saving results into: ", cfg.args.base_path + cfg.args.result_filename)
+    msg = "saving results into: {cfg.args.base_path + cfg.args.result_filename}"
+    logging.info(msg)
     df2p3.to_csv(cfg.args.base_path + cfg.args.result_filename)
 
 
 if __name__ == "__main__":
     process_results()
-    print("Done.")
+    msg = "Done."
+    logging.info(msg)

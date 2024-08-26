@@ -146,6 +146,7 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import logging
 from timeit import default_timer
 
 import hydra
@@ -166,6 +167,10 @@ from pyro.infer import MCMC, NUTS
 from torch import nn
 from tqdm import tqdm
 
+logging.basicConfig(level=logging.INFO, filename=__name__)
+logging.root.setLevel(logging.INFO)
+
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -179,8 +184,8 @@ def load_model(model, model_path, device):
 
 @hydra.main(config_path="../config", config_name="config")
 def main(cfg: DictConfig):
-    print(cfg.args.filename)
-    print(cfg.args)
+    logging.info(cfg.args.filename)
+    logging.info(cfg.args)
 
     # we use the test data
     if cfg.args.model_name in ["FNO"]:
@@ -195,7 +200,7 @@ def main(cfg: DictConfig):
             num_samples_max=cfg.args.num_samples_max,
         )
 
-        _data, _, _ = next(iter(inverse_loader))
+        _data, _, _ = next(iter(inverse_data))
         dimensions = len(_data.shape)
         spatial_dim = dimensions - 3
 
@@ -218,7 +223,6 @@ def main(cfg: DictConfig):
         dimensions = len(_data.shape)
         spatial_dim = dimensions - 3
 
-    initial_step = cfg.args.initial_step
     t_train = cfg.args.t_train
 
     model_name = cfg.args.filename[:-5] + "_" + cfg.args.model_name
@@ -226,7 +230,7 @@ def main(cfg: DictConfig):
 
     if cfg.args.model_name in ["FNO"]:
         if dimensions == 4:
-            print(cfg.args.num_channels)
+            logging.info(cfg.args.num_channels)
             model = FNO1d(
                 num_channels=cfg.args.num_channels,
                 width=cfg.args.width,
@@ -283,9 +287,9 @@ def main(cfg: DictConfig):
         input_dims = list(_data.shape[1 : 1 + spatial_dim])
         latent_dims = len(input_dims) * [cfg.args.in_channels_hid]
         if cfg.args.num_channels > 1:
-            input_dims = input_dims + [cfg.args.num_channels]
-            latent_dims = latent_dims + [cfg.args.num_channels]
-        print(input_dims, latent_dims)
+            input_dims = [*input_dims, cfg.args.num_channels]
+            latent_dims = [*latent_dims, cfg.args.num_channels]
+
         model_ic = InitialConditionInterp(input_dims, latent_dims).to(device)
         model.to(device)
 
@@ -301,23 +305,27 @@ def main(cfg: DictConfig):
             xx = xx.to(device)
             yy = yy.to(device)
             grid = grid.to(device)
-            model_ = lambda x, grid: model(x, grid)
+
+            def model_(x, grid):
+                return model(x, grid)
 
         if cfg.args.model_name in ["UNET", "Unet"]:
             (xx, yy) = sample
             grid = None
             xx = xx.to(device)
             yy = yy.to(device)
-            model_ = lambda x, grid: model(x.permute([0, 2, 1])).permute([0, 2, 1])
+
+            def model_(x, grid):
+                return model(x.permute([0, 2, 1])).permute([0, 2, 1])
 
         num_samples = ks + 1
-        loss = 0
 
         x = xx[..., 0, :]
         y = yy[..., t_train : t_train + 1, :]
 
         if ks == 0:
-            print(x.shape, y.shape)
+            msg = f"{x.shape}, {y.shape}"
+            logging.info(msg)
 
         # scale the input and output
         x = scaler.fit_transform(x)
@@ -358,7 +366,7 @@ def main(cfg: DictConfig):
                 _iter = tqdm(range(cfg.args.inverse_epochs))
             else:
                 _iter = range(cfg.args.inverse_epochs)
-            for epoch in _iter:
+            for _ in _iter:
                 if cfg.args.num_channels > 1:
                     u0 = model_ic().unsqueeze(0)
                 else:
@@ -387,16 +395,17 @@ def main(cfg: DictConfig):
         all_metric += [metric]
 
         t2 = default_timer()
-        print(
-            "samples: {}, loss_u0: {:.5f},loss_y: {:.5f}, t2-t1: {:.5f}, mse_inverse_u0_L2: {:.5f}, mse_inverse_y_L2: {:.5f}".format(
-                ks + 1,
-                loss_u0,
-                loss_y,
-                t2 - t1,
-                inverse_u0_l2_full / num_samples,
-                inverse_y_l2_full / num_samples,
-            )
+        msg = ", ".join(
+            [
+                f"samples: {ks + 1}",
+                f"loss_u0: {loss_u0:.5f}",
+                f"loss_y: {loss_y:.5f}",
+                f"t2-t1: {t2 - t1:.5f}",
+                f"mse_inverse_u0_L2: {inverse_u0_l2_full / num_samples:.5f}",
+                f"mse_inverse_y_L2: {inverse_y_l2_full / num_samples:.5f}",
+            ]
         )
+        logging.info(msg)
 
     df_metric = pd.DataFrame(all_metric)
     inverse_metric_filename = (
@@ -408,7 +417,8 @@ def main(cfg: DictConfig):
         + cfg.args.inverse_model_type
         + ".csv"
     )
-    print("saving in :", inverse_metric_filename)
+    msg = f"saving in : {inverse_metric_filename}"
+    logging.info(msg)
     df_metric.to_csv(inverse_metric_filename)
 
     inverse_metric_filename = (
@@ -420,7 +430,8 @@ def main(cfg: DictConfig):
         + cfg.args.inverse_model_type
         + ".pickle"
     )
-    print("saving in :", inverse_metric_filename)
+    msg = f"saving in : {inverse_metric_filename}"
+    logging.info(msg)
     df_metric.to_pickle(inverse_metric_filename)
 
     inverse_metric_filename = (
@@ -432,7 +443,8 @@ def main(cfg: DictConfig):
         + cfg.args.inverse_model_type
         + "_stats.csv"
     )
-    print("saving in :", inverse_metric_filename)
+    msg = f"saving in : {inverse_metric_filename}"
+    logging.info(msg)
     df_metric = df_metric.describe()
     df_metric.to_csv(inverse_metric_filename)
 

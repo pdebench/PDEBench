@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import logging
 import os
-import time
 from abc import ABC, abstractmethod
 
 import numpy as np
 import torch
 from clawpack import pyclaw, riemann
+
+logging.basicConfig(level=logging.INFO, filename=__name__)
+logging.root.setLevel(logging.INFO)
 
 
 class Basic2DScenario(ABC):
@@ -63,7 +66,7 @@ class Basic2DScenario(ABC):
     def __get_hv(self):
         return self.claw_state.q[self.momentumId_y, :].tolist()
 
-    def register_state_getters(self):
+    def register_state_getters(self) -> None:
         self.state_getters = {
             "h": self.__get_h,
             "u": self.__get_u,
@@ -72,11 +75,11 @@ class Basic2DScenario(ABC):
             "hv": self.__get_hv,
         }
 
-    def add_save_state(self):
+    def add_save_state(self) -> None:
         for key, getter in self.state_getters.items():
             self.save_state[key].append(getter())
 
-    def init_save_state(self, T, tsteps):
+    def init_save_state(self, T: float, tsteps: int) -> None:
         self.save_state = {}
         self.save_state["x"] = self.domain.grid.x.centers.tolist()
         self.save_state["y"] = self.domain.grid.y.centers.tolist()
@@ -84,7 +87,7 @@ class Basic2DScenario(ABC):
         for key, getter in self.state_getters.items():
             self.save_state[key] = [getter()]
 
-    def save_state_to_disk(self, data_f, seed_str):
+    def save_state_to_disk(self, data_f, seed_str) -> None:
         T = np.asarray(self.save_state["t"])
         X = np.asarray(self.save_state["x"])
         Y = np.asarray(self.save_state["y"])
@@ -95,29 +98,35 @@ class Basic2DScenario(ABC):
         data_f.create_dataset(f"{seed_str}/grid/y", data=Y, dtype="f")
         data_f.create_dataset(f"{seed_str}/grid/t", data=T, dtype="f")
 
-    def simulate(self, t):
+    def simulate(self, t) -> None:
         if all(v is not None for v in [self.domain, self.claw_state, self.solver]):
             self.solver.evolve_to_time(self.solution, t)
         else:
-            print("Simulate failed: No scenario defined.")
+            msg = "Simulate failed: No scenario defined."
+            logging.info(msg)
 
-    def run(self, T=1.0, tsteps=20, plot=False):
+    def run(self, T: float = 1.0, tsteps: int = 20) -> None:
         self.init_save_state(T, tsteps)
         self.solution = pyclaw.Solution(self.claw_state, self.domain)
-        dt = T / tsteps
-        start = time.time()
+        dt = T / float(tsteps)
+
         for tstep in range(1, tsteps + 1):
             t = tstep * dt
-            # print("Simulating timestep {}/{} at t={:f}".format(tstep, tsteps, t))
             self.simulate(t)
             self.add_save_state()
-        # print("Simulation took: {}".format(time.time() - start))
 
 
 class RadialDamBreak2D(Basic2DScenario):
     name = "RadialDamBreak"
 
-    def __init__(self, xdim, ydim, grav=1.0, dam_radius=0.5, inner_height=2.0):
+    def __init__(
+        self,
+        xdim,
+        ydim,
+        grav: float = 1.0,
+        dam_radius: float = 0.5,
+        inner_height: float = 2.0,
+    ):
         self.depthId = 0
         self.momentumId_x = 1
         self.momentumId_y = 2
@@ -129,7 +138,7 @@ class RadialDamBreak2D(Basic2DScenario):
         super().__init__()
         # self.state_getters['bathymetry'] = self.__get_bathymetry
 
-    def setup_solver(self):
+    def setup_solver(self) -> None:
         rs = riemann.shallow_roe_with_efix_2D
         self.solver = pyclaw.ClawSolver2D(rs)
         self.solver.limiters = pyclaw.limiters.tvd.MC
@@ -140,7 +149,7 @@ class RadialDamBreak2D(Basic2DScenario):
         self.momentumId_x = 1
         self.momentumId_y = 2
 
-    def create_domain(self):
+    def create_domain(self) -> None:
         self.xlower = -2.5
         self.xupper = 2.5
         self.ylower = -2.5
@@ -152,7 +161,7 @@ class RadialDamBreak2D(Basic2DScenario):
         self.domain = pyclaw.Domain([x, y])
         self.claw_state = pyclaw.State(self.domain, self.solver.num_eqn)
 
-    def set_boundary_conditions(self):
+    def set_boundary_conditions(self) -> None:
         """
         Sets homogeneous Neumann boundary conditions at each end for q=(u, h*u)
         and for the bathymetry (auxiliary variable).
@@ -162,8 +171,7 @@ class RadialDamBreak2D(Basic2DScenario):
         self.solver.bc_lower[1] = pyclaw.BC.extrap
         self.solver.bc_upper[1] = pyclaw.BC.extrap
 
-    @staticmethod
-    def initial_h(coords):
+    def initial_h(self, coords):
         x0 = 0.0
         y0 = 0.0
         x = coords[:, 0]
@@ -174,17 +182,17 @@ class RadialDamBreak2D(Basic2DScenario):
         return h_in * (r <= self.dam_radius) + h_out * (r > self.dam_radius)
 
     @staticmethod
-    def initial_momentum_x(coords):
+    def initial_momentum_x() -> torch.Tensor:
         return torch.tensor(0.0)
 
     @staticmethod
-    def initial_momentum_y(coords):
+    def initial_momentum_y() -> torch.Tensor:
         return torch.tensor(0.0)
 
     def __get_bathymetry(self):
         return self.claw_state.aux[0, :].tolist()
 
-    def set_initial_conditions(self):
+    def set_initial_conditions(self) -> None:
         self.claw_state.problem_data["grav"] = self.grav
 
         xc = self.claw_state.grid.x.centers
