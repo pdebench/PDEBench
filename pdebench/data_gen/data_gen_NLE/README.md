@@ -36,9 +36,18 @@ CUDA_VISIBLE_DEVICES='2,3' python3 advection_multi_solution_Hydra.py +multi=beta
 
 # Or generate all files
 bash run_trainset.sh
+```
 
+- Update `data_gen/data_gen_NLE/config/config.yaml` to:
+
+```yaml
+type: 'advection'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+dim: 1
+savedir: './save/advection'
+```
+
+```
 # serialize to hdf5 by transforming npy file
-# before executing Data_Merge.py, change "type" and "savedir" values in PDEBench/pdebench/data_gen/data_gen_NLE/config/config.yaml
 cd ..
 python Data_Merge.py
 ```
@@ -56,9 +65,19 @@ CUDA_VISIBLE_DEVICES='0,2' python3 burgers_multi_solution_Hydra.py +multi=1e-1.y
 
 # Or generate all files
 bash run_trainset.sh
+```
 
+- Update `data_gen/data_gen_NLE/config/config.yaml` to:
+
+```yaml
+type: 'burgers'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+dim: 1
+savedir: './save/burgers'
+```
+
+
+```
 # serialize to hdf5 by transforming npy file
-# before executing Data_Merge.py, change "type" and "savedir" values in PDEBench/pdebench/data_gen/data_gen_NLE/config/config.yaml
 cd ..
 python Data_Merge.py
 ```
@@ -76,9 +95,18 @@ CUDA_VISIBLE_DEVICES='0,1' python3 reaction_diffusion_multi_solution_Hydra.py +m
 
 # Or generate all files
 bash run_trainset.sh
+```
 
+- Update `data_gen/data_gen_NLE/config/config.yaml` to:
+
+```yaml
+type: 'ReacDiff'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+dim: 1
+savedir: './save/ReacDiff'
+```
+
+```
 # serialize to hdf5 by transforming npy file
-# before executing Data_Merge.py, change "type" and "savedir" values in PDEBench/pdebench/data_gen/data_gen_NLE/config/config.yaml
 cd ..
 python Data_Merge.py
 ```
