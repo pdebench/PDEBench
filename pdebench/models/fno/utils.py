@@ -351,7 +351,7 @@ class FNODatasetSingle(Dataset):
                 gridx, gridy = np.array(f['0023']['grid']['x'], dtype=np.float32), np.array(f['0023']['grid']['y'], dtype=np.float32)
                 mgridX, mgridY = np.meshgrid(gridx, gridy, indexing='ij')
                 _grid = torch.stack((torch.from_numpy(mgridX), torch.from_numpy(mgridY)), axis=-1)
-                grid = _grid[::reduced_resolution, ::reduced_resolution, ...]
+                _grid = _grid[::reduced_resolution, ::reduced_resolution, ...]
                 _tsteps_t = torch.from_numpy(np.array(f['0023']['grid']['t'], dtype=np.float32))
                 tsteps_t = _tsteps_t[::reduced_resolution_t]
                 self.data = _data
