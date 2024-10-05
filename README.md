@@ -490,32 +490,49 @@ booktitle = {Proceedings of the 41st International Conference on Machine Learnin
 
 </details>
 
----
+
+<details>
+<summary>
+    <a href="https://arxiv.org/abs/2408.01536"> Active Learning for Neural PDE Solvers - NeurIPS-W'2024 </a>
+</summary>
+<br/>
+
+ ```
+@article{active-learn-neuralpde-benchmark-musekamp:2024,
+  author       = {Daniel Musekamp and
+                  Marimuthu Kalimuthu and
+                  David Holzm{\"{u}}ller and
+                  Makoto Takamoto and
+                  Mathias Niepert},
+  title        = {Active Learning for Neural {PDE} Solvers},
+  journal      = {CoRR},
+  volume       = {abs/2408.01536},
+  year         = {2024},
+  url          = {https://doi.org/10.48550/arXiv.2408.01536},
+  doi          = {10.48550/ARXIV.2408.01536},
+  eprinttype    = {arXiv},
+  eprint       = {2408.01536},
+}
+ ```
+</details>
+
+------
 
 ## Code contributors
 
-- [Makato Takamoto](https://github.com/mtakamoto-D)
-  ([NEC laboratories Europe](https://www.neclab.eu/))
-- [Timothy Praditia](https://github.com/timothypraditia)
-  ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
-- [Raphael Leiteritz](https://github.com/leiterrl)
-  ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
-- [Francesco Alesiani](https://github.com/falesiani)
-  ([NEC laboratories Europe](https://www.neclab.eu/))
-- [Dan MacKinlay](https://danmackinlay.name/)
-  ([CSIRO’s Data61](https://data61.csiro.au/))
-- [Mario Kalimuthu](https://github.com/kmario23)
-  ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
-- [John Kim](https://github.com/johnmjkim)
-  ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
-- [Gefei Shan](https://github.com/davecatmeow)
-  ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
-- [Yizhou Yang](https://github.com/verdantwynnd)
-  ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
-- [Ran Zhang](https://github.com/maphyca)
-  ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
-- [Simon Brown](https://github.com/SimonSyBrown)
-  ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+
+* [Makato Takamoto](https://github.com/mtakamoto-D) ([NEC laboratories Europe](https://www.neclab.eu/))
+* [Timothy Praditia](https://github.com/timothypraditia) ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
+* [Raphael Leiteritz](https://github.com/leiterrl) ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
+* [Francesco Alesiani](https://github.com/falesiani) ([NEC laboratories Europe](https://www.neclab.eu/))
+* [Dan MacKinlay](https://danmackinlay.name/) ([CSIRO’s Data61](https://data61.csiro.au/))
+* [Marimuthu Kalimuthu](https://github.com/kmario23) ([Stuttgart Center for Simulation Science | University of Stuttgart](https://www.simtech.uni-stuttgart.de/))
+* [John Kim](https://github.com/johnmjkim) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Gefei Shan](https://github.com/davecatmeow) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Yizhou Yang](https://github.com/verdantwynnd) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Ran Zhang](https://github.com/maphyca) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+* [Simon Brown](https://github.com/SimonSyBrown) ([ANU TechLauncher](https://comp.anu.edu.au/TechLauncher/)/[CSIRO’s Data61](https://data61.csiro.au/))
+
 
 ## License
 

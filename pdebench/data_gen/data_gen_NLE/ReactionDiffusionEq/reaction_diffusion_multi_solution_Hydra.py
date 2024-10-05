@@ -149,6 +149,7 @@ from __future__ import annotations
 import random
 import sys
 from math import ceil, exp, log
+from pathlib import Path
 
 import hydra
 import jax
@@ -302,6 +303,17 @@ def main(cfg: DictConfig) -> None:
     )
     jnp.save(cwd + cfg.multi.save + "/x_coordinate", xc)
     jnp.save(cwd + cfg.multi.save + "/t_coordinate", tc)
+
+
+    # reshape based on device count
+    uu = uu.reshape((-1, *uu.shape[2:]))
+
+    print('data saving...')
+    cwd = hydra.utils.get_original_cwd() + '/'
+    Path(cwd + cfg.multi.save).mkdir(parents=True, exist_ok=True)
+    jnp.save(cwd + cfg.multi.save+'ReacDiff_Nu'+str(nu)[:5]+'_Rho'+str(rho)[:5], uu)
+    jnp.save(cwd + cfg.multi.save+'/x_coordinate', xc)
+    jnp.save(cwd + cfg.multi.save+'/t_coordinate', tc)
 
 
 if __name__ == "__main__":

@@ -147,8 +147,8 @@ arrangements between the parties relating hereto.
 from __future__ import annotations
 
 import random
-import sys
-from math import ceil, exp, log
+
+from pathlib import Path
 
 import hydra
 import jax
@@ -280,11 +280,18 @@ def main(cfg: DictConfig) -> None:
     # uu = vm_evolve(u)
     vm_evolve = jax.pmap(jax.vmap(evolve, axis_name="j"), axis_name="i")
     local_devices = jax.local_device_count()
-    uu = vm_evolve(u.reshape([local_devices, cfg.multi.numbers // local_devices, -1]))
-    cwd = hydra.utils.get_original_cwd() + "/"
-    jnp.save(cwd + cfg.multi.save + "1D_Advection_Sols_beta" + str(beta)[:5], uu)
-    jnp.save(cwd + cfg.multi.save + "/x_coordinate", xc)
-    jnp.save(cwd + cfg.multi.save + "/t_coordinate", tc)
+
+    uu = vm_evolve(u.reshape([local_devices, cfg.multi.numbers//local_devices, -1]))
+
+    # reshape before saving
+    uu = uu.reshape((-1, *uu.shape[2:]))
+
+    print('data saving...')
+    cwd = hydra.utils.get_original_cwd() + '/'
+    Path(cwd + cfg.multi.save).mkdir(parents=True, exist_ok=True)
+    jnp.save(cwd+cfg.multi.save+'1D_Advection_Sols_beta'+str(beta)[:5], uu)
+    jnp.save(cwd + cfg.multi.save + '/x_coordinate', xc)
+    jnp.save(cwd + cfg.multi.save + '/t_coordinate', tc)
 
 
 if __name__ == "__main__":
