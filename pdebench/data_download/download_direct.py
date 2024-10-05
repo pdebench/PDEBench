@@ -1,9 +1,11 @@
-import os
-import argparse
+from __future__ import annotations
 
-from tqdm import tqdm
+import argparse
+import os
+
 import pandas as pd
 from torchvision.datasets.utils import download_url
+from tqdm import tqdm
 
 
 def parse_metadata(pde_names):

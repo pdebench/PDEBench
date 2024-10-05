@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -145,35 +144,35 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+from __future__ import annotations
 
 import sys
-import random
-from math import ceil, exp, log
+from math import ceil
+
+import hydra
+import jax
+import jax.numpy as jnp
+from jax import device_put, lax, vmap
 
 # Hydra
-from omegaconf import DictConfig, OmegaConf
-import hydra
+from omegaconf import DictConfig
 
-import jax
-from jax import vmap
-import jax.numpy as jnp
-from jax import device_put, lax
-
-sys.path.append('..')
+sys.path.append("..")
 from utils import Courant_diff_2D, bc_2D, init_multi_2DRand
 
 
 def _pass(carry):
     return carry
 
+
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
     # basic parameters
     dx = (cfg.multi.xR - cfg.multi.xL) / cfg.multi.nx
-    dx_inv = 1. / dx
-    dy = (cfg.multi.yR - cfg.multi.yL)/cfg.multi.ny
-    dy_inv = 1./dy
+    dx_inv = 1.0 / dx
+    dy = (cfg.multi.yR - cfg.multi.yL) / cfg.multi.ny
+    dy_inv = 1.0 / dy
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.multi.xL, cfg.multi.xR, cfg.multi.nx + 1)
@@ -199,7 +198,7 @@ def main(cfg: DictConfig) -> None:
         tsave = t
         steps = 0
         i_save = 0
-        dt = 0.
+        dt = 0.0
         uu = jnp.zeros([it_tot, u.shape[0], u.shape[1]])
         uu = uu.at[0].set(u)
 
@@ -219,12 +218,16 @@ def main(cfg: DictConfig) -> None:
             u, tsave, i_save, uu = lax.cond(t >= tsave, _show, _pass, carry)
 
             carry = (u, t, dt, steps, tsave, nu)
-            u, t, dt, steps, tsave, nu = lax.fori_loop(0, show_steps, simulation_fn, carry)
+            u, t, dt, steps, tsave, nu = lax.fori_loop(
+                0, show_steps, simulation_fn, carry
+            )
 
             return (t, tsave, steps, i_save, dt, u, uu, nu)
 
         carry = t, tsave, steps, i_save, dt, u, uu, nu
-        t, tsave, steps, i_save, dt, u, uu, nu = lax.while_loop(cond_fun, _body_fun, carry)
+        t, tsave, steps, i_save, dt, u, uu, nu = lax.while_loop(
+            cond_fun, _body_fun, carry
+        )
         uu = uu.at[-1].set(u)
 
         return uu
@@ -244,64 +247,108 @@ def main(cfg: DictConfig) -> None:
             return u, dt, nu
 
         carry = u, dt, nu
-        u, dt, nu = lax.cond(dt > 1.e-8, _update, _pass, carry)
+        u, dt, nu = lax.cond(dt > 1.0e-8, _update, _pass, carry)
 
         t += dt
         steps += 1
         return u, t, dt, steps, tsave, nu
 
-
     @jax.jit
     def update(u, u_tmp, dt, nu):
         # boundary condition
-        _u = bc_2D(u_tmp, mode='Neumann')
+        _u = bc_2D(u_tmp, mode="Neumann")
         # diffusion
         dtdx = dt * dx_inv
         dtdy = dt * dy_inv
-        fx = - 0.5 * (nu[2:-1, 2:-2] + nu[1:-2, 2:-2]) * dx_inv * (_u[2:-1, 2:-2] - _u[1:-2, 2:-2])
-        fy = - 0.5 * (nu[2:-2, 2:-1] + nu[2:-2, 1:-2]) * dy_inv * (_u[2:-2, 2:-1] - _u[2:-2, 1:-2])
-        u -= dtdx * (fx[1:, :] - fx[:-1, :])\
-           + dtdy * (fy[:, 1:] - fy[:, :-1])
+        fx = (
+            -0.5
+            * (nu[2:-1, 2:-2] + nu[1:-2, 2:-2])
+            * dx_inv
+            * (_u[2:-1, 2:-2] - _u[1:-2, 2:-2])
+        )
+        fy = (
+            -0.5
+            * (nu[2:-2, 2:-1] + nu[2:-2, 1:-2])
+            * dy_inv
+            * (_u[2:-2, 2:-1] - _u[2:-2, 1:-2])
+        )
+        u -= dtdx * (fx[1:, :] - fx[:-1, :]) + dtdy * (fy[:, 1:] - fy[:, :-1])
         # source term: f = 1 * beta
         u += dt * beta
         return u
 
-    u = init_multi_2DRand(xc, yc, numbers=cfg.multi.numbers, k_tot=4, init_key=cfg.multi.init_key)
+    u = init_multi_2DRand(
+        xc, yc, numbers=cfg.multi.numbers, k_tot=4, init_key=cfg.multi.init_key
+    )
     u = device_put(u)  # putting variables in GPU (not necessary??)
 
     # generate random diffusion coefficient
     key = jax.random.PRNGKey(cfg.multi.init_key)
-    xms = jax.random.uniform(key, shape=[cfg.multi.numbers, 5], minval=cfg.multi.xL, maxval=cfg.multi.xR)
+    xms = jax.random.uniform(
+        key, shape=[cfg.multi.numbers, 5], minval=cfg.multi.xL, maxval=cfg.multi.xR
+    )
     key, subkey = jax.random.split(key)
-    yms = jax.random.uniform(key, shape=[cfg.multi.numbers, 5], minval=cfg.multi.yL, maxval=cfg.multi.yR)
+    yms = jax.random.uniform(
+        key, shape=[cfg.multi.numbers, 5], minval=cfg.multi.yL, maxval=cfg.multi.yR
+    )
 
     key, subkey = jax.random.split(key)
-    stds = 0.5*(cfg.multi.xR - cfg.multi.xL) * jax.random.uniform(key, shape=[cfg.multi.numbers, 5])
+    stds = (
+        0.5
+        * (cfg.multi.xR - cfg.multi.xL)
+        * jax.random.uniform(key, shape=[cfg.multi.numbers, 5])
+    )
     nu = jnp.zeros_like(u)
     for i in range(5):
-        nu += jnp.exp(-((xc[None, :, None] - xms[:, None, None, i]) ** 2
-                        + (yc[None, None, :] - yms[:, None, None, i]) ** 2) / stds[:, None, None, i])
+        nu += jnp.exp(
+            -(
+                (xc[None, :, None] - xms[:, None, None, i]) ** 2
+                + (yc[None, None, :] - yms[:, None, None, i]) ** 2
+            )
+            / stds[:, None, None, i]
+        )
     nu = jnp.where(nu > nu.mean(), 1, 0.1)
-    nu = vmap(bc_2D, axis_name='i')(nu)
+    nu = vmap(bc_2D, axis_name="i")(nu)
 
     local_devices = jax.local_device_count()
     if local_devices > 1:
         nb, nx, ny = u.shape
-        vm_evolve = jax.pmap(jax.vmap(evolve, axis_name='j'), axis_name='i')
-        uu = vm_evolve(u.reshape([local_devices, cfg.multi.numbers//local_devices, nx, ny]),\
-                      nu.reshape([local_devices, cfg.multi.numbers//local_devices, nx+4, ny+4]))
+        vm_evolve = jax.pmap(jax.vmap(evolve, axis_name="j"), axis_name="i")
+        uu = vm_evolve(
+            u.reshape([local_devices, cfg.multi.numbers // local_devices, nx, ny]),
+            nu.reshape(
+                [local_devices, cfg.multi.numbers // local_devices, nx + 4, ny + 4]
+            ),
+        )
         uu = uu.reshape([nb, -1, nx, ny])
     else:
         vm_evolve = vmap(evolve, 0, 0)
         uu = vm_evolve(u, nu)
 
-    print('data saving...')
-    cwd = hydra.utils.get_original_cwd() + '/'
-    jnp.save(cwd + cfg.multi.save+'/2D_ReacDiff_Multi_beta'+str(beta)[:5]+'_key'+str(cfg.multi.init_key), uu)
-    jnp.save(cwd + cfg.multi.save+'/x_coordinate', xc)
-    jnp.save(cwd + cfg.multi.save+'/y_coordinate', yc)
-    jnp.save(cwd + cfg.multi.save+'/t_coordinate', tc)
-    jnp.save(cwd + cfg.multi.save+'/nu_diff_coef_beta'+str(beta)[:5]+'_key'+str(cfg.multi.init_key), nu[:,2:-2,2:-2])
+    print("data saving...")
+    cwd = hydra.utils.get_original_cwd() + "/"
+    jnp.save(
+        cwd
+        + cfg.multi.save
+        + "/2D_ReacDiff_Multi_beta"
+        + str(beta)[:5]
+        + "_key"
+        + str(cfg.multi.init_key),
+        uu,
+    )
+    jnp.save(cwd + cfg.multi.save + "/x_coordinate", xc)
+    jnp.save(cwd + cfg.multi.save + "/y_coordinate", yc)
+    jnp.save(cwd + cfg.multi.save + "/t_coordinate", tc)
+    jnp.save(
+        cwd
+        + cfg.multi.save
+        + "/nu_diff_coef_beta"
+        + str(beta)[:5]
+        + "_key"
+        + str(cfg.multi.init_key),
+        nu[:, 2:-2, 2:-2],
+    )
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     main()

@@ -11,6 +11,7 @@ hydra:
 args:
   type: 'ReacDiff'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
   dim: 1
-  bd: 'periodic'
+  bd: "periodic"
   nbatch: 1000
+  savedir: "./save/CFD/"
   savedir: './save/ReacDiff/'

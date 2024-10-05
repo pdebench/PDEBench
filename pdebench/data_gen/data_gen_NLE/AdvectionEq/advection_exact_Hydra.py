@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -145,24 +144,24 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+from __future__ import annotations
 
 import time
-import sys
 from math import ceil
 
-# Hydra
-from omegaconf import DictConfig, OmegaConf
 import hydra
-
 import jax
 import jax.numpy as jnp
 from jax import device_put
+
+# Hydra
+from omegaconf import DictConfig
 
 
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
-    print('advection velocity: {}'.format(cfg.args.beta))
+    print(f"advection velocity: {cfg.args.beta}")
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.args.xL, cfg.args.xR, cfg.args.nx + 1)
@@ -177,37 +176,37 @@ def main(cfg: DictConfig) -> None:
         i_save = 0
         tm_ini = time.time()
 
-        it_tot = ceil((cfg.args.fin_time - cfg.args.ini_time)/cfg.args.dt_save) + 1
+        it_tot = ceil((cfg.args.fin_time - cfg.args.ini_time) / cfg.args.dt_save) + 1
         uu = jnp.zeros([it_tot, u.shape[0]])
         uu = uu.at[0].set(u)
 
         while t < cfg.args.fin_time:
-            print('save data at t = {0:.3f}'.format(t))
+            print(f"save data at t = {t:.3f}")
             u = set_function(xc, t, cfg.args.beta)
             uu = uu.at[i_save].set(u)
             t += cfg.args.dt_save
             i_save += 1
 
         tm_fin = time.time()
-        print('total elapsed time is {} sec'.format(tm_fin - tm_ini))
+        print(f"total elapsed time is {tm_fin - tm_ini} sec")
         uu = uu.at[-1].set(u)
         return uu, t
 
     @jax.jit
     def set_function(x, t, beta):
-        return jnp.sin(2.*jnp.pi*(x - beta*t))
+        return jnp.sin(2.0 * jnp.pi * (x - beta * t))
 
     u = set_function(xc, t=0, beta=cfg.args.beta)
     u = device_put(u)  # putting variables in GPU (not necessary??)
     uu, t = evolve(u)
-    print('final time is: {0:.3f}'.format(t))
+    print(f"final time is: {t:.3f}")
+
+    print("data saving...")
+    cwd = hydra.utils.get_original_cwd() + "/"
+    jnp.save(cwd + cfg.args.save + "/Advection_beta" + str(cfg.args.beta), uu)
+    jnp.save(cwd + cfg.args.save + "/x_coordinate", xe)
+    jnp.save(cwd + cfg.args.save + "/t_coordinate", tc)
 
 
-    print('data saving...')
-    cwd = hydra.utils.get_original_cwd() + '/'
-    jnp.save(cwd + cfg.args.save + '/Advection_beta' + str(cfg.args.beta), uu)
-    jnp.save(cwd + cfg.args.save + '/x_coordinate', xe)
-    jnp.save(cwd + cfg.args.save + '/t_coordinate', tc)
-
-if __name__=='__main__':
+if __name__ == "__main__":
     main()

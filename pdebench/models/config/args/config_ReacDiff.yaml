@@ -1,10 +1,10 @@
-model_name: 'Unet'
+model_name: "Unet"
 if_training: True
 continue_training: False
 batch_size: 50
 t_train: 30
 model_update: 1
-filename: 'ReacDiff_Nu0.5_Rho1.0.hdf5'
+filename: "ReacDiff_Nu0.5_Rho1.0.hdf5"
 single_file: True
 reduced_resolution: 4
 reduced_resolution_t: 1

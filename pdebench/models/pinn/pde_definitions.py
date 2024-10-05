@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import deepxde as dde
 import numpy as np
-import torch
 
 
 def reaction_1(u1, u2):
@@ -14,7 +15,6 @@ def reaction_2(u1, u2):
 
 
 def pde_diffusion_reaction(x, y):
-
     d1 = 1e-3
     d2 = 5e-3
 
@@ -55,8 +55,8 @@ def pde_diffusion_sorption(x, y):
     )
 
     return du1_t - D / retardation_factor * du1_xx
-    
-    
+
+
 def pde_swe1d():
     raise NotImplementedError
 
@@ -85,15 +85,18 @@ def pde_swe2d(x, y):
 
     return eq1 + eq2 + eq3
 
+
 def pde_adv1d(x, y, beta):
     dy_x = dde.grad.jacobian(y, x, i=0, j=0)
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     return dy_t + beta * dy_x
 
+
 def pde_diffusion_reaction_1d(x, y, nu, rho):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-    return dy_t - nu * dy_xx - rho * y * (1. - y)
+    return dy_t - nu * dy_xx - rho * y * (1.0 - y)
+
 
 def pde_burgers1D(x, y, nu):
     dy_x = dde.grad.jacobian(y, x, i=0, j=0)
@@ -101,11 +104,12 @@ def pde_burgers1D(x, y, nu):
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     return dy_t + y * dy_x - nu / np.pi * dy_xx
 
+
 def pde_CFD1d(x, y, gamma):
     h = y[..., 0].unsqueeze(1)  # rho
     u = y[..., 1].unsqueeze(1)  # v
     p = y[..., 2].unsqueeze(1)  # p
-    E = p/(gamma - 1.) + 0.5 * h * u**2
+    E = p / (gamma - 1.0) + 0.5 * h * u**2
     E = E.unsqueeze(1)
     Fx = u * (E + p)
     Fx = Fx.unsqueeze(1)
@@ -125,12 +129,13 @@ def pde_CFD1d(x, y, gamma):
 
     return eq1 + eq2 + eq3
 
+
 def pde_CFD2d(x, y, gamma):
     h = y[..., 0].unsqueeze(1)  # rho
     ux = y[..., 1].unsqueeze(1)  # vx
     uy = y[..., 2].unsqueeze(1)  # vy
     p = y[..., 3].unsqueeze(1)  # p
-    E = p/(gamma - 1.) + 0.5 * h * (ux**2 + uy**2)
+    E = p / (gamma - 1.0) + 0.5 * h * (ux**2 + uy**2)
     E = E.unsqueeze(1)
     Fx = ux * (E + p)
     Fx = Fx.unsqueeze(1)
@@ -160,13 +165,14 @@ def pde_CFD2d(x, y, gamma):
 
     return eq1 + eq2 + eq3 + eq4
 
+
 def pde_CFD3d(x, y, gamma):
     h = y[..., 0].unsqueeze(1)  # rho
     ux = y[..., 1].unsqueeze(1)  # vx
     uy = y[..., 2].unsqueeze(1)  # vy
     uz = y[..., 3].unsqueeze(1)  # vz
     p = y[..., 4].unsqueeze(1)  # p
-    E = p/(gamma - 1.) + 0.5 * h * (ux**2 + uy**2 + uz**2)
+    E = p / (gamma - 1.0) + 0.5 * h * (ux**2 + uy**2 + uz**2)
     E = E.unsqueeze(1)
     Fx = ux * (E + p)
     Fx = Fx.unsqueeze(1)

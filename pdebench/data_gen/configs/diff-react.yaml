@@ -34,13 +34,12 @@ sim:
   y_top: 1.0
   ydim: 128
   n: 1
-  seed: '???'
-  
-plot:
-  t_idx: 1.0        # Fraction of the final time step idx to be plotted
-  dim: 2            # Spatial dimension
-  channel_idx: 0    # Index of the variable to be plotted
+  seed: "???"
 
+plot:
+  t_idx: 1.0 # Fraction of the final time step idx to be plotted
+  dim: 2 # Spatial dimension
+  channel_idx: 0 # Index of the variable to be plotted
 
 dataverse:
   lib_name: pyDaRUS
@@ -53,8 +52,9 @@ dataverse:
           identifier_scheme: ORCID
           identifier: 0000-0003-3619-9122
       description:
-        - text: 2D diffusion-reaction dataset generated for the PDE benchmark paper
-          date: '2022'
+        - text:
+            2D diffusion-reaction dataset generated for the PDE benchmark paper
+          date: "2022"
       contact:
         - name: Timothy Praditia
           affiliation: Universität Stuttgart
@@ -66,10 +66,18 @@ dataverse:
     process:
       processing_methods:
         - name: FVM
-          description: Finite Volume Method is a spatial discretization method to calculate spatial derivative in a Partial Differential Equation. It integrates the fluxes at all discrete cell boundaries so that it ensures conservation.
+          description:
+            Finite Volume Method is a spatial discretization method to calculate
+            spatial derivative in a Partial Differential Equation. It integrates
+            the fluxes at all discrete cell boundaries so that it ensures
+            conservation.
           parameters: cell length, cell width
         - name: RK45
-          description: Explicit Runge-Kutta method of order 5(4) is a time integration method to solve the temporal derivative in a Partial Differential Equation. It is an adaptive time integration scheme to ensure better accuracy and computation efficiency.
+          description:
+            Explicit Runge-Kutta method of order 5(4) is a time integration
+            method to solve the temporal derivative in a Partial Differential
+            Equation. It is an adaptive time integration scheme to ensure better
+            accuracy and computation efficiency.
           parameters: time step size, total time, error tolerance
       method_parameters:
         - name: cell length

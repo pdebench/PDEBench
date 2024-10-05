@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
-from copy import deepcopy
 import os
+from copy import deepcopy
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
@@ -21,25 +22,24 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = num_threads
 os.environ["NUMEXPR_NUM_THREADS"] = num_threads
 os.environ["NUMEXPR_MAX_THREADS"] = num_threads
 
-import hydra
-from hydra.utils import get_original_cwd
-from omegaconf import DictConfig, OmegaConf
-import h5py
 import logging
 import multiprocessing as mp
-from itertools import repeat
-from pdebench.data_gen.src import utils
-import numpy as np
-from pdebench.data_gen.uploader import dataverse_upload
 import time
+from itertools import repeat
+
+import h5py
+import hydra
+import numpy as np
+from hydra.utils import get_original_cwd
+from omegaconf import DictConfig, OmegaConf
+from pdebench.data_gen.src import utils
 from pdebench.data_gen.src.sim_radial_dam_break import RadialDamBreak2D
+from pdebench.data_gen.uploader import dataverse_upload
 
 log = logging.getLogger(__name__)
 
 
 def simulator(base_config, i):
-    
-    
     config = deepcopy(base_config)
     config.sim.seed = i
     log.info(f"Starting seed {i}")
@@ -60,14 +60,14 @@ def simulator(base_config, i):
     duration = time.time() - start_time
     seed_str = str(i).zfill(4)
     log.info(f"Seed {seed_str} took {duration} to finish")
-    
+
     while True:
         try:
             with h5py.File(utils.expand_path(config.output_path), "a") as h5_file:
                 scenario.save_state_to_disk(h5_file, seed_str)
                 seed_group = h5_file[seed_str]
                 seed_group.attrs["config"] = OmegaConf.to_yaml(config)
-        except IOError:
+        except OSError:
             time.sleep(0.1)
             continue
         else:
@@ -82,7 +82,7 @@ def simulator(base_config, i):
             dataverse_id=os.getenv("DATAVERSE_ID", ""),
             log=log,
         )
-        
+
 
 @hydra.main(config_path="configs/", config_name="radial_dam_break")
 def main(config: DictConfig):
@@ -98,25 +98,23 @@ def main(config: DictConfig):
 
     temp_path = os.getcwd()
     os.chdir(get_original_cwd())
-    
-    # Change back to the hydra working directory    
+
+    # Change back to the hydra working directory
     os.chdir(temp_path)
-    
+
     work_path = os.path.dirname(config.work_dir)
     output_path = os.path.join(work_path, config.data_dir, config.output_path)
     if not os.path.isdir(output_path):
         os.makedirs(output_path)
-    config.output_path = os.path.join(output_path, config.output_path) + '.h5'
+    config.output_path = os.path.join(output_path, config.output_path) + ".h5"
 
     num_samples_init = 0
     num_samples_final = 10000
-    
+
     pool = mp.Pool(mp.cpu_count())
     seed = np.arange(num_samples_init, num_samples_final)
     seed = seed.tolist()
     pool.starmap(simulator, zip(repeat(config), seed))
-
-    return
 
 
 if __name__ == "__main__":

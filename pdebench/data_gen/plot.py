@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed May  4 09:53:18 2022
 
 @author: timot
 """
+from __future__ import annotations
 
-
-import hydra
-from omegaconf import DictConfig
-import numpy as np
 import h5py
-import matplotlib.pyplot as plt
+import hydra
+import numpy as np
 from hydra.utils import get_original_cwd
+from omegaconf import DictConfig
 from pdebench.data_gen.src.plots import plot_data
+
 
 @hydra.main(config_path="configs/", config_name="diff-sorp")
 def main(config: DictConfig):
@@ -25,11 +24,11 @@ def main(config: DictConfig):
     if not os.path.isdir(output_path):
         os.makedirs(output_path)
     config.output_path = os.path.join(output_path, config.output_path)
-    
+
     # Open and load file
-    data_path = config.output_path + '.h5'
+    data_path = config.output_path + ".h5"
     h5_file = h5py.File(data_path, "r")
-    
+
     if "seed" in config.sim.keys():
         # Choose random sample number
         idx_max = 10000 if config.plot.dim == 1 else 1000
@@ -46,7 +45,7 @@ def main(config: DictConfig):
         t = np.array(h5_file["grid/t"], dtype="f")
         t = t[postfix]
         # data dim = [t, x1, ..., xd, v]
-    
+
     h5_file.close()
 
     os.chdir(get_original_cwd())
@@ -59,8 +58,6 @@ def main(config: DictConfig):
         config,
         config.name + "_" + postfix + ".png",
     )
-
-    return
 
 
 import os
