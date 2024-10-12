@@ -383,25 +383,26 @@ def transform(type, savedir):
         print(flnm)
         _data = np.load(flnm)
 
-        f.create_dataset('tensor', data = _data.astype(np.float32))
-        f.create_dataset('x-coordinate', data = xcrd)
-        f.create_dataset('t-coordinate', data = tcrd)
-        if type=='advection':
-            beta = float(flnm.split('/')[-1].split('_')[3][4:-4])  # advection train
+        f.create_dataset("tensor", data=_data.astype(np.float32))
+        f.create_dataset("x-coordinate", data=xcrd)
+        f.create_dataset("t-coordinate", data=tcrd)
+        if type == "advection":
+            beta = float(flnm.split("/")[-1].split("_")[3][4:-4])  # advection train
             print(f"beta: {beta}")
-            f.attrs['beta'] = beta
+            f.attrs["beta"] = beta
 
-        elif type=='burgers':
-            Nu = float(flnm.split('/')[-1].split('_')[-1][2:-4])  # Burgers test/train
+        elif type == "burgers":
+            Nu = float(flnm.split("/")[-1].split("_")[-1][2:-4])  # Burgers test/train
             print(f"Nu: {Nu}")
-            f.attrs['Nu'] = Nu
+            f.attrs["Nu"] = Nu
 
-        elif type=='ReacDiff':
-            Rho = float(flnm.split('/')[-1].split('_')[-1][3:-4])  # reac-diff test
-            Nu = float(flnm.split('/')[-1].split('_')[-2][2:])  # reac-diff test
+        elif type == "ReacDiff":
+            Rho = float(flnm.split("/")[-1].split("_")[-1][3:-4])  # reac-diff test
+            Nu = float(flnm.split("/")[-1].split("_")[-2][2:])  # reac-diff test
             print(f"Nu, rho: {Nu, Rho}")
-            f.attrs['Nu'] = Nu
-            f.attrs['rho'] = Rho
+            f.attrs["Nu"] = Nu
+            f.attrs["rho"] = Rho
+
 
 # Init arguments with Hydra
 @hydra.main(config_path="config", config_name="config")

@@ -469,15 +469,32 @@ class FNODatasetSingle(Dataset):
                 keys = list(f.keys())
                 keys.sort()
 
-                data_arrays = [np.array(f[key]['data'], dtype=np.float32) for key in keys]
-                _data = torch.from_numpy(np.stack(data_arrays, axis=0))   # [batch, nt, nx, ny, nc]
-                _data = _data[::reduced_batch, ::reduced_resolution_t, ::reduced_resolution, ::reduced_resolution, ...]
-                _data = torch.permute(_data, (0, 2, 3, 1, 4))   # [batch, nx, ny, nt, nc]
-                gridx, gridy = np.array(f['0023']['grid']['x'], dtype=np.float32), np.array(f['0023']['grid']['y'], dtype=np.float32)
-                mgridX, mgridY = np.meshgrid(gridx, gridy, indexing='ij')
-                _grid = torch.stack((torch.from_numpy(mgridX), torch.from_numpy(mgridY)), axis=-1)
+                data_arrays = [
+                    np.array(f[key]["data"], dtype=np.float32) for key in keys
+                ]
+                _data = torch.from_numpy(
+                    np.stack(data_arrays, axis=0)
+                )  # [batch, nt, nx, ny, nc]
+                _data = _data[
+                    ::reduced_batch,
+                    ::reduced_resolution_t,
+                    ::reduced_resolution,
+                    ::reduced_resolution,
+                    ...,
+                ]
+                _data = torch.permute(_data, (0, 2, 3, 1, 4))  # [batch, nx, ny, nt, nc]
+                gridx, gridy = (
+                    np.array(f["0023"]["grid"]["x"], dtype=np.float32),
+                    np.array(f["0023"]["grid"]["y"], dtype=np.float32),
+                )
+                mgridX, mgridY = np.meshgrid(gridx, gridy, indexing="ij")
+                _grid = torch.stack(
+                    (torch.from_numpy(mgridX), torch.from_numpy(mgridY)), axis=-1
+                )
                 _grid = _grid[::reduced_resolution, ::reduced_resolution, ...]
-                _tsteps_t = torch.from_numpy(np.array(f['0023']['grid']['t'], dtype=np.float32))
+                _tsteps_t = torch.from_numpy(
+                    np.array(f["0023"]["grid"]["t"], dtype=np.float32)
+                )
 
                 tsteps_t = _tsteps_t[::reduced_resolution_t]
                 self.data = _data
