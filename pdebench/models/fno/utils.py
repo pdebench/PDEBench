@@ -150,6 +150,7 @@ from __future__ import annotations
 
 import math as mt
 import os
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -182,9 +183,9 @@ class FNODatasetSingle(Dataset):
         """
 
         # Define path to files
-        root_path = os.path.join(os.path.abspath(saved_folder), filename)
+        root_path = Path(Path(saved_folder).resolve()) / filename
         if filename[-2:] != "h5":
-            print(".HDF5 file extension is assumed hereafter")
+            # print(".HDF5 file extension is assumed hereafter")
 
             with h5py.File(root_path, "r") as f:
                 keys = list(f.keys())
@@ -242,7 +243,7 @@ class FNODatasetSingle(Dataset):
                         self.grid = torch.tensor(
                             self.grid[::reduced_resolution], dtype=torch.float
                         ).unsqueeze(-1)
-                        print(self.data.shape)
+                        # print(self.data.shape)
                     if len(idx_cfd) == 4:  # 2D
                         self.data = np.zeros(
                             [
@@ -463,7 +464,7 @@ class FNODatasetSingle(Dataset):
                         ]
 
         elif filename[-2:] == "h5":  # SWE-2D (RDB)
-            print(".H5 file extension is assumed hereafter")
+            # print(".H5 file extension is assumed hereafter")
 
             with h5py.File(root_path, "r") as f:
                 keys = list(f.keys())
@@ -548,7 +549,7 @@ class FNODatasetMult(Dataset):
         """
 
         # Define path to files
-        self.file_path = os.path.abspath(saved_folder + filename + ".h5")
+        self.file_path = Path(saved_folder + filename + ".h5").resolve()
 
         # Extract list of seeds
         with h5py.File(self.file_path, "r") as h5_file:
@@ -577,7 +578,7 @@ class FNODatasetMult(Dataset):
 
             # convert to [x1, ..., xd, t, v]
             permute_idx = list(range(1, len(data.shape) - 1))
-            permute_idx.extend(list([0, -1]))
+            permute_idx.extend([0, -1])
             data = data.permute(permute_idx)
 
             # Extract spatial dimension of data

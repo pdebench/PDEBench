@@ -145,7 +145,7 @@ def run_training(
 
     model_path = model_name + ".pt"
 
-    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    # total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     # print(f"Total parameters = {total_params}")
 
     optimizer = torch.optim.Adam(
@@ -209,7 +209,7 @@ def run_training(
 
     for ep in range(start_epoch, epochs):
         model.train()
-        t1 = default_timer()
+        # t1 = default_timer()
         train_l2_step = 0
         train_l2_full = 0
         for xx, yy, grid in train_loader:
@@ -337,7 +337,7 @@ def run_training(
                         model_path,
                     )
 
-        t2 = default_timer()
+        # t2 = default_timer()
         scheduler.step()
         # print(
         #    "epoch: {0}, loss: {1:.5f}, t2-t1: {2:.5f}, trainL2: {3:.5f}, testL2: {4:.5f}".format(
@@ -348,4 +348,4 @@ def run_training(
 
 if __name__ == "__main__":
     run_training()
-    print("Done.")
+    # print("Done.")

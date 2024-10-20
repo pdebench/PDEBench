@@ -331,13 +331,13 @@ def metrics(
                 for t in range(initial_step, yy.shape[-2]):
                     inp = xx.reshape(inp_shape)
                     temp_shape = [0, -1]
-                    temp_shape.extend([i for i in range(1, len(inp.shape) - 1)])
+                    temp_shape.extend(list(range(1, len(inp.shape) - 1)))
                     inp = inp.permute(temp_shape)
 
                     y = yy[..., t : t + 1, :]
 
                     temp_shape = [0]
-                    temp_shape.extend([i for i in range(2, len(inp.shape))])
+                    temp_shape.extend(list(range(2, len(inp.shape))))
                     temp_shape.append(1)
                     im = model(inp).permute(temp_shape).unsqueeze(-2)
                     pred = torch.cat((pred, im), -2)
@@ -372,7 +372,7 @@ def metrics(
                     err_BD += _err_BD
                     err_F += _err_F
 
-                    mean_dim = [i for i in range(len(yy.shape) - 2)]
+                    mean_dim = list(range(len(yy.shape) - 2))
                     mean_dim.append(-1)
                     mean_dim = tuple(mean_dim)
                     val_l2_time += torch.sqrt(
@@ -429,7 +429,7 @@ def metrics(
                     err_BD += _err_BD
                     err_F += _err_F
 
-                    mean_dim = [i for i in range(len(yy.shape) - 2)]
+                    mean_dim = list(range(len(yy.shape) - 2))
                     mean_dim.append(-1)
                     mean_dim = tuple(mean_dim)
                     val_l2_time += torch.sqrt(
@@ -584,7 +584,7 @@ class LpLoss:
     """
 
     def __init__(self, p=2, reduction="mean"):
-        super(LpLoss, self).__init__()
+        super().__init__()
         # Dimension and Lp-norm type are positive
         assert p > 0
         self.p = p
@@ -611,7 +611,7 @@ class FftLpLoss:
     """
 
     def __init__(self, p=2, reduction="mean"):
-        super(FftLpLoss, self).__init__()
+        super().__init__()
         # Dimension and Lp-norm type are positive
         assert p > 0
         self.p = p
@@ -661,7 +661,7 @@ class FftMseLoss:
     """
 
     def __init__(self, reduction="mean"):
-        super(FftMseLoss, self).__init__()
+        super().__init__()
         # Dimension and Lp-norm type are positive
         self.reduction = reduction
 
