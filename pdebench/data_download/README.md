@@ -57,7 +57,7 @@ python visualize_pdes.py --pde_name "1d_reacdiff"
 https://darus.uni-stuttgart.de/api/access/datafile/133110
 
 # visualize
-python visualize_pdes.py --pde_name "advection"
+python visualize_pdes.py --pde_name "advection" --param 0.4
 ```
 
 ---
@@ -69,7 +69,7 @@ python visualize_pdes.py --pde_name "advection"
 https://darus.uni-stuttgart.de/api/access/datafile/133136
 
 # visualize
-python visualize_pdes.py --pde_name "burgers"
+python visualize_pdes.py --pde_name "burgers" --param 0.01
 ```
 
 ---
