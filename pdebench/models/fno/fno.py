@@ -35,7 +35,7 @@ from torch import nn
 
 class SpectralConv1d(nn.Module):
     def __init__(self, in_channels, out_channels, modes1):
-        super(SpectralConv1d, self).__init__()
+        super().__init__()
 
         """
         1D Fourier layer. It does FFT, linear transform, and Inverse FFT.
@@ -77,13 +77,12 @@ class SpectralConv1d(nn.Module):
         )
 
         # Return to physical space
-        x = torch.fft.irfft(out_ft, n=x.size(-1))
-        return x
+        return torch.fft.irfft(out_ft, n=x.size(-1))
 
 
 class FNO1d(nn.Module):
     def __init__(self, num_channels, modes=16, width=64, initial_step=10):
-        super(FNO1d, self).__init__()
+        super().__init__()
 
         """
         The overall network. It contains 4 layers of the Fourier layer.
@@ -155,7 +154,7 @@ class FNO1d(nn.Module):
 
 class SpectralConv2d_fast(nn.Module):
     def __init__(self, in_channels, out_channels, modes1, modes2):
-        super(SpectralConv2d_fast, self).__init__()
+        super().__init__()
 
         """
         2D Fourier layer. It does FFT, linear transform, and Inverse FFT.
@@ -210,13 +209,12 @@ class SpectralConv2d_fast(nn.Module):
         )
 
         # Return to physical space
-        x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
-        return x
+        return torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
 
 
 class FNO2d(nn.Module):
     def __init__(self, num_channels, modes1=12, modes2=12, width=20, initial_step=10):
-        super(FNO2d, self).__init__()
+        super().__init__()
 
         """
         The overall network. It contains 4 layers of the Fourier layer.
@@ -297,7 +295,7 @@ class FNO2d(nn.Module):
 
 class SpectralConv3d(nn.Module):
     def __init__(self, in_channels, out_channels, modes1, modes2, modes3):
-        super(SpectralConv3d, self).__init__()
+        super().__init__()
 
         """
         3D Fourier layer. It does FFT, linear transform, and Inverse FFT.
@@ -392,15 +390,14 @@ class SpectralConv3d(nn.Module):
         )
 
         # Return to physical space
-        x = torch.fft.irfftn(out_ft, s=(x.size(-3), x.size(-2), x.size(-1)))
-        return x
+        return torch.fft.irfftn(out_ft, s=(x.size(-3), x.size(-2), x.size(-1)))
 
 
 class FNO3d(nn.Module):
     def __init__(
         self, num_channels, modes1=8, modes2=8, modes3=8, width=20, initial_step=10
     ):
-        super(FNO3d, self).__init__()
+        super().__init__()
 
         """
         The overall network. It contains 4 layers of the Fourier layer.
