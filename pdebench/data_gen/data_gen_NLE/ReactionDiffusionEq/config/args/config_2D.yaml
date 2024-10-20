@@ -3,7 +3,7 @@ dt_save: 0.01
 ini_time: 0.
 fin_time: 1.
 nx: 64
-nx: 64
+ny: 64
 xL: 0.
 xR: 6.28318530718
 yL: 0.
