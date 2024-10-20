@@ -2,20 +2,19 @@ from __future__ import annotations
 
 import pickle
 from timeit import default_timer
+from pathlib import Path
 
 import numpy as np
 import torch
 from torch import nn
 
-# torch.manual_seed(0)
-# np.random.seed(0)
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 from pdebench.models.fno.fno import FNO1d, FNO2d, FNO3d
 from pdebench.models.fno.utils import FNODatasetMult, FNODatasetSingle
 from pdebench.models.metrics import metrics
 
+# torch.manual_seed(0)
+# np.random.seed(0)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def run_training(
     if_training,
@@ -48,9 +47,9 @@ def run_training(
     base_path="../data/",
     training_type="autoregressive",
 ):
-    print(
-        f"Epochs = {epochs}, learning rate = {learning_rate}, scheduler step = {scheduler_step}, scheduler gamma = {scheduler_gamma}"
-    )
+    # print(
+    #    f"Epochs = {epochs}, learning rate = {learning_rate}, scheduler step = {scheduler_step}, scheduler gamma = {scheduler_gamma}"
+    # )
 
     ################################################################
     # load data
@@ -59,7 +58,7 @@ def run_training(
     if single_file:
         # filename
         model_name = flnm[:-5] + "_FNO"
-        print("FNODatasetSingle")
+        # print("FNODatasetSingle")
 
         # Initialize the dataset and dataloader
         train_data = FNODatasetSingle(
@@ -84,7 +83,7 @@ def run_training(
         # filename
         model_name = flnm + "_FNO"
 
-        print("FNODatasetMult")
+        # print("FNODatasetMult")
         train_data = FNODatasetMult(
             flnm,
             reduced_resolution=reduced_resolution,
@@ -114,7 +113,7 @@ def run_training(
 
     _, _data, _ = next(iter(val_loader))
     dimensions = len(_data.shape)
-    print("Spatial Dimension", dimensions - 3)
+    # print("Spatial Dimension", dimensions - 3)
     if dimensions == 4:
         model = FNO1d(
             num_channels=num_channels,
@@ -147,7 +146,7 @@ def run_training(
     model_path = model_name + ".pt"
 
     total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"Total parameters = {total_params}")
+    # print(f"Total parameters = {total_params}")
 
     optimizer = torch.optim.Adam(
         model.parameters(), lr=learning_rate, weight_decay=1e-4
@@ -184,14 +183,15 @@ def run_training(
             t_max,
             initial_step=initial_step,
         )
-        pickle.dump(errs, open(model_name + ".pickle", "wb"))
+        with Path(model_name + ".pickle").open("wb") as pb:
+            pickle.dump(errs, pb)
 
         return
 
     # If desired, restore the network by loading the weights saved in the .pt
     # file
     if continue_training:
-        print("Restoring model (that is the network's weights) from file...")
+        # print("Restoring model (that is the network's weights) from file...")
         checkpoint = torch.load(model_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
         model.to(device)
@@ -339,11 +339,11 @@ def run_training(
 
         t2 = default_timer()
         scheduler.step()
-        print(
-            "epoch: {0}, loss: {1:.5f}, t2-t1: {2:.5f}, trainL2: {3:.5f}, testL2: {4:.5f}".format(
-                ep, loss.item(), t2 - t1, train_l2_full, val_l2_full
-            )
-        )
+        # print(
+        #    "epoch: {0}, loss: {1:.5f}, t2-t1: {2:.5f}, trainL2: {3:.5f}, testL2: {4:.5f}".format(
+        #        ep, loss.item(), t2 - t1, train_l2_full, val_l2_full
+        #    )
+        # )
 
 
 if __name__ == "__main__":
