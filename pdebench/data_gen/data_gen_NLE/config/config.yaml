@@ -14,4 +14,3 @@ args:
   bd: "periodic"
   nbatch: 1000
   savedir: "./save/CFD/"
-  savedir: './save/ReacDiff/'
