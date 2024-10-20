@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 
 import pandas as pd
 from torchvision.datasets.utils import download_url
@@ -51,14 +52,13 @@ def parse_metadata(pde_names):
     ]
 
     assert all(
-        [name.lower() in pde_list for name in pde_names]
+            name.lower() in pde_list for name in pde_names
     ), "PDE name not defined."
 
     # Filter the files to be downloaded
     meta_df["PDE"] = meta_df["PDE"].str.lower()
-    pde_df = meta_df[meta_df["PDE"].isin(pde_names)]
 
-    return pde_df
+    return meta_df[meta_df["PDE"].isin(pde_names)]
 
 
 def download_data(root_folder, pde_name):
@@ -70,14 +70,14 @@ def download_data(root_folder, pde_name):
     pde_name   : The name of the PDE for which the data to be downloaded
     """
 
-    print(f"Downloading data for {pde_name} ...")
+    # print(f"Downloading data for {pde_name} ...")
 
     # Load and parse metadata csv file
     pde_df = parse_metadata(pde_name)
 
     # Iterate filtered dataframe and download the files
-    for index, row in tqdm(pde_df.iterrows(), total=pde_df.shape[0]):
-        file_path = os.path.join(root_folder, row["Path"])
+    for _, row in tqdm(pde_df.iterrows(), total=pde_df.shape[0]):
+        file_path = Path(root_folder) / row["Path"]
         download_url(row["URL"], file_path, row["Filename"], md5=row["MD5"])
 
 
