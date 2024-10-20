@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed Apr 20 09:43:15 2022
 
 @author: timot
 """
+from __future__ import annotations
 
+import os
+
+import h5py
 import numpy as np
 import torch
-from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
-import os
-import h5py
-from omegaconf import DictConfig, OmegaConf
 import yaml
+from torch.utils.data import Dataset
 
 
 class PINNDataset1D(Dataset):
@@ -319,8 +318,9 @@ class PINNDatasetDiffSorption(PINNDataset1D):
 
         return (self.data_input[:Nx, :], np.expand_dims(u0, 1))
 
+
 class PINNDataset1Dpde(Dataset):
-    def __init__(self, filename, root_path='data', val_batch_idx=-1):
+    def __init__(self, filename, root_path="data", val_batch_idx=-1):
         """
         :param filename: filename that contains the dataset
         :type filename: STR
@@ -343,9 +343,10 @@ class PINNDataset1Dpde(Dataset):
         # main data
         keys = list(h5_file.keys())
         keys.sort()
-        if 'tensor' in keys:
-            self.data_output = torch.tensor(np.array(h5_file["tensor"][val_batch_idx]),
-                                            dtype=torch.float)
+        if "tensor" in keys:
+            self.data_output = torch.tensor(
+                np.array(h5_file["tensor"][val_batch_idx]), dtype=torch.float
+            )
             # permute from [t, x] -> [x, t]
             self.data_output = self.data_output.T
 
@@ -358,12 +359,14 @@ class PINNDataset1Dpde(Dataset):
             _data1 = np.array(h5_file["density"][val_batch_idx])
             _data2 = np.array(h5_file["Vx"][val_batch_idx])
             _data3 = np.array(h5_file["pressure"][val_batch_idx])
-            _data = np.concatenate([_data1[...,None], _data2[...,None], _data3[...,None]], axis=-1)
+            _data = np.concatenate(
+                [_data1[..., None], _data2[..., None], _data3[..., None]], axis=-1
+            )
             # permute from [t, x] -> [x, t]
             _data = np.transpose(_data, (1, 0, 2))
 
             self.data_output = torch.tensor(_data, dtype=torch.float)
-            del(_data, _data1, _data2, _data3)
+            del (_data, _data1, _data2, _data3)
 
             # for init/boundary conditions
             self.init_data = self.data_output[:, 0]
@@ -371,7 +374,7 @@ class PINNDataset1Dpde(Dataset):
             self.bd_data_R = self.data_output[-1]
 
         self.tdim = self.data_output.size(1)
-        self.data_grid_t = self.data_grid_t[:self.tdim]
+        self.data_grid_t = self.data_grid_t[: self.tdim]
 
         XX, TT = torch.meshgrid(
             [self.data_grid_x, self.data_grid_t],
@@ -381,18 +384,18 @@ class PINNDataset1Dpde(Dataset):
         self.data_input = torch.vstack([XX.ravel(), TT.ravel()]).T
 
         h5_file.close()
-        if 'tensor' in keys:
+        if "tensor" in keys:
             self.data_output = self.data_output.reshape(-1, 1)
         else:
             self.data_output = self.data_output.reshape(-1, 3)
 
     def get_initial_condition(self):
         # return (self.data_grid_x[:, None], self.init_data)
-        return (self.data_input[::self.tdim, :], self.init_data)
+        return (self.data_input[:: self.tdim, :], self.init_data)
 
     def get_boundary_condition(self):
         # return (self.data_grid_t[:self.nt, None], self.bd_data_L, self.bd_data_R)
-        return (self.data_input[:self.xdim, :], self.bd_data_L, self.bd_data_R)
+        return (self.data_input[: self.xdim, :], self.bd_data_L, self.bd_data_R)
 
     def get_test_data(self, n_last_time_steps, n_components=1):
         n_x = len(self.data_grid_x)
@@ -442,8 +445,9 @@ class PINNDataset1Dpde(Dataset):
     def __getitem__(self, idx):
         return self.data_input[idx, :], self.data_output[idx]
 
+
 class PINNDataset2Dpde(Dataset):
-    def __init__(self, filename, root_path='data', val_batch_idx=-1, rdc_x=9, rdc_y=9):
+    def __init__(self, filename, root_path="data", val_batch_idx=-1, rdc_x=9, rdc_y=9):
         """
         :param filename: filename that contains the dataset
         :type filename: STR
@@ -476,24 +480,31 @@ class PINNDataset2Dpde(Dataset):
         _data2 = np.array(h5_file["Vx"][val_batch_idx])
         _data3 = np.array(h5_file["Vy"][val_batch_idx])
         _data4 = np.array(h5_file["pressure"][val_batch_idx])
-        _data = np.concatenate([_data1[...,None], _data2[...,None], _data3[...,None], _data4[...,None]],
-                               axis=-1)
+        _data = np.concatenate(
+            [
+                _data1[..., None],
+                _data2[..., None],
+                _data3[..., None],
+                _data4[..., None],
+            ],
+            axis=-1,
+        )
         # permute from [t, x, y, v] -> [x, y, t, v]
         _data = np.transpose(_data, (1, 2, 0, 3))
         _data = _data[::rdc_x, ::rdc_y]
 
         self.data_output = torch.tensor(_data, dtype=torch.float)
-        del(_data, _data1, _data2, _data3, _data4)
+        del (_data, _data1, _data2, _data3, _data4)
 
         # for init/boundary conditions
         self.init_data = self.data_output[..., 0, :]
         self.bd_data_xL = self.data_output[0]
         self.bd_data_xR = self.data_output[-1]
-        self.bd_data_yL = self.data_output[:,0]
-        self.bd_data_yR = self.data_output[:,-1]
+        self.bd_data_yL = self.data_output[:, 0]
+        self.bd_data_yR = self.data_output[:, -1]
 
         self.tdim = self.data_output.size(2)
-        self.data_grid_t = self.data_grid_t[:self.tdim]
+        self.data_grid_t = self.data_grid_t[: self.tdim]
 
         XX, YY, TT = torch.meshgrid(
             [self.data_grid_x, self.data_grid_y, self.data_grid_t],
@@ -507,14 +518,17 @@ class PINNDataset2Dpde(Dataset):
 
     def get_initial_condition(self):
         # return (self.data_grid_x[:, None], self.init_data)
-        return (self.data_input[::self.tdim, :], self.init_data)
+        return (self.data_input[:: self.tdim, :], self.init_data)
 
     def get_boundary_condition(self):
         # return (self.data_grid_t[:self.nt, None], self.bd_data_L, self.bd_data_R)
-        return (self.data_input[:self.xdim*self.ydim, :],
-                self.bd_data_xL, self.bd_data_xR,
-                self.bd_data_yL, self.bd_data_yR
-                )
+        return (
+            self.data_input[: self.xdim * self.ydim, :],
+            self.bd_data_xL,
+            self.bd_data_xR,
+            self.bd_data_yL,
+            self.bd_data_yR,
+        )
 
     def get_test_data(self, n_last_time_steps, n_components=1):
         n_x = len(self.data_grid_x)
@@ -565,8 +579,11 @@ class PINNDataset2Dpde(Dataset):
     def __getitem__(self, idx):
         return self.data_input[idx, :], self.data_output[idx].unsqueeze(1)
 
+
 class PINNDataset3Dpde(Dataset):
-    def __init__(self, filename, root_path='data', val_batch_idx=-1, rdc_x=2, rdc_y=2, rdc_z=2):
+    def __init__(
+        self, filename, root_path="data", val_batch_idx=-1, rdc_x=2, rdc_y=2, rdc_z=2
+    ):
         """
         :param filename: filename that contains the dataset
         :type filename: STR
@@ -607,48 +624,62 @@ class PINNDataset3Dpde(Dataset):
         _data3 = np.array(h5_file["Vy"][val_batch_idx])
         _data4 = np.array(h5_file["Vz"][val_batch_idx])
         _data5 = np.array(h5_file["pressure"][val_batch_idx])
-        _data = np.concatenate([_data1[...,None], _data2[...,None], _data3[...,None], _data4[...,None], _data5[...,None]],
-                               axis=-1)
+        _data = np.concatenate(
+            [
+                _data1[..., None],
+                _data2[..., None],
+                _data3[..., None],
+                _data4[..., None],
+                _data5[..., None],
+            ],
+            axis=-1,
+        )
         # permute from [t, x, y, z, v] -> [x, y, z, t, v]
         _data = np.transpose(_data, (1, 2, 3, 0, 4))
         _data = _data[::rdc_x, ::rdc_y, ::rdc_z]
 
         self.data_output = torch.tensor(_data, dtype=torch.float)
-        del(_data, _data1, _data2, _data3, _data4, _data5)
+        del (_data, _data1, _data2, _data3, _data4, _data5)
 
         # for init/boundary conditions
         self.init_data = self.data_output[..., 0, :]
         self.bd_data_xL = self.data_output[0]
         self.bd_data_xR = self.data_output[-1]
-        self.bd_data_yL = self.data_output[:,0]
-        self.bd_data_yR = self.data_output[:,-1]
-        self.bd_data_zL = self.data_output[:,:,0]
-        self.bd_data_zR = self.data_output[:,:,-1]
+        self.bd_data_yL = self.data_output[:, 0]
+        self.bd_data_yR = self.data_output[:, -1]
+        self.bd_data_zL = self.data_output[:, :, 0]
+        self.bd_data_zR = self.data_output[:, :, -1]
 
         self.tdim = self.data_output.size(3)
-        self.data_grid_t = self.data_grid_t[:self.tdim]
+        self.data_grid_t = self.data_grid_t[: self.tdim]
 
         XX, YY, ZZ, TT = torch.meshgrid(
             [self.data_grid_x, self.data_grid_y, self.data_grid_z, self.data_grid_t],
             indexing="ij",
         )
 
-        self.data_input = torch.vstack([XX.ravel(), YY.ravel(), ZZ.ravel(), TT.ravel()]).T
+        self.data_input = torch.vstack(
+            [XX.ravel(), YY.ravel(), ZZ.ravel(), TT.ravel()]
+        ).T
 
         h5_file.close()
         self.data_output = self.data_output.reshape(-1, 5)
 
     def get_initial_condition(self):
         # return (self.data_grid_x[:, None], self.init_data)
-        return (self.data_input[::self.tdim, :], self.init_data)
+        return (self.data_input[:: self.tdim, :], self.init_data)
 
     def get_boundary_condition(self):
         # return (self.data_grid_t[:self.nt, None], self.bd_data_L, self.bd_data_R)
-        return (self.data_input[:self.xdim*self.ydim*self.zdim, :],
-                self.bd_data_xL, self.bd_data_xR,
-                self.bd_data_yL, self.bd_data_yR,
-                self.bd_data_zL, self.bd_data_zR,
-                )
+        return (
+            self.data_input[: self.xdim * self.ydim * self.zdim, :],
+            self.bd_data_xL,
+            self.bd_data_xR,
+            self.bd_data_yL,
+            self.bd_data_yR,
+            self.bd_data_zL,
+            self.bd_data_zR,
+        )
 
     def get_test_data(self, n_last_time_steps, n_components=1):
         n_x = len(self.data_grid_x)
@@ -671,7 +702,12 @@ class PINNDataset3Dpde(Dataset):
         test_output = test_output[:, :, :, -n_last_time_steps:, :]
 
         test_input = torch.vstack(
-            [test_input_x.ravel(), test_input_y.ravel(), test_input_z.ravel(), test_input_t.ravel()]
+            [
+                test_input_x.ravel(),
+                test_input_y.ravel(),
+                test_input_z.ravel(),
+                test_input_t.ravel(),
+            ]
         ).T
 
         # stack depending on number of output components
@@ -692,7 +728,9 @@ class PINNDataset3Dpde(Dataset):
         n_x = len(self.data_grid_x)
         n_y = len(self.data_grid_y)
         n_z = len(self.data_grid_z)
-        return raveled_tensor.reshape((1, n_x, n_y, n_z, n_last_time_steps, n_components))
+        return raveled_tensor.reshape(
+            (1, n_x, n_y, n_z, n_last_time_steps, n_components)
+        )
 
     def generate_plot_input(self, time=1.0):
         return None

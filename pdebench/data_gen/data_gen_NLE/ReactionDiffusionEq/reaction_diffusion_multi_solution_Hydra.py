@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -145,34 +144,35 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+from __future__ import annotations
 
-import sys
 import random
+import sys
 from math import ceil, exp, log
 from pathlib import Path
 
-# Hydra
-from omegaconf import DictConfig, OmegaConf
 import hydra
-
 import jax
-from jax import vmap
 import jax.numpy as jnp
 from jax import device_put, lax
 
-sys.path.append('..')
-from utils import init_multi, Courant, Courant_diff, save_data, bc, limiting
+# Hydra
+from omegaconf import DictConfig
+
+sys.path.append("..")
+from utils import Courant_diff, bc, init_multi
 
 
 def _pass(carry):
     return carry
+
 
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
     # basic parameters
     dx = (cfg.multi.xR - cfg.multi.xL) / cfg.multi.nx
-    dx_inv = 1. / dx
+    dx_inv = 1.0 / dx
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.multi.xL, cfg.multi.xR, cfg.multi.nx + 1)
@@ -185,12 +185,16 @@ def main(cfg: DictConfig) -> None:
     dt_save = cfg.multi.dt_save
     CFL = cfg.multi.CFL
     if cfg.multi.if_rand_param:
-        rho = exp(random.uniform(log(0.001), log(10)))  # uniform number between 0.01 to 100
-        nu = exp(random.uniform(log(0.001), log(10)))  # uniform number between 0.01 to 100
+        rho = exp(
+            random.uniform(log(0.001), log(10))
+        )  # uniform number between 0.01 to 100
+        nu = exp(
+            random.uniform(log(0.001), log(10))
+        )  # uniform number between 0.01 to 100
     else:
         rho = cfg.multi.rho
         nu = cfg.multi.nu
-    print('rho: {0:>5f}, nu: {1:>5f}'.format(rho, nu))
+    print(f"rho: {rho:>5f}, nu: {nu:>5f}")
 
     # t-coordinate
     it_tot = ceil((fin_time - ini_time) / dt_save) + 1
@@ -202,7 +206,7 @@ def main(cfg: DictConfig) -> None:
         tsave = t
         steps = 0
         i_save = 0
-        dt = 0.
+        dt = 0.0
         uu = jnp.zeros([it_tot, u.shape[0]])
         uu = uu.at[0].set(u)
 
@@ -247,12 +251,11 @@ def main(cfg: DictConfig) -> None:
             return u, dt
 
         carry = u, dt
-        u, dt = lax.cond(dt > 1.e-8, _update, _pass, carry)
+        u, dt = lax.cond(dt > 1.0e-8, _update, _pass, carry)
 
         t += dt
         steps += 1
         return u, t, dt, steps, tsave
-
 
     @jax.jit
     def update(u, u_tmp, dt):
@@ -260,40 +263,59 @@ def main(cfg: DictConfig) -> None:
         u = Piecewise_Exact_Solution(u, dt)
         # diffusion
         f = flux(u_tmp)
-        u -= dt * dx_inv * (f[1:cfg.multi.nx + 1] - f[0:cfg.multi.nx])
+        u -= dt * dx_inv * (f[1 : cfg.multi.nx + 1] - f[0 : cfg.multi.nx])
         return u
 
     @jax.jit
     def flux(u):
-        _u = bc(u, dx, Ncell=cfg.multi.nx) # index 2 for _U is equivalent with index 0 for u
+        _u = bc(
+            u, dx, Ncell=cfg.multi.nx
+        )  # index 2 for _U is equivalent with index 0 for u
         # 2nd-order diffusion flux
-        f = - nu*(_u[2:cfg.multi.nx+3] - _u[1:cfg.multi.nx+2])*dx_inv
+        f = -nu * (_u[2 : cfg.multi.nx + 3] - _u[1 : cfg.multi.nx + 2]) * dx_inv
         return f
 
     @jax.jit
     def Piecewise_Exact_Solution(u, dt):  # Piecewise_Exact_Solution method
         # stiff equation
-        u = 1./(1. + jnp.exp(- rho*dt)*(1. - u)/u)
+        u = 1.0 / (1.0 + jnp.exp(-rho * dt) * (1.0 - u) / u)
         return u
 
-    u = init_multi(xc, numbers=cfg.multi.numbers, k_tot=4, init_key=cfg.multi.init_key, if_norm=True)
+    u = init_multi(
+        xc,
+        numbers=cfg.multi.numbers,
+        k_tot=4,
+        init_key=cfg.multi.init_key,
+        if_norm=True,
+    )
     u = device_put(u)  # putting variables in GPU (not necessary??)
 
-    #vm_evolve = vmap(evolve, 0, 0)
-    #uu = vm_evolve(u)
-    vm_evolve = jax.pmap(jax.vmap(evolve, axis_name='j'), axis_name='i')
+    # vm_evolve = vmap(evolve, 0, 0)
+    # uu = vm_evolve(u)
+    vm_evolve = jax.pmap(jax.vmap(evolve, axis_name="j"), axis_name="i")
     local_devices = jax.local_device_count()
-    uu = vm_evolve(u.reshape([local_devices, cfg.multi.numbers//local_devices, -1]))
+    uu = vm_evolve(u.reshape([local_devices, cfg.multi.numbers // local_devices, -1]))
+
+    print("data saving...")
+    cwd = hydra.utils.get_original_cwd() + "/"
+    jnp.save(
+        cwd + cfg.multi.save + "/ReacDiff_Nu" + str(nu)[:5] + "_Rho" + str(rho)[:5], uu
+    )
+    jnp.save(cwd + cfg.multi.save + "/x_coordinate", xc)
+    jnp.save(cwd + cfg.multi.save + "/t_coordinate", tc)
 
     # reshape based on device count
     uu = uu.reshape((-1, *uu.shape[2:]))
 
-    print('data saving...')
-    cwd = hydra.utils.get_original_cwd() + '/'
+    print("data saving...")
+    cwd = hydra.utils.get_original_cwd() + "/"
     Path(cwd + cfg.multi.save).mkdir(parents=True, exist_ok=True)
-    jnp.save(cwd + cfg.multi.save+'ReacDiff_Nu'+str(nu)[:5]+'_Rho'+str(rho)[:5], uu)
-    jnp.save(cwd + cfg.multi.save+'/x_coordinate', xc)
-    jnp.save(cwd + cfg.multi.save+'/t_coordinate', tc)
+    jnp.save(
+        cwd + cfg.multi.save + "ReacDiff_Nu" + str(nu)[:5] + "_Rho" + str(rho)[:5], uu
+    )
+    jnp.save(cwd + cfg.multi.save + "/x_coordinate", xc)
+    jnp.save(cwd + cfg.multi.save + "/t_coordinate", tc)
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-save: '../save/CFD/'
+save: "../save/CFD/"
 dt_save: 0.01
 ini_time: 0.
 fin_time: 1.
@@ -11,7 +11,7 @@ yL: 0.
 yR: 1.
 zL: 0.
 zR: 1.
-bc: 'periodic'
+bc: "periodic"
 gamma: 1.6666666666666667
 eta: 1.e-8
 zeta: 1.e-8
@@ -20,10 +20,10 @@ if_second_order: 1.
 if_show: 1
 show_steps: 400
 p_floor: 1.e-4
-init_mode: 'OTVortex'
+init_mode: "OTVortex"
 M0: 1.
 dk: 1.
 dkMx: 1.
 numbers: 4
-init_mode_Multi: 'KHs'
+init_mode_Multi: "KHs"
 init_key: 2022
