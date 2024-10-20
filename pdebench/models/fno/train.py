@@ -6,11 +6,11 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import torch.nn as nn
 
 from pdebench.models.fno.fno import FNO1d, FNO2d, FNO3d
 from pdebench.models.fno.utils import FNODatasetMult, FNODatasetSingle
 from pdebench.models.metrics import metrics
+from torch import nn
 
 # torch.manual_seed(0)
 # np.random.seed(0)
