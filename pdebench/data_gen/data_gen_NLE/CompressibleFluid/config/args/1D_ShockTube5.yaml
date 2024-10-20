@@ -1,4 +1,4 @@
-save: '../save/CFD/'
+save: "../save/CFD/"
 dt_save: 0.001
 ini_time: 0.
 fin_time: 0.012
@@ -11,7 +11,7 @@ yL: -1.
 yR: 1.
 zL: -1.
 zR: 1.
-bc: 'trans'
+bc: "trans"
 gamma: 1.6666666666666667
 eta: 1.e-8
 zeta: 1.e-8
@@ -19,10 +19,10 @@ CFL: 3.e-1
 if_second_order: 1.
 if_show: 1
 show_steps: 100
-init_mode: 'shocktube5'
+init_mode: "shocktube5"
 p_floor: 1.e-4
 numbers: 10
-init_mode_Multi: '1D_shocks'
+init_mode_Multi: "1D_shocks"
 init_key: 2022
 M0: 1.
 dk: 1.

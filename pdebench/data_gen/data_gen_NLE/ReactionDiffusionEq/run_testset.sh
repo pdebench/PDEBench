@@ -1,3 +1,4 @@
+#! /bin/bash
 #CUDA_VISIBLE_DEVICES='3' python3 reaction_diffusion_Hydra.py +args=Rho1e0_Nu1e0.yaml
 #CUDA_VISIBLE_DEVICES='3' python3 reaction_diffusion_Hydra.py +args=Rho1e0_Nu2e0.yaml
 #CUDA_VISIBLE_DEVICES='3' python3 reaction_diffusion_Hydra.py +args=Rho1e0_Nu5e0.yaml

@@ -1,4 +1,4 @@
-save: '../save/CFD/'
+save: "../save/CFD/"
 dt_save: 0.1
 ini_time: 0.
 fin_time: 5.
@@ -11,7 +11,7 @@ yL: 0.
 yR: 1.
 zL: 0.
 zR: 1.
-bc: 'KHI'
+bc: "KHI"
 gamma: 1.6666666666666667
 eta: 1.e-3
 zeta: 1.e-8
@@ -20,10 +20,10 @@ if_second_order: 1.
 if_show: 1
 show_steps: 4000
 p_floor: 1.e-4
-init_mode: 'KHI'
+init_mode: "KHI"
 M0: 0.4
 dk: 1.
 dkMx: 1.
 numbers: 4
-init_mode_Multi: 'KHs'
+init_mode_Multi: "KHs"
 init_key: 2022

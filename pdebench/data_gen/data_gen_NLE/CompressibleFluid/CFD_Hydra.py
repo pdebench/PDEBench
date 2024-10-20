@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -145,57 +144,58 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+from __future__ import annotations
 
-import time
 import sys
-from math import ceil
+import time
 from functools import partial
+from math import ceil
+
+import hydra
+import jax.numpy as jnp
+from jax import device_put, jit, lax
 
 # Hydra
-from omegaconf import DictConfig, OmegaConf
-import hydra
-
-from jax import jit
-import jax.numpy as jnp
-from jax import device_put, lax
+from omegaconf import DictConfig
 
 # if double precision
-#from jax.config import config
-#config.update("jax_enable_x64", True)
+# from jax.config import config
+# config.update("jax_enable_x64", True)
 
-sys.path.append('..')
-from utils import init_HD, Courant_HD, Courant_vis_HD, save_data_HD, bc_HD, limiting_HD, bc_HD_vis
+sys.path.append("..")
+from utils import Courant_HD, Courant_vis_HD, bc_HD, init_HD, limiting_HD, save_data_HD
 
 
 def _pass(carry):
     return carry
+
 
 # Init arguments with Hydra
 @hydra.main(config_path="config", config_name="config")
 def main(cfg: DictConfig) -> None:
     # physical constants
     gamma = cfg.args.gamma  # 3D non-relativistic gas
-    gammi1 = gamma - 1.
-    gamminv1 = 1. / gammi1
+    gammi1 = gamma - 1.0
+    gamminv1 = 1.0 / gammi1
     gamgamm1inv = gamma * gamminv1
-    gammi1 = gamma - 1.
-    gampl1 = gamma + 1.
-    gammi3 = gamma - 3.
-    gampl3 = gamma + 3.
+    gammi1 = gamma - 1.0
+    gampl1 = gamma + 1.0
+    gammi3 = gamma - 3.0
+    gampl3 = gamma + 3.0
 
-    visc = cfg.args.zeta + cfg.args.eta / 3.
+    visc = cfg.args.zeta + cfg.args.eta / 3.0
 
-    BCs = ['trans', 'periodic', 'KHI']  # reflect
+    BCs = ["trans", "periodic", "KHI"]  # reflect
     assert cfg.args.bc in BCs, "bc should be in 'trans, reflect, periodic'"
 
     dx = (cfg.args.xR - cfg.args.xL) / cfg.args.nx
-    dx_inv = 1. / dx
+    dx_inv = 1.0 / dx
     #
     dy = (cfg.args.yR - cfg.args.yL) / cfg.args.ny
-    dy_inv = 1. / dy
+    dy_inv = 1.0 / dy
     #
     dz = (cfg.args.zR - cfg.args.zL) / cfg.args.nz
-    dz_inv = 1. / dz
+    dz_inv = 1.0 / dz
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.args.xL, cfg.args.xR, cfg.args.nx + 1)
@@ -216,56 +216,77 @@ def main(cfg: DictConfig) -> None:
         steps = 0
         i_save = 0
         tm_ini = time.time()
-        dt = 0.
+        dt = 0.0
 
         while t < cfg.args.fin_time:
             if t >= tsave:
-                print('save data at t = {0:.3f}'.format(t))
-                save_data_HD(Q[:,2:-2,2:-2,2:-2], xc, yc, zc, i_save, cfg.args.save)
+                print(f"save data at t = {t:.3f}")
+                save_data_HD(Q[:, 2:-2, 2:-2, 2:-2], xc, yc, zc, i_save, cfg.args.save)
                 tsave += cfg.args.dt_save
                 i_save += 1
 
-            if steps%cfg.args.show_steps==0 and cfg.args.if_show:
-                print('now {0:d}-steps, t = {1:.3f}, dt = {2:.3f}'.format(steps, t, dt))
+            if steps % cfg.args.show_steps == 0 and cfg.args.if_show:
+                print(f"now {steps:d}-steps, t = {t:.3f}, dt = {dt:.3f}")
 
             carry = (Q, t, dt, steps, tsave)
-            Q, t, dt, steps, tsave = lax.fori_loop(0, cfg.args.show_steps, simulation_fn, carry)
+            Q, t, dt, steps, tsave = lax.fori_loop(
+                0, cfg.args.show_steps, simulation_fn, carry
+            )
 
         tm_fin = time.time()
-        print('total elapsed time is {} sec'.format(tm_fin - tm_ini))
-        save_data_HD(Q[:,2:-2,2:-2,2:-2], xc, yc, zc,
-                     i_save, cfg.args.save, cfg.args.dt_save, if_final=True)
+        print(f"total elapsed time is {tm_fin - tm_ini} sec")
+        save_data_HD(
+            Q[:, 2:-2, 2:-2, 2:-2],
+            xc,
+            yc,
+            zc,
+            i_save,
+            cfg.args.save,
+            cfg.args.dt_save,
+            if_final=True,
+        )
         return t
 
     @jit
     def simulation_fn(i, carry):
         Q, t, dt, steps, tsave = carry
-        dt = Courant_HD(Q[:,2:-2,2:-2,2:-2], dx, dy, dz, cfg.args.gamma) * cfg.args.CFL
+        dt = (
+            Courant_HD(Q[:, 2:-2, 2:-2, 2:-2], dx, dy, dz, cfg.args.gamma)
+            * cfg.args.CFL
+        )
         dt = jnp.min(jnp.array([dt, cfg.args.fin_time - t, tsave - t]))
 
         def _update(carry):
             Q, dt = carry
 
             # preditor step for calculating t+dt/2-th time step
-            Q_tmp = bc_HD(Q, mode=cfg.args.bc)  # index 2 for _U is equivalent with index 0 for u
+            Q_tmp = bc_HD(
+                Q, mode=cfg.args.bc
+            )  # index 2 for _U is equivalent with index 0 for u
             Q_tmp = update(Q, Q_tmp, dt * 0.5)
             # update using flux at t+dt/2-th time step
-            Q_tmp = bc_HD(Q_tmp, mode=cfg.args.bc)  # index 2 for _U is equivalent with index 0 for u
+            Q_tmp = bc_HD(
+                Q_tmp, mode=cfg.args.bc
+            )  # index 2 for _U is equivalent with index 0 for u
             Q = update(Q, Q_tmp, dt)
 
             # update via viscosity
-            #d_min = jnp.min(Q[0])
-            #dt_vis = Courant_vis_HD(dx, dy, dz, eta/d_min, zeta/d_min) * cfg.args.CFL  # for realistic viscosity
-            dt_vis = Courant_vis_HD(dx, dy, dz, cfg.args.eta, cfg.args.zeta) * cfg.args.CFL
+            # d_min = jnp.min(Q[0])
+            # dt_vis = Courant_vis_HD(dx, dy, dz, eta/d_min, zeta/d_min) * cfg.args.CFL  # for realistic viscosity
+            dt_vis = (
+                Courant_vis_HD(dx, dy, dz, cfg.args.eta, cfg.args.zeta) * cfg.args.CFL
+            )
             dt_vis = jnp.min(jnp.array([dt_vis, dt]))
-            t_vis = 0.
+            t_vis = 0.0
 
             carry = Q, dt, dt_vis, t_vis
-            Q, dt, dt_vis, t_vis = lax.while_loop(lambda x: x[1] - x[3] > 1.e-8, update_vis, carry)
+            Q, dt, dt_vis, t_vis = lax.while_loop(
+                lambda x: x[1] - x[3] > 1.0e-8, update_vis, carry
+            )
             return Q, dt
 
         carry = Q, dt
-        Q, dt = lax.cond(dt > 1.e-8, _update, _pass, carry)
+        Q, dt = lax.cond(dt > 1.0e-8, _update, _pass, carry)
 
         t += dt
         steps += 1
@@ -275,10 +296,10 @@ def main(cfg: DictConfig) -> None:
     def update(Q, Q_tmp, dt):
         # calculate conservative variables
         D0 = Q[0]
-        Mx = Q[1]*Q[0]
-        My = Q[2]*Q[0]
-        Mz = Q[3]*Q[0]
-        E0 = Q[4] * gamminv1 + 0.5*(Mx*Q[1] + My*Q[2] + Mz*Q[3])
+        Mx = Q[1] * Q[0]
+        My = Q[2] * Q[0]
+        Mz = Q[3] * Q[0]
+        E0 = Q[4] * gamminv1 + 0.5 * (Mx * Q[1] + My * Q[2] + Mz * Q[3])
 
         D0 = D0[2:-2, 2:-2, 2:-2]
         Mx = Mx[2:-2, 2:-2, 2:-2]
@@ -292,34 +313,46 @@ def main(cfg: DictConfig) -> None:
         fz = flux_z(Q_tmp)
 
         # update conservative variables
-        dtdx, dtdy, dtdz = dt*dx_inv, dt*dy_inv, dt*dz_inv
-        D0 -= dtdx * (fx[0, 1:, 2:-2, 2:-2] - fx[0, :-1, 2:-2, 2:-2])\
-            + dtdy * (fy[0, 2:-2, 1:, 2:-2] - fy[0, 2:-2, :-1, 2:-2])\
+        dtdx, dtdy, dtdz = dt * dx_inv, dt * dy_inv, dt * dz_inv
+        D0 -= (
+            dtdx * (fx[0, 1:, 2:-2, 2:-2] - fx[0, :-1, 2:-2, 2:-2])
+            + dtdy * (fy[0, 2:-2, 1:, 2:-2] - fy[0, 2:-2, :-1, 2:-2])
             + dtdz * (fz[0, 2:-2, 2:-2, 1:] - fz[0, 2:-2, 2:-2, :-1])
+        )
 
-        Mx -= dtdx * (fx[1, 1:, 2:-2, 2:-2] - fx[1, :-1, 2:-2, 2:-2])\
-            + dtdy * (fy[1, 2:-2, 1:, 2:-2] - fy[1, 2:-2, :-1, 2:-2])\
+        Mx -= (
+            dtdx * (fx[1, 1:, 2:-2, 2:-2] - fx[1, :-1, 2:-2, 2:-2])
+            + dtdy * (fy[1, 2:-2, 1:, 2:-2] - fy[1, 2:-2, :-1, 2:-2])
             + dtdz * (fz[1, 2:-2, 2:-2, 1:] - fz[1, 2:-2, 2:-2, :-1])
+        )
 
-        My -= dtdx * (fx[2, 1:, 2:-2, 2:-2] - fx[2, :-1, 2:-2, 2:-2])\
-            + dtdy * (fy[2, 2:-2, 1:, 2:-2] - fy[2, 2:-2, :-1, 2:-2])\
+        My -= (
+            dtdx * (fx[2, 1:, 2:-2, 2:-2] - fx[2, :-1, 2:-2, 2:-2])
+            + dtdy * (fy[2, 2:-2, 1:, 2:-2] - fy[2, 2:-2, :-1, 2:-2])
             + dtdz * (fz[2, 2:-2, 2:-2, 1:] - fz[2, 2:-2, 2:-2, :-1])
+        )
 
-        Mz -= dtdx * (fx[3, 1:, 2:-2, 2:-2] - fx[3, :-1, 2:-2, 2:-2])\
-            + dtdy * (fy[3, 2:-2, 1:, 2:-2] - fy[3, 2:-2, :-1, 2:-2])\
+        Mz -= (
+            dtdx * (fx[3, 1:, 2:-2, 2:-2] - fx[3, :-1, 2:-2, 2:-2])
+            + dtdy * (fy[3, 2:-2, 1:, 2:-2] - fy[3, 2:-2, :-1, 2:-2])
             + dtdz * (fz[3, 2:-2, 2:-2, 1:] - fz[3, 2:-2, 2:-2, :-1])
+        )
 
-        E0 -= dtdx * (fx[4, 1:, 2:-2, 2:-2] - fx[4, :-1, 2:-2, 2:-2])\
-            + dtdy * (fy[4, 2:-2, 1:, 2:-2] - fy[4, 2:-2, :-1, 2:-2])\
+        E0 -= (
+            dtdx * (fx[4, 1:, 2:-2, 2:-2] - fx[4, :-1, 2:-2, 2:-2])
+            + dtdy * (fy[4, 2:-2, 1:, 2:-2] - fy[4, 2:-2, :-1, 2:-2])
             + dtdz * (fz[4, 2:-2, 2:-2, 1:] - fz[4, 2:-2, 2:-2, :-1])
+        )
 
         # reverse primitive variables
-        Q = Q.at[0, 2:-2, 2:-2, 2:-2].set(D0)     # d
-        Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx/D0)  # vx
-        Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My/D0)  # vy
-        Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz/D0)  # vz
-        Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5*(Mx**2 + My**2 + Mz**2)/D0))  # p
-        Q = Q.at[4].set(jnp.where(Q[4] > 1.e-8, Q[4], cfg.args.p_floor))
+        Q = Q.at[0, 2:-2, 2:-2, 2:-2].set(D0)  # d
+        Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
+        Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
+        Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
+        Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(
+            gammi1 * (E0 - 0.5 * (Mx**2 + My**2 + Mz**2) / D0)
+        )  # p
+        Q = Q.at[4].set(jnp.where(Q[4] > 1.0e-8, Q[4], cfg.args.p_floor))
 
         return Q
 
@@ -339,17 +372,20 @@ def main(cfg: DictConfig) -> None:
             # here the viscosity is eta*D0, so that dv/dt = eta*d^2v/dx^2 (not realistic viscosity but fast to calculate)
             Dm = 0.5 * (D0[2:-1, 2:-2, 2:-2] + D0[1:-2, 2:-2, 2:-2])
 
-            fMx = (eta + visc) * Dm * dx_inv * (\
-                          Q[1, 2:-1, 2:-2, 2:-2] - Q[1, 1:-2, 2:-2, 2:-2])
-            fMy = eta * Dm * dx_inv * (\
-                          Q[2, 2:-1, 2:-2, 2:-2] - Q[2, 1:-2, 2:-2, 2:-2])
-            fMz = eta * Dm * dx_inv * (\
-                          Q[3, 2:-1, 2:-2, 2:-2] - Q[3, 1:-2, 2:-2, 2:-2])
-            fE = 0.5 * (eta + visc) * Dm * dx_inv * (\
-                        Q[1, 2:-1, 2:-2, 2:-2] ** 2 - Q[1, 1:-2, 2:-2, 2:-2] ** 2)\
-                 + 0.5 * eta * Dm * dx_inv * (\
-                     (Q[2, 2:-1, 2:-2, 2:-2] ** 2 - Q[2, 1:-2, 2:-2, 2:-2] ** 2)\
-                   + (Q[3, 2:-1, 2:-2, 2:-2] ** 2 - Q[3, 1:-2, 2:-2, 2:-2] ** 2))
+            fMx = (
+                (eta + visc)
+                * Dm
+                * dx_inv
+                * (Q[1, 2:-1, 2:-2, 2:-2] - Q[1, 1:-2, 2:-2, 2:-2])
+            )
+            fMy = eta * Dm * dx_inv * (Q[2, 2:-1, 2:-2, 2:-2] - Q[2, 1:-2, 2:-2, 2:-2])
+            fMz = eta * Dm * dx_inv * (Q[3, 2:-1, 2:-2, 2:-2] - Q[3, 1:-2, 2:-2, 2:-2])
+            fE = 0.5 * (eta + visc) * Dm * dx_inv * (
+                Q[1, 2:-1, 2:-2, 2:-2] ** 2 - Q[1, 1:-2, 2:-2, 2:-2] ** 2
+            ) + 0.5 * eta * Dm * dx_inv * (
+                (Q[2, 2:-1, 2:-2, 2:-2] ** 2 - Q[2, 1:-2, 2:-2, 2:-2] ** 2)
+                + (Q[3, 2:-1, 2:-2, 2:-2] ** 2 - Q[3, 1:-2, 2:-2, 2:-2] ** 2)
+            )
 
             D0 = D0[2:-2, 2:-2, 2:-2]
             Mx = Mx[2:-2, 2:-2, 2:-2]
@@ -366,7 +402,9 @@ def main(cfg: DictConfig) -> None:
             Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
             Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
             Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
-            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5 * (Mx ** 2 + My ** 2 + Mz ** 2) / D0))  # p
+            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(
+                gammi1 * (E0 - 0.5 * (Mx**2 + My**2 + Mz**2) / D0)
+            )  # p
 
             return Q, dt
 
@@ -384,17 +422,20 @@ def main(cfg: DictConfig) -> None:
             # here the viscosity is eta*D0, so that dv/dt = eta*d^2v/dx^2 (not realistic viscosity but fast to calculate)
             Dm = 0.5 * (D0[2:-2, 2:-1, 2:-2] + D0[2:-2, 1:-2, 2:-2])
 
-            fMx = eta * Dm * dy_inv * (\
-                          Q[1, 2:-2, 2:-1, 2:-2] - Q[1, 2:-2, 1:-2, 2:-2])
-            fMy = (eta + visc) * Dm * dy_inv * (\
-                          Q[2, 2:-2, 2:-1, 2:-2] - Q[2, 2:-2, 1:-2, 2:-2])
-            fMz = eta * Dm * dy_inv * (\
-                          Q[3, 2:-2, 2:-1, 2:-2] - Q[3, 2:-2, 1:-2, 2:-2])
-            fE = 0.5 * (eta + visc) * Dm * dy_inv * (\
-                        Q[2, 2:-2, 2:-1, 2:-2] ** 2 - Q[2, 2:-2, 1:-2, 2:-2] ** 2)\
-                 + 0.5 * eta * Dm * dy_inv * ( \
-                     (Q[3, 2:-2, 2:-1, 2:-2] ** 2 - Q[3, 2:-2, 1:-2, 2:-2] ** 2) \
-                   + (Q[1, 2:-2, 2:-1, 2:-2] ** 2 - Q[1, 2:-2, 1:-2, 2:-2] ** 2))
+            fMx = eta * Dm * dy_inv * (Q[1, 2:-2, 2:-1, 2:-2] - Q[1, 2:-2, 1:-2, 2:-2])
+            fMy = (
+                (eta + visc)
+                * Dm
+                * dy_inv
+                * (Q[2, 2:-2, 2:-1, 2:-2] - Q[2, 2:-2, 1:-2, 2:-2])
+            )
+            fMz = eta * Dm * dy_inv * (Q[3, 2:-2, 2:-1, 2:-2] - Q[3, 2:-2, 1:-2, 2:-2])
+            fE = 0.5 * (eta + visc) * Dm * dy_inv * (
+                Q[2, 2:-2, 2:-1, 2:-2] ** 2 - Q[2, 2:-2, 1:-2, 2:-2] ** 2
+            ) + 0.5 * eta * Dm * dy_inv * (
+                (Q[3, 2:-2, 2:-1, 2:-2] ** 2 - Q[3, 2:-2, 1:-2, 2:-2] ** 2)
+                + (Q[1, 2:-2, 2:-1, 2:-2] ** 2 - Q[1, 2:-2, 1:-2, 2:-2] ** 2)
+            )
 
             D0 = D0[2:-2, 2:-2, 2:-2]
             Mx = Mx[2:-2, 2:-2, 2:-2]
@@ -411,7 +452,9 @@ def main(cfg: DictConfig) -> None:
             Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
             Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
             Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
-            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5 * (Mx ** 2 + My ** 2 + Mz ** 2) / D0))  # p
+            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(
+                gammi1 * (E0 - 0.5 * (Mx**2 + My**2 + Mz**2) / D0)
+            )  # p
 
             return Q, dt
 
@@ -429,17 +472,20 @@ def main(cfg: DictConfig) -> None:
             # here the viscosity is eta*D0, so that dv/dt = eta*d^2v/dx^2 (not realistic viscosity but fast to calculate)
             Dm = 0.5 * (D0[2:-2, 2:-2, 2:-1] + D0[2:-2, 2:-2, 1:-2])
 
-            fMx = eta * Dm * dz_inv * (\
-                          Q[1, 2:-2, 2:-2, 2:-1] - Q[1, 2:-2, 2:-2, 1:-2])
-            fMy = eta * Dm * dz_inv * (\
-                          Q[2, 2:-2, 2:-2, 2:-1] - Q[2, 2:-2, 2:-2, 1:-2])
-            fMz = (eta + visc) * Dm * dz_inv * (\
-                          Q[3, 2:-2, 2:-2, 2:-1] - Q[3, 2:-2, 2:-2, 1:-2])
-            fE = 0.5 * (eta + visc) * Dm * dz_inv * (\
-                        Q[3, 2:-2, 2:-2, 2:-1] ** 2 - Q[3, 2:-2, 2:-2, 1:-2] ** 2)\
-                 + 0.5 * eta * Dm * dz_inv * ( \
-                     (Q[1, 2:-2, 2:-2, 2:-1] ** 2 - Q[1, 2:-2, 2:-2, 1:-2] ** 2) \
-                   + (Q[2, 2:-2, 2:-2, 2:-1] ** 2 - Q[2, 2:-2, 2:-2, 1:-2] ** 2))
+            fMx = eta * Dm * dz_inv * (Q[1, 2:-2, 2:-2, 2:-1] - Q[1, 2:-2, 2:-2, 1:-2])
+            fMy = eta * Dm * dz_inv * (Q[2, 2:-2, 2:-2, 2:-1] - Q[2, 2:-2, 2:-2, 1:-2])
+            fMz = (
+                (eta + visc)
+                * Dm
+                * dz_inv
+                * (Q[3, 2:-2, 2:-2, 2:-1] - Q[3, 2:-2, 2:-2, 1:-2])
+            )
+            fE = 0.5 * (eta + visc) * Dm * dz_inv * (
+                Q[3, 2:-2, 2:-2, 2:-1] ** 2 - Q[3, 2:-2, 2:-2, 1:-2] ** 2
+            ) + 0.5 * eta * Dm * dz_inv * (
+                (Q[1, 2:-2, 2:-2, 2:-1] ** 2 - Q[1, 2:-2, 2:-2, 1:-2] ** 2)
+                + (Q[2, 2:-2, 2:-2, 2:-1] ** 2 - Q[2, 2:-2, 2:-2, 1:-2] ** 2)
+            )
 
             D0 = D0[2:-2, 2:-2, 2:-2]
             Mx = Mx[2:-2, 2:-2, 2:-2]
@@ -456,12 +502,16 @@ def main(cfg: DictConfig) -> None:
             Q = Q.at[1, 2:-2, 2:-2, 2:-2].set(Mx / D0)  # vx
             Q = Q.at[2, 2:-2, 2:-2, 2:-2].set(My / D0)  # vy
             Q = Q.at[3, 2:-2, 2:-2, 2:-2].set(Mz / D0)  # vz
-            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(gammi1 * (E0 - 0.5 * (Mx ** 2 + My ** 2 + Mz ** 2) / D0))  # p
+            Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(
+                gammi1 * (E0 - 0.5 * (Mx**2 + My**2 + Mz**2) / D0)
+            )  # p
 
             return Q, dt
 
         Q, dt, dt_vis, t_vis = carry
-        Q = bc_HD(Q, mode=cfg.args.bc)  # index 2 for _U is equivalent with index 0 for u
+        Q = bc_HD(
+            Q, mode=cfg.args.bc
+        )  # index 2 for _U is equivalent with index 0 for u
         dt_ev = jnp.min(jnp.array([dt, dt_vis, dt - t_vis]))
 
         carry = Q, dt_ev
@@ -477,7 +527,7 @@ def main(cfg: DictConfig) -> None:
     @jit
     def flux_x(Q):
         QL, QR = limiting_HD(Q, if_second_order=cfg.args.if_second_order)
-        #f_Riemann = HLL(QL, QR, direc=0)
+        # f_Riemann = HLL(QL, QR, direc=0)
         f_Riemann = HLLC(QL, QR, direc=0)
         return f_Riemann
 
@@ -485,15 +535,17 @@ def main(cfg: DictConfig) -> None:
     def flux_y(Q):
         _Q = jnp.transpose(Q, (0, 2, 3, 1))  # (y, z, x)
         QL, QR = limiting_HD(_Q, if_second_order=cfg.args.if_second_order)
-        #f_Riemann = jnp.transpose(HLL(QL, QR, direc=1), (0, 3, 1, 2))  # (x,y,z) = (Z,X,Y)
-        f_Riemann = jnp.transpose(HLLC(QL, QR, direc=1), (0, 3, 1, 2))  # (x,y,z) = (Z,X,Y)
+        # f_Riemann = jnp.transpose(HLL(QL, QR, direc=1), (0, 3, 1, 2))  # (x,y,z) = (Z,X,Y)
+        f_Riemann = jnp.transpose(
+            HLLC(QL, QR, direc=1), (0, 3, 1, 2)
+        )  # (x,y,z) = (Z,X,Y)
         return f_Riemann
 
     @jit
     def flux_z(Q):
         _Q = jnp.transpose(Q, (0, 3, 1, 2))  # (z, x, y)
         QL, QR = limiting_HD(_Q, if_second_order=cfg.args.if_second_order)
-        #f_Riemann = jnp.transpose(HLL(QL, QR, direc=2), (0, 2, 3, 1))
+        # f_Riemann = jnp.transpose(HLL(QL, QR, direc=2), (0, 2, 3, 1))
         f_Riemann = jnp.transpose(HLLC(QL, QR, direc=2), (0, 2, 3, 1))
         return f_Riemann
 
@@ -503,21 +555,31 @@ def main(cfg: DictConfig) -> None:
         iX, iY, iZ = direc + 1, (direc + 1) % 3 + 1, (direc + 2) % 3 + 1
         cfL = jnp.sqrt(gamma * QL[4] / QL[0])
         cfR = jnp.sqrt(gamma * QR[4] / QR[0])
-        Sfl = jnp.minimum(QL[iX, 2:-1], QR[iX, 1:-2]) - jnp.maximum(cfL[2:-1], cfR[1:-2])  # left-going wave
-        Sfr = jnp.maximum(QL[iX, 2:-1], QR[iX, 1:-2]) + jnp.maximum(cfL[2:-1], cfR[1:-2])  # right-going wave
-        dcfi = 1. / (Sfr - Sfl + 1.e-8)
+        Sfl = jnp.minimum(QL[iX, 2:-1], QR[iX, 1:-2]) - jnp.maximum(
+            cfL[2:-1], cfR[1:-2]
+        )  # left-going wave
+        Sfr = jnp.maximum(QL[iX, 2:-1], QR[iX, 1:-2]) + jnp.maximum(
+            cfL[2:-1], cfR[1:-2]
+        )  # right-going wave
+        dcfi = 1.0 / (Sfr - Sfl + 1.0e-8)
 
         UL, UR = jnp.zeros_like(QL), jnp.zeros_like(QR)
         UL = UL.at[0].set(QL[0])
         UL = UL.at[iX].set(QL[0] * QL[iX])
         UL = UL.at[iY].set(QL[0] * QL[iY])
         UL = UL.at[iZ].set(QL[0] * QL[iZ])
-        UL = UL.at[4].set(gamminv1 * QL[4] + 0.5 * (UL[iX] * QL[iX] + UL[iY] * QL[iY] + UL[iZ] * QL[iZ]))
+        UL = UL.at[4].set(
+            gamminv1 * QL[4]
+            + 0.5 * (UL[iX] * QL[iX] + UL[iY] * QL[iY] + UL[iZ] * QL[iZ])
+        )
         UR = UR.at[0].set(QR[0])
         UR = UR.at[iX].set(QR[0] * QR[iX])
         UR = UR.at[iY].set(QR[0] * QR[iY])
         UR = UR.at[iZ].set(QR[0] * QR[iZ])
-        UR = UR.at[4].set(gamminv1 * QR[4] + 0.5 * (UR[iX] * QR[iX] + UR[iY] * QR[iY] + UR[iZ] * QR[iZ]))
+        UR = UR.at[4].set(
+            gamminv1 * QR[4]
+            + 0.5 * (UR[iX] * QR[iX] + UR[iY] * QR[iY] + UR[iZ] * QR[iZ])
+        )
 
         fL, fR = jnp.zeros_like(QL), jnp.zeros_like(QR)
         fL = fL.at[0].set(UL[iX])
@@ -531,38 +593,56 @@ def main(cfg: DictConfig) -> None:
         fR = fR.at[iZ].set(UR[iX] * QR[iZ])
         fR = fR.at[4].set((UR[4] + QR[4]) * QR[iX])
         # upwind advection scheme
-        fHLL = dcfi * (Sfr * fR[:, 1:-2] - Sfl * fL[:, 2:-1]
-                       + Sfl * Sfr * (UL[:, 2:-1] - UR[:, 1:-2]))
+        fHLL = dcfi * (
+            Sfr * fR[:, 1:-2]
+            - Sfl * fL[:, 2:-1]
+            + Sfl * Sfr * (UL[:, 2:-1] - UR[:, 1:-2])
+        )
 
         # L: left of cell = right-going,  R: right of cell: left-going
-        f_Riemann = jnp.where(Sfl > 0., fR[:, 1:-2], fHLL)
-        f_Riemann = jnp.where(Sfr < 0., fL[:, 2:-1], f_Riemann)
+        f_Riemann = jnp.where(Sfl > 0.0, fR[:, 1:-2], fHLL)
+        f_Riemann = jnp.where(Sfr < 0.0, fL[:, 2:-1], f_Riemann)
 
         return f_Riemann
 
     @partial(jit, static_argnums=(2,))
     def HLLC(QL, QR, direc):
-        """ full-Godunov method -- exact shock solution"""
+        """full-Godunov method -- exact shock solution"""
 
         iX, iY, iZ = direc + 1, (direc + 1) % 3 + 1, (direc + 2) % 3 + 1
         cfL = jnp.sqrt(gamma * QL[4] / QL[0])
         cfR = jnp.sqrt(gamma * QR[4] / QR[0])
-        Sfl = jnp.minimum(QL[iX, 2:-1], QR[iX, 1:-2]) - jnp.maximum(cfL[2:-1], cfR[1:-2])  # left-going wave
-        Sfr = jnp.maximum(QL[iX, 2:-1], QR[iX, 1:-2]) + jnp.maximum(cfL[2:-1], cfR[1:-2])  # right-going wave
+        Sfl = jnp.minimum(QL[iX, 2:-1], QR[iX, 1:-2]) - jnp.maximum(
+            cfL[2:-1], cfR[1:-2]
+        )  # left-going wave
+        Sfr = jnp.maximum(QL[iX, 2:-1], QR[iX, 1:-2]) + jnp.maximum(
+            cfL[2:-1], cfR[1:-2]
+        )  # right-going wave
 
         UL, UR = jnp.zeros_like(QL), jnp.zeros_like(QR)
         UL = UL.at[0].set(QL[0])
         UL = UL.at[iX].set(QL[0] * QL[iX])
         UL = UL.at[iY].set(QL[0] * QL[iY])
         UL = UL.at[iZ].set(QL[0] * QL[iZ])
-        UL = UL.at[4].set(gamminv1 * QL[4] + 0.5 * (UL[iX] * QL[iX] + UL[iY] * QL[iY] + UL[iZ] * QL[iZ]))
+        UL = UL.at[4].set(
+            gamminv1 * QL[4]
+            + 0.5 * (UL[iX] * QL[iX] + UL[iY] * QL[iY] + UL[iZ] * QL[iZ])
+        )
         UR = UR.at[0].set(QR[0])
         UR = UR.at[iX].set(QR[0] * QR[iX])
         UR = UR.at[iY].set(QR[0] * QR[iY])
         UR = UR.at[iZ].set(QR[0] * QR[iZ])
-        UR = UR.at[4].set(gamminv1 * QR[4] + 0.5 * (UR[iX] * QR[iX] + UR[iY] * QR[iY] + UR[iZ] * QR[iZ]))
+        UR = UR.at[4].set(
+            gamminv1 * QR[4]
+            + 0.5 * (UR[iX] * QR[iX] + UR[iY] * QR[iY] + UR[iZ] * QR[iZ])
+        )
 
-        Va = (Sfr - QL[iX, 2:-1]) * UL[iX, 2:-1] - (Sfl - QR[iX, 1:-2]) * UR[iX, 1:-2]- QL[4, 2:-1] + QR[4, 1:-2]
+        Va = (
+            (Sfr - QL[iX, 2:-1]) * UL[iX, 2:-1]
+            - (Sfl - QR[iX, 1:-2]) * UR[iX, 1:-2]
+            - QL[4, 2:-1]
+            + QR[4, 1:-2]
+        )
         Va /= (Sfr - QL[iX, 2:-1]) * QL[0, 2:-1] - (Sfl - QR[iX, 1:-2]) * QR[0, 1:-2]
         Pa = QR[4, 1:-2] + QR[0, 1:-2] * (Sfl - QR[iX, 1:-2]) * (Va - QR[iX, 1:-2])
 
@@ -587,26 +667,55 @@ def main(cfg: DictConfig) -> None:
         far = far.at[iX].set(Dar * Va**2 + Pa)
         far = far.at[iY].set(Dar * Va * QL[iY, 2:-1])
         far = far.at[iZ].set(Dar * Va * QL[iZ, 2:-1])
-        far = far.at[4].set( (gamgamm1inv * Pa + 0.5 * Dar * (Va**2 + QL[iY, 2:-1]**2 + QL[iZ, 2:-1]**2)) * Va)
+        far = far.at[4].set(
+            (
+                gamgamm1inv * Pa
+                + 0.5 * Dar * (Va**2 + QL[iY, 2:-1] ** 2 + QL[iZ, 2:-1] ** 2)
+            )
+            * Va
+        )
         fal = fal.at[0].set(Dal * Va)
         fal = fal.at[iX].set(Dal * Va**2 + Pa)
         fal = fal.at[iY].set(Dal * Va * QR[iY, 1:-2])
         fal = fal.at[iZ].set(Dal * Va * QR[iZ, 1:-2])
-        fal = fal.at[4].set( (gamgamm1inv * Pa + 0.5 * Dal * (Va**2 + QR[iY, 1:-2]**2 + QR[iZ, 1:-2]**2)) * Va)
+        fal = fal.at[4].set(
+            (
+                gamgamm1inv * Pa
+                + 0.5 * Dal * (Va**2 + QR[iY, 1:-2] ** 2 + QR[iZ, 1:-2] ** 2)
+            )
+            * Va
+        )
 
-        f_Riemann = jnp.where(Sfl > 0., fR[:, 1:-2], fL[:, 2:-1])  # Sf2 > 0 : supersonic
-        f_Riemann = jnp.where(Sfl*Va < 0., fal, f_Riemann)  # SL < 0 and Va > 0 : sub-sonic
-        f_Riemann = jnp.where(Sfr*Va < 0., far, f_Riemann)  # Va < 0 and SR > 0 : sub-sonic
-        #f_Riemann = jnp.where(Sfr < 0., fL[:, 2:-1], f_Riemann) # SR < 0 : supersonic
+        f_Riemann = jnp.where(
+            Sfl > 0.0, fR[:, 1:-2], fL[:, 2:-1]
+        )  # Sf2 > 0 : supersonic
+        f_Riemann = jnp.where(
+            Sfl * Va < 0.0, fal, f_Riemann
+        )  # SL < 0 and Va > 0 : sub-sonic
+        f_Riemann = jnp.where(
+            Sfr * Va < 0.0, far, f_Riemann
+        )  # Va < 0 and SR > 0 : sub-sonic
+        # f_Riemann = jnp.where(Sfr < 0., fL[:, 2:-1], f_Riemann) # SR < 0 : supersonic
 
         return f_Riemann
 
     Q = jnp.zeros([5, cfg.args.nx + 4, cfg.args.ny + 4, cfg.args.nz + 4])
-    Q = init_HD(Q, xc, yc, zc, mode=cfg.args.init_mode, direc='x', init_key=cfg.args.init_key,
-                M0=cfg.args.M0, dk=cfg.args.dk, gamma=cfg.args.gamma)
+    Q = init_HD(
+        Q,
+        xc,
+        yc,
+        zc,
+        mode=cfg.args.init_mode,
+        direc="x",
+        init_key=cfg.args.init_key,
+        M0=cfg.args.M0,
+        dk=cfg.args.dk,
+        gamma=cfg.args.gamma,
+    )
     Q = device_put(Q)  # putting variables in GPU (not necessary??)
     t = evolve(Q)
-    print('final time is: {0:.3f}'.format(t))
+    print(f"final time is: {t:.3f}")
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     main()

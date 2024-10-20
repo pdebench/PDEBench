@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -145,32 +144,35 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+from __future__ import annotations
 
-import time
 import sys
+import time
 from math import ceil
 
-# Hydra
-from omegaconf import DictConfig, OmegaConf
 import hydra
-
 import jax
 import jax.numpy as jnp
 from jax import device_put, lax
 
-sys.path.append('..')
-from utils import init, Courant, Courant_diff, save_data, bc, limiting
+# Hydra
+from omegaconf import DictConfig
+
+sys.path.append("..")
+from utils import Courant, Courant_diff, bc, init, limiting
+
 
 def _pass(carry):
     return carry
+
 
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
     # basic parameters
-    pi_inv = 1. / jnp.pi
+    pi_inv = 1.0 / jnp.pi
     dx = (cfg.args.xR - cfg.args.xL) / cfg.args.nx
-    dx_inv = 1. / dx
+    dx_inv = 1.0 / dx
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.args.xL, cfg.args.xR, cfg.args.nx + 1)
@@ -193,7 +195,7 @@ def main(cfg: DictConfig) -> None:
         tsave = t
         steps = 0
         i_save = 0
-        dt = 0.
+        dt = 0.0
         uu = jnp.zeros([it_tot, u.shape[0]])
         uu = uu.at[0].set(u)
 
@@ -225,14 +227,14 @@ def main(cfg: DictConfig) -> None:
         uu = uu.at[-1].set(u)
 
         tm_fin = time.time()
-        print('total elapsed time is {} sec'.format(tm_fin - tm_ini))
+        print(f"total elapsed time is {tm_fin - tm_ini} sec")
         return uu, t
 
     @jax.jit
     def simulation_fn(i, carry):
         u, t, dt, steps, tsave = carry
         dt_adv = Courant(u, dx) * CFL
-        dt_dif = Courant_diff(dx, cfg.args.epsilon*pi_inv) * CFL
+        dt_dif = Courant_diff(dx, cfg.args.epsilon * pi_inv) * CFL
         dt = jnp.min(jnp.array([dt_adv, dt_dif, fin_time - t, tsave - t]))
 
         def _update(carry):
@@ -244,7 +246,7 @@ def main(cfg: DictConfig) -> None:
             return u, dt
 
         carry = u, dt
-        u, dt = lax.cond(dt > 1.e-8, _update, _pass, carry)
+        u, dt = lax.cond(dt > 1.0e-8, _update, _pass, carry)
 
         t += dt
         steps += 1
@@ -253,36 +255,69 @@ def main(cfg: DictConfig) -> None:
     @jax.jit
     def update(u, u_tmp, dt):
         f = flux(u_tmp)
-        u -= dt * dx_inv * (f[1:cfg.args.nx + 1] - f[0:cfg.args.nx])
+        u -= dt * dx_inv * (f[1 : cfg.args.nx + 1] - f[0 : cfg.args.nx])
         return u
 
     def flux(u):
-        _u = bc(u, dx, Ncell=cfg.args.nx) # index 2 for _U is equivalent with index 0 for u
-        uL, uR = limiting(_u, cfg.args.nx, if_second_order=1.)
-        fL = 0.5*uL**2
-        fR = 0.5*uR**2
+        _u = bc(
+            u, dx, Ncell=cfg.args.nx
+        )  # index 2 for _U is equivalent with index 0 for u
+        uL, uR = limiting(_u, cfg.args.nx, if_second_order=1.0)
+        fL = 0.5 * uL**2
+        fR = 0.5 * uR**2
         # upwind advection scheme
-        f_upwd = 0.5 * (fR[1:cfg.args.nx+2] + fL[2:cfg.args.nx+3]
-               - 0.5*jnp.abs(uL[2:cfg.args.nx+3] + uR[1:cfg.args.nx+2])*(uL[2:cfg.args.nx+3] - uR[1:cfg.args.nx+2]))
+        f_upwd = 0.5 * (
+            fR[1 : cfg.args.nx + 2]
+            + fL[2 : cfg.args.nx + 3]
+            - 0.5
+            * jnp.abs(uL[2 : cfg.args.nx + 3] + uR[1 : cfg.args.nx + 2])
+            * (uL[2 : cfg.args.nx + 3] - uR[1 : cfg.args.nx + 2])
+        )
         # source term
-        f_upwd += - cfg.args.epsilon*pi_inv*(_u[2:cfg.args.nx+3] - _u[1:cfg.args.nx+2])*dx_inv
+        f_upwd += (
+            -cfg.args.epsilon
+            * pi_inv
+            * (_u[2 : cfg.args.nx + 3] - _u[1 : cfg.args.nx + 2])
+            * dx_inv
+        )
         return f_upwd
 
     u = init(xc=xc, mode=cfg.args.init_mode, u0=cfg.args.u0, du=cfg.args.du)
     u = device_put(u)  # putting variables in GPU (not necessary??)
     uu, t = evolve(u)
-    print('final time is: {0:.3f}'.format(t))
+    print(f"final time is: {t:.3f}")
 
-    print('data saving...')
-    cwd = hydra.utils.get_original_cwd() + '/'
-    if cfg.args.init_mode=='sinsin':
-        jnp.save(cwd + cfg.args.save + '/Burgers_' + cfg.args.init_mode + '_u' + str(cfg.args.u0) + '_du' + str(
-            cfg.args.du) + '_Nu' + str(cfg.args.epsilon), uu)
+    print("data saving...")
+    cwd = hydra.utils.get_original_cwd() + "/"
+    if cfg.args.init_mode == "sinsin":
+        jnp.save(
+            cwd
+            + cfg.args.save
+            + "/Burgers_"
+            + cfg.args.init_mode
+            + "_u"
+            + str(cfg.args.u0)
+            + "_du"
+            + str(cfg.args.du)
+            + "_Nu"
+            + str(cfg.args.epsilon),
+            uu,
+        )
     else:
-        jnp.save(cwd + cfg.args.save + '/Burgers_' + cfg.args.init_mode + '_u' + str(cfg.args.u0) + '_Nu' + str(
-            cfg.args.epsilon), uu)
-    jnp.save(cwd + cfg.args.save+'/x_coordinate', xc)
-    jnp.save(cwd + cfg.args.save+'/t_coordinate', tc)
+        jnp.save(
+            cwd
+            + cfg.args.save
+            + "/Burgers_"
+            + cfg.args.init_mode
+            + "_u"
+            + str(cfg.args.u0)
+            + "_Nu"
+            + str(cfg.args.epsilon),
+            uu,
+        )
+    jnp.save(cwd + cfg.args.save + "/x_coordinate", xc)
+    jnp.save(cwd + cfg.args.save + "/t_coordinate", tc)
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     main()

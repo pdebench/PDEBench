@@ -14,4 +14,3 @@ hydra:
     subdir: ${hydra.job.num}
   launcher:
     n_jobs: 1
-

@@ -1,27 +1,30 @@
-
 # Downloading PDEBench Datasets :earth_asia:
 
-Here we enumerate the list of all available PDEs in PDEBench and the commands to download them.
+Here we enumerate the list of all available PDEs in PDEBench and the commands to
+download them.
 
-| PDEs        | Dataset Download                                             | Dataset Size |
-| ----------- | :----------------------------------------------------------- | ------------ |
-| advection   | ```python download_direct.py --root_folder $proj_home/data --pde_name advection``` | 47 GB        |
-| burgers     | ```python download_direct.py --root_folder $proj_home/data --pde_name burgers``` | 93 GB        |
-| 1d_cfd      | ```python download_direct.py --root_folder $proj_home/data --pde_name 1d_cfd``` | 88 GB        |
-| diff_sorp   | ```python download_direct.py --root_folder $proj_home/data --pde_name diff_sorp``` | 4 GB         |
-| 1d_reacdiff | ```python download_direct.py --root_folder $proj_home/data --pde_name 1d_reacdiff``` | 62 GB        |
-| 2d_reacdiff | ```python download_direct.py --root_folder $proj_home/data --pde_name 2d_reacdiff``` | 13 GB        |
-| 2d_cfd      | ```python download_direct.py --root_folder $proj_home/data --pde_name 2d_cfd``` | 551 GB       |
-| 3d_cfd      | ```python download_direct.py --root_folder $proj_home/data --pde_name 3d_cfd``` | 285 GB       |
-| darcy       | ```python download_direct.py --root_folder $proj_home/data --pde_name darcy``` | 6.2 GB       |
-| ns_incom    | ```python download_direct.py --root_folder $proj_home/data --pde_name ns_incom``` | 2.3 TB       |
-| swe         | ```python download_direct.py --root_folder $proj_home/data --pde_name swe``` | 6.2 GB       |
+| PDEs        | Dataset Download                                                                 | Dataset Size |
+| ----------- | :------------------------------------------------------------------------------- | ------------ |
+| advection   | `python download_direct.py --root_folder $proj_home/data --pde_name advection`   | 47 GB        |
+| burgers     | `python download_direct.py --root_folder $proj_home/data --pde_name burgers`     | 93 GB        |
+| 1d_cfd      | `python download_direct.py --root_folder $proj_home/data --pde_name 1d_cfd`      | 88 GB        |
+| diff_sorp   | `python download_direct.py --root_folder $proj_home/data --pde_name diff_sorp`   | 4 GB         |
+| 1d_reacdiff | `python download_direct.py --root_folder $proj_home/data --pde_name 1d_reacdiff` | 62 GB        |
+| 2d_reacdiff | `python download_direct.py --root_folder $proj_home/data --pde_name 2d_reacdiff` | 13 GB        |
+| 2d_cfd      | `python download_direct.py --root_folder $proj_home/data --pde_name 2d_cfd`      | 551 GB       |
+| 3d_cfd      | `python download_direct.py --root_folder $proj_home/data --pde_name 3d_cfd`      | 285 GB       |
+| darcy       | `python download_direct.py --root_folder $proj_home/data --pde_name darcy`       | 6.2 GB       |
+| ns_incom    | `python download_direct.py --root_folder $proj_home/data --pde_name ns_incom`    | 2.3 TB       |
+| swe         | `python download_direct.py --root_folder $proj_home/data --pde_name swe`         | 6.2 GB       |
 
---------
+---
 
 # Visualizing PDEs :ocean:
 
-Below are some illustrations for how to visualize a certain PDE. It is assumed that you first download the data shard you'd like to visualize for a desired PDE. Then you can use the `visualize_pde.py` script to generate an animation (i.e., `.gif`).
+Below are some illustrations for how to visualize a certain PDE. It is assumed
+that you first download the data shard you'd like to visualize for a desired
+PDE. Then you can use the `visualize_pde.py` script to generate an animation
+(i.e., `.gif`).
 
 ###### 1D Diffusion Sorption Eqn
 
@@ -33,7 +36,7 @@ https://darus.uni-stuttgart.de/api/access/datafile/133020
 python visualize_pdes.py --pde_name "diff_sorp" --data_path "./"
 ```
 
-----------
+---
 
 ###### 1D Diffusion Reaction Eqn
 
@@ -45,7 +48,7 @@ https://darus.uni-stuttgart.de/api/access/datafile/133181
 python visualize_pdes.py --pde_name "1d_reacdiff"
 ```
 
-----------
+---
 
 ###### 1D Advection Eqn
 
@@ -57,7 +60,7 @@ https://darus.uni-stuttgart.de/api/access/datafile/133110
 python visualize_pdes.py --pde_name "advection"
 ```
 
------------
+---
 
 ###### 1D Burgers Eqn
 
@@ -69,7 +72,7 @@ https://darus.uni-stuttgart.de/api/access/datafile/133136
 python visualize_pdes.py --pde_name "burgers"
 ```
 
---------------------
+---
 
 ###### 1D CFD Eqn
 
@@ -81,7 +84,7 @@ https://darus.uni-stuttgart.de/api/access/datafile/135485
 python visualize_pdes.py --pde_name "1d_cfd"
 ```
 
--------------
+---
 
 ###### 2D Diffusion Reaction Eqn
 
@@ -93,7 +96,7 @@ https://darus.uni-stuttgart.de/api/access/datafile/133017
 python visualize_pdes.py --pde_name "2d_reacdiff"
 ```
 
--------------
+---
 
 ###### 2D Darcy Flow Eqn
 
@@ -105,7 +108,7 @@ https://darus.uni-stuttgart.de/api/access/datafile/133219
 python visualize_pdes.py --pde_name "darcy"
 ```
 
-------------------
+---
 
 ###### 2D Shallow Water Eqn
 
@@ -116,4 +119,3 @@ https://darus.uni-stuttgart.de/api/access/datafile/133021
 # visualize
 python visualize_pdes.py --pde_name "swe" --data_path "./"
 ```
-

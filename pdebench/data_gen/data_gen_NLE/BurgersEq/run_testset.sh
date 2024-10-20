@@ -1,3 +1,4 @@
+#!/bin/bash
 CUDA_VISIBLE_DEVICES='3' python3 burgers_Hydra.py +args=possin_eps1e0.yaml
 CUDA_VISIBLE_DEVICES='3' python3 burgers_Hydra.py +args=possin_eps1e1.yaml
 CUDA_VISIBLE_DEVICES='3' python3 burgers_Hydra.py +args=possin_eps1e2.yaml

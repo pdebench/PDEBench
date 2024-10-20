@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
-import hydra
 import dotenv
-from omegaconf import DictConfig, OmegaConf
+import hydra
+from omegaconf import DictConfig
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
@@ -17,8 +18,9 @@ def main(config: DictConfig):
     Args:
         config: This function uses hydra configuration for all parameters.
     """
-    
+
     from src import sim_ns_incomp_2d
+
     sim_ns_incomp_2d.ns_sim(config=config, **config)
 
 

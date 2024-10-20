@@ -1,4 +1,4 @@
-save: '../save/burgers/'
+save: "../save/burgers/"
 dt_save: 0.05
 ini_time: 0.
 fin_time: 2.

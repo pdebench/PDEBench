@@ -8,4 +8,3 @@ hydra:
   sweep:
     dir: ${oc.env:WORKING_DIR,multirun}/${hydra.job.name}/${now:%Y-%m-%d}/${now:%H-%M-%S}/${hydra.job.override_dirname}
     subdir: ${hydra.job.num}
-

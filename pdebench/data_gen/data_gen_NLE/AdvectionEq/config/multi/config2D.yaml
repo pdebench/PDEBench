@@ -1,4 +1,4 @@
-save: '../save/advection/'
+save: "../save/advection/"
 dt_save: 0.01
 ini_time: 0.
 fin_time: 2.
@@ -8,8 +8,8 @@ xL: 0.
 xR: 1.
 yL: 0.
 yR: 1.
-betaX : 1.e0
-betaY : 1.e0
+betaX: 1.e0
+betaY: 1.e0
 if_show: 1
 numbers: 4
 CFL: 2.5e-1

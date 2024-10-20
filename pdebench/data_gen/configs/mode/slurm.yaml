@@ -15,4 +15,3 @@ hydra:
     tasks_per_node: 1
     mem_gb: 16
     timeout_min: 719 # just under 12 hours is good for many clusters
-

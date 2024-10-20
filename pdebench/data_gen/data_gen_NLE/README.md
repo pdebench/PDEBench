@@ -8,12 +8,13 @@
 bash data_gen/data_gen_NLE/ReactionDiffusionEq/run_DarcyFlow2D.sh
 ```
 
-which will in turn run the python script `data_gen/data_gen_NLE/ReactionDiffusionEq/reaction_diffusion_2D_multi_soluion_Hydra.py`
+which will in turn run the python script
+`data_gen/data_gen_NLE/ReactionDiffusionEq/reaction_diffusion_2D_multi_soluion_Hydra.py`
 
 - Update `data_gen/data_gen_NLE/config/config.yaml` to:
 
 ```yaml
-type: 'ReacDiff'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+type: "ReacDiff" # 'advection'/'ReacDiff'/'burgers'/'CFD'
 dim: 2
 ```
 
@@ -23,7 +24,7 @@ dim: 2
 python data_gen/data_gen_NLE/Data_Merge.py
 ```
 
-----------------------------
+---
 
 #### Data generation for 1D Advection Equation:
 
@@ -41,9 +42,9 @@ bash run_trainset.sh
 - Update `data_gen/data_gen_NLE/config/config.yaml` to:
 
 ```yaml
-type: 'advection'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+type: "advection" # 'advection'/'ReacDiff'/'burgers'/'CFD'
 dim: 1
-savedir: './save/advection'
+savedir: "./save/advection"
 ```
 
 ```
@@ -52,7 +53,7 @@ cd ..
 python Data_Merge.py
 ```
 
---------------
+---
 
 #### Data generation for 1D Burgers' Equation:
 
@@ -70,11 +71,10 @@ bash run_trainset.sh
 - Update `data_gen/data_gen_NLE/config/config.yaml` to:
 
 ```yaml
-type: 'burgers'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+type: "burgers" # 'advection'/'ReacDiff'/'burgers'/'CFD'
 dim: 1
-savedir: './save/burgers'
+savedir: "./save/burgers"
 ```
-
 
 ```
 # serialize to hdf5 by transforming npy file
@@ -82,7 +82,7 @@ cd ..
 python Data_Merge.py
 ```
 
----------------
+---
 
 #### Data generation for 1D Reaction Diffusion Equation:
 
@@ -100,9 +100,9 @@ bash run_trainset.sh
 - Update `data_gen/data_gen_NLE/config/config.yaml` to:
 
 ```yaml
-type: 'ReacDiff'  # 'advection'/'ReacDiff'/'burgers'/'CFD'
+type: "ReacDiff" # 'advection'/'ReacDiff'/'burgers'/'CFD'
 dim: 1
-savedir: './save/ReacDiff'
+savedir: "./save/ReacDiff"
 ```
 
 ```

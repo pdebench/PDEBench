@@ -1,14 +1,16 @@
+from __future__ import annotations
+
+import logging
 import os
 
 import hydra
+from easyDataverse import Dataset
 from hydra.utils import get_original_cwd
 from omegaconf import DictConfig
-import logging
-
 from pyDataverse.api import NativeApi
-from easyDataverse import Dataset
 
 log = logging.getLogger(__name__)
+
 
 @hydra.main(config_path="config/", config_name="config")
 def main(config: DictConfig):
@@ -26,7 +28,7 @@ def main(config: DictConfig):
 
     # Extract dataset from the given DOI
     dataset = Dataset()
-    setattr(dataset, "p_id", config.args.dataset_id)
+    dataset.p_id = config.args.dataset_id
 
     # Extract file list contained in the dataset
     api = NativeApi(config.args.dataverse_url)
@@ -40,14 +42,13 @@ def main(config: DictConfig):
             files.append(file["dataFile"]["filename"])
 
     # Download the files
-    
+
     dataset = Dataset.from_dataverse_doi(
         doi=config.args.dataset_id,
         dataverse_url=config.args.dataverse_url,
         filenames=files,
         filedir=config.args.data_folder,
     )
-
 
 
 if __name__ == "__main__":

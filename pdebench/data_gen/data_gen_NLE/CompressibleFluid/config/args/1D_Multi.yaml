@@ -1,4 +1,4 @@
-save: '../save/CFD/'
+save: "../save/CFD/"
 dt_save: 0.01
 ini_time: 0.
 fin_time: 1.
@@ -11,7 +11,7 @@ yL: -1.
 yR: 1.
 zL: -1.
 zR: 1.
-bc: 'periodic'
+bc: "periodic"
 gamma: 1.6666666666666667
 eta: 1.e-2
 zeta: 1.e-2
@@ -21,7 +21,7 @@ if_show: 1
 show_steps: 100
 p_floor: 1.e-4
 numbers: 1000
-init_mode_Multi: '1D_rand'
+init_mode_Multi: "1D_rand"
 init_key: 2022
 if_rand_param: False
-M0 : 0.
+M0: 0.

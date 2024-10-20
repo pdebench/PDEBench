@@ -18,14 +18,15 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 """
+from __future__ import annotations
+
 from collections import OrderedDict
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class UNet1d(nn.Module):
-
     def __init__(self, in_channels=3, out_channels=1, init_features=32):
         super(UNet1d, self).__init__()
 
@@ -119,7 +120,6 @@ class UNet1d(nn.Module):
 
 
 class UNet2d(nn.Module):
-
     def __init__(self, in_channels=3, out_channels=1, init_features=32):
         super(UNet2d, self).__init__()
 
@@ -210,10 +210,9 @@ class UNet2d(nn.Module):
                 ]
             )
         )
-    
+
 
 class UNet3d(nn.Module):
-
     def __init__(self, in_channels=3, out_channels=1, init_features=32):
         super(UNet3d, self).__init__()
 
