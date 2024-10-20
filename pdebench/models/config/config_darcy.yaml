@@ -15,7 +15,7 @@ args:
   num_workers: 2
   batch_size: 50
   initial_step: 1
-  t_train: 1 # steady-state
+  t_train: 2 # steady-state
   model_update: 2
   filename: "2D_DarcyFlow_beta0.01_Train.hdf5"
   single_file: True
