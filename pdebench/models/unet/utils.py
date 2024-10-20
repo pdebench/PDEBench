@@ -150,6 +150,7 @@ from __future__ import annotations
 
 import math as mt
 import os
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -180,7 +181,7 @@ class UNetDatasetSingle(Dataset):
         """
 
         # Define path to files
-        root_path = os.path.abspath(saved_folder + filename)
+        root_path = Path(saved_folder + filename).resolve()
         assert filename[-2:] != "h5", "HDF5 data is assumed!!"
 
         with h5py.File(root_path, "r") as f:
@@ -437,7 +438,7 @@ class UNetDatasetMult(Dataset):
         """
 
         # Define path to files
-        self.file_path = os.path.abspath(saved_folder + filename + ".h5")
+        self.file_path = Path(saved_folder + filename + ".h5").resolve()
 
         # Extract list of seeds
         with h5py.File(self.file_path, "r") as h5_file:
@@ -466,7 +467,7 @@ class UNetDatasetMult(Dataset):
 
             # convert to [x1, ..., xd, t, v]
             permute_idx = list(range(1, len(data.shape) - 1))
-            permute_idx.extend(list([0, -1]))
+            permute_idx.extend([0, -1])
             data = data.permute(permute_idx)
 
         return data[..., : self.initial_step, :], data

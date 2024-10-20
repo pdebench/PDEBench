@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 FNO. Implementation taken and modified from
 https://github.com/zongyi-li/fourier_neural_operator

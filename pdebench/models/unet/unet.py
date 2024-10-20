@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 U-Net. Implementation taken and modified from
 https://github.com/mateuszbuda/brain-segmentation-pytorch
@@ -28,7 +26,7 @@ from torch import nn
 
 class UNet1d(nn.Module):
     def __init__(self, in_channels=3, out_channels=1, init_features=32):
-        super(UNet1d, self).__init__()
+        super().__init__()
 
         features = init_features
         self.encoder1 = UNet1d._block(in_channels, features, name="enc1")
@@ -121,7 +119,7 @@ class UNet1d(nn.Module):
 
 class UNet2d(nn.Module):
     def __init__(self, in_channels=3, out_channels=1, init_features=32):
-        super(UNet2d, self).__init__()
+        super().__init__()
 
         features = init_features
         self.encoder1 = UNet2d._block(in_channels, features, name="enc1")
@@ -214,7 +212,7 @@ class UNet2d(nn.Module):
 
 class UNet3d(nn.Module):
     def __init__(self, in_channels=3, out_channels=1, init_features=32):
-        super(UNet3d, self).__init__()
+        super().__init__()
 
         features = init_features
         self.encoder1 = UNet3d._block(in_channels, features, name="enc1")
