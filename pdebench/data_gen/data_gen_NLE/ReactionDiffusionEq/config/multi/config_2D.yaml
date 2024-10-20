@@ -1,4 +1,4 @@
-save: "../save/ReacDiff//"
+save: "../save/ReacDiff/"
 dt_save: 0.25
 ini_time: 0.
 fin_time: 2.
