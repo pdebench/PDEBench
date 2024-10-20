@@ -37,7 +37,7 @@ def main(config: DictConfig):
 
     # Compile list of files that matches the desired filename
     files = []
-    for i, file in enumerate(files_list):
+    for _, file in enumerate(files_list):
         if config.args.filename in file["dataFile"]["filename"]:
             files.append(file["dataFile"]["filename"])
 

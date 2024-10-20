@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 
 import h5py
 import matplotlib.pyplot as plt
@@ -34,7 +35,7 @@ def visualize_diff_sorp(path, seed=None):
     """
 
     # Read the h5 file and store the data
-    h5_file = h5py.File(os.path.join(path, "1D_diff-sorp_NA_NA.h5"), "r")
+    h5_file = h5py.File(Path(path) / "1D_diff-sorp_NA_NA.h5", "r")
     num_samples = len(h5_file.keys())
 
     # randomly choose a seed for picking a sample that will subsequently be visualized
@@ -69,7 +70,6 @@ def visualize_diff_sorp(path, seed=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_diff_sorp.gif", writer=writer)
-    print("Animation saved")
 
 
 def visualize_2d_reacdiff(path, seed=None):
@@ -82,7 +82,7 @@ def visualize_2d_reacdiff(path, seed=None):
     """
 
     # Read the h5 file and store the data
-    h5_file = h5py.File(os.path.join(path, "2D_diff-react_NA_NA.h5"), "r")
+    h5_file = h5py.File(Path(path) / "2D_diff-react_NA_NA.h5", "r")
     num_samples = len(h5_file.keys())
 
     # randomly choose a seed for picking a sample that will subsequently be visualized
@@ -118,7 +118,6 @@ def visualize_2d_reacdiff(path, seed=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_2d_reacdiff.gif", writer=writer)
-    print("Animation saved")
 
 
 def visualize_swe(path, seed=None):
@@ -131,7 +130,7 @@ def visualize_swe(path, seed=None):
     """
 
     # Read the h5 file and store the data
-    h5_file = h5py.File(os.path.join(path, "2D_rdb_NA_NA.h5"), "r")
+    h5_file = h5py.File(Path(path) / "2D_rdb_NA_NA.h5", "r")
     num_samples = len(h5_file.keys())
 
     # randomly choose a seed for picking a sample that will subsequently be visualized
@@ -163,7 +162,6 @@ def visualize_swe(path, seed=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_swe.gif", writer=writer)
-    print("Animation saved")
 
 
 def visualize_burgers(path, param=None):
@@ -183,7 +181,7 @@ def visualize_burgers(path, param=None):
         flnm = "1D_Burgers_Sols_Nu0.01.hdf5"
 
     nb = 0
-    with h5py.File(os.path.join(path, flnm), "r") as h5_file:
+    with h5py.File(Path(path) / flnm, "r") as h5_file:
         xcrd = np.array(h5_file["x-coordinate"], dtype=np.float32)
         data = np.array(h5_file["tensor"], dtype=np.float32)[
             nb
@@ -210,7 +208,6 @@ def visualize_burgers(path, param=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_burgers.gif", writer=writer)
-    print("Animation saved")
 
 
 def visualize_advection(path, param=None):
@@ -230,7 +227,7 @@ def visualize_advection(path, param=None):
         flnm = "1D_Advection_Sols_beta0.4.hdf5"
 
     nb = 0
-    with h5py.File(os.path.join(path, flnm), "r") as h5_file:
+    with h5py.File(Path(path) / flnm, "r") as h5_file:
         xcrd = np.array(h5_file["x-coordinate"], dtype=np.float32)
         data = np.array(h5_file["tensor"], dtype=np.float32)[
             nb
@@ -253,7 +250,6 @@ def visualize_advection(path, param=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_advection.gif", writer=writer)
-    print("Animation saved")
 
 
 def visualize_1d_cfd(path, param=None):
@@ -284,7 +280,7 @@ def visualize_1d_cfd(path, param=None):
         flnm = "1D_CFD_Rand_Eta1.e-8_Zeta1.e-8_periodic_Train.hdf5"
 
     nb = 0
-    with h5py.File(os.path.join(path, flnm), "r") as h5_file:
+    with h5py.File(Path(path) / flnm, "r") as h5_file:
         xcrd = np.array(h5_file["x-coordinate"], dtype=np.float32)
         dd = np.array(h5_file["density"], dtype=np.float32)[
             nb
@@ -308,7 +304,6 @@ def visualize_1d_cfd(path, param=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_1d_cfd.gif", writer=writer)
-    print("Animation saved")
 
 
 def visualize_2d_cfd(path, param=None):
@@ -345,7 +340,7 @@ def visualize_2d_cfd(path, param=None):
         flnm = "2D_CFD_Rand_M0.1_Eta1e-8_Zeta1e-8_periodic_512_Train.hdf5"
 
     nb = 0
-    with h5py.File(os.path.join(path, flnm), "r") as h5_file:
+    with h5py.File(Path(path) / flnm, "r") as h5_file:
         dd = np.array(h5_file["density"], dtype=np.float32)[
             nb
         ]  # (batch, t, x, y, channel) --> (t, x, y, channel)
@@ -365,7 +360,6 @@ def visualize_2d_cfd(path, param=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie.gif", writer=writer)
-    print("saved")
 
 
 def visualize_3d_cfd(path, param=None):
@@ -390,7 +384,7 @@ def visualize_3d_cfd(path, param=None):
         flnm = "3D_CFD_Rand_M1.0_Eta1e-8_Zeta1e-8_periodic_Train.hdf5"
 
     nb = 0
-    with h5py.File(os.path.join(path, flnm), "r") as h5_file:
+    with h5py.File(Path(path) / flnm, "r") as h5_file:
         dd = np.array(h5_file["density"], dtype=np.float32)[
             nb
         ]  # (batch, t, x, y, channel) --> (t, x, y, channel)
@@ -410,7 +404,6 @@ def visualize_3d_cfd(path, param=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie.gif", writer=writer)
-    print("saved")
 
 
 def visualize_ns_incom() -> None:
@@ -434,7 +427,7 @@ def visualize_darcy(path, param=None):
         flnm = "2D_DarcyFlow_beta1.0_Train.hdf5"
 
     nb = 0
-    with h5py.File(os.path.join(path, flnm), "r") as h5_file:
+    with h5py.File(Path(path) / flnm, "r") as h5_file:
         data = np.array(h5_file["tensor"], dtype=np.float32)[
             nb
         ]  # (batch, t, x, y, channel) --> (t, x, y, channel)
@@ -450,7 +443,6 @@ def visualize_darcy(path, param=None):
     ax[0].set_title("Data u")
     ax[1].set_title("diffusion coefficient nu")
     plt.savefig("2D_DarcyFlow.pdf")
-    print("plot saved")
 
 
 def visualize_1d_reacdiff(path, param=None):
@@ -471,7 +463,7 @@ def visualize_1d_reacdiff(path, param=None):
         flnm = "ReacDiff_Nu1.0_Rho1.0.hdf5"
 
     nb = 0
-    with h5py.File(os.path.join(path, flnm), "r") as h5_file:
+    with h5py.File(Path(path) / flnm, "r") as h5_file:
         xcrd = np.array(h5_file["x-coordinate"], dtype=np.float32)
         data = np.array(h5_file["tensor"], dtype=np.float32)[
             nb
@@ -494,7 +486,6 @@ def visualize_1d_reacdiff(path, param=None):
 
     writer = animation.PillowWriter(fps=15, bitrate=1800)
     ani.save("movie_1d_reacdiff.gif", writer=writer)
-    print("Animation saved")
 
 
 if __name__ == "__main__":
