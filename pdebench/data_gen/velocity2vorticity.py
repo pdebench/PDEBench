@@ -92,8 +92,7 @@ def convert_velocity() -> None:
                 [vx[..., None], vy[..., None], vz[..., None]], axis=-1
             )
 
-            vorticity = compute_spectral_vorticity_jnp(
-                jnp.array(velocity), dx, dy, dz)
+            vorticity = compute_spectral_vorticity_jnp(jnp.array(velocity), dx, dy, dz)
 
             outfile["omega_x"][i] = np.array(vorticity[..., 0])
             outfile["omega_y"][i] = np.array(vorticity[..., 1])
