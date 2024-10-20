@@ -50,9 +50,7 @@ def parse_metadata(pde_names):
         "3d_cfd",
     ]
 
-    assert all(
-            name.lower() in pde_list for name in pde_names
-    ), "PDE name not defined."
+    assert all(name.lower() in pde_list for name in pde_names), "PDE name not defined."
 
     # Filter the files to be downloaded
     meta_df["PDE"] = meta_df["PDE"].str.lower()

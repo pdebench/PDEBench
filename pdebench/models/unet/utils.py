@@ -149,7 +149,6 @@ arrangements between the parties relating hereto.
 from __future__ import annotations
 
 import math as mt
-import os
 from pathlib import Path
 
 import h5py
