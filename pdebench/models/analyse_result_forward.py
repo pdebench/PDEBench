@@ -146,9 +146,9 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import _pickle as cPickle
 import glob
 
-import _pickle as cPickle
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

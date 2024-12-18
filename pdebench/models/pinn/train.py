@@ -202,16 +202,15 @@ def setup_pde1D(
     if filename[0] == "R":
         timedomain = dde.geometry.TimeDomain(0, 1.0)
         pde = lambda x, y: pde_diffusion_reaction_1d(x, y, aux_params[0], aux_params[1])
-    else:
-        if filename.split("_")[1][0] == "A":
-            timedomain = dde.geometry.TimeDomain(0, 2.0)
-            pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
-        elif filename.split("_")[1][0] == "B":
-            timedomain = dde.geometry.TimeDomain(0, 2.0)
-            pde = lambda x, y: pde_burgers1D(x, y, aux_params[0])
-        elif filename.split("_")[1][0] == "C":
-            timedomain = dde.geometry.TimeDomain(0, 1.0)
-            pde = lambda x, y: pde_CFD1d(x, y, aux_params[0])
+    elif filename.split("_")[1][0] == "A":
+        timedomain = dde.geometry.TimeDomain(0, 2.0)
+        pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
+    elif filename.split("_")[1][0] == "B":
+        timedomain = dde.geometry.TimeDomain(0, 2.0)
+        pde = lambda x, y: pde_burgers1D(x, y, aux_params[0])
+    elif filename.split("_")[1][0] == "C":
+        timedomain = dde.geometry.TimeDomain(0, 1.0)
+        pde = lambda x, y: pde_CFD1d(x, y, aux_params[0])
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
     dataset = PINNDataset1Dpde(

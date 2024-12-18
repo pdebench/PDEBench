@@ -147,8 +147,12 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import logging
+
 import hydra
 from omegaconf import DictConfig
+
+logger = logging.getLogger(__name__)
 
 
 @hydra.main(version_base="1.2", config_path="config", config_name="config_rdb")
@@ -156,7 +160,7 @@ def main(cfg: DictConfig):
     if cfg.args.model_name == "FNO":
         from pdebench.models.fno.train import run_training as run_training_FNO
 
-        print("FNO")
+        logger.info("FNO")
         run_training_FNO(
             if_training=cfg.args.if_training,
             continue_training=cfg.args.continue_training,
@@ -191,7 +195,7 @@ def main(cfg: DictConfig):
     elif cfg.args.model_name == "Unet":
         from pdebench.models.unet.train import run_training as run_training_Unet
 
-        print("Unet")
+        logger.info("Unet")
         run_training_Unet(
             if_training=cfg.args.if_training,
             continue_training=cfg.args.continue_training,
@@ -228,7 +232,7 @@ def main(cfg: DictConfig):
         # not importing globally as DeepXDE changes some global PyTorch settings
         from pdebench.models.pinn.train import run_training as run_training_PINN
 
-        print("PINN")
+        logger.info("PINN")
         run_training_PINN(
             scenario=cfg.args.scenario,
             epochs=cfg.args.epochs,
@@ -247,4 +251,3 @@ def main(cfg: DictConfig):
 
 if __name__ == "__main__":
     main()
-    print("Done.")

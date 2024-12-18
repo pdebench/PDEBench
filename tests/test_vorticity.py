@@ -9,7 +9,7 @@ from pdebench.data_gen.src.vorticity import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def generate_random_spectral_velvor() -> tuple[np.ndarray, np.ndarray]:
     """Generate random 5D velocity- and corresponding vorticity field
 

@@ -1578,10 +1578,8 @@ def limiting_HD(u, if_second_order):
 def save_data(u, xc, i_save, save_dir, dt_save=None, if_final=False):
     if if_final:
         jnp.save(save_dir + "/x_coordinate", xc)
-        #
         tc = jnp.arange(i_save + 1) * dt_save
         jnp.save(save_dir + "/t_coordinate", tc)
-        #
         flnm = save_dir + "/Data_" + str(i_save).zfill(4)
         jnp.save(flnm, u)
     else:
@@ -1594,10 +1592,8 @@ def save_data_HD(u, xc, yc, zc, i_save, save_dir, dt_save=None, if_final=False):
         jnp.save(save_dir + "/x_coordinate", xc)
         jnp.save(save_dir + "/y_coordinate", yc)
         jnp.save(save_dir + "/z_coordinate", zc)
-        #
         tc = jnp.arange(i_save + 1) * dt_save
         jnp.save(save_dir + "/t_coordinate", tc)
-        #
         flnm = save_dir + "/Data_" + str(i_save).zfill(4)
         jnp.save(flnm, u)
     else:

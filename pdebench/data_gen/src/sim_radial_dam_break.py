@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
-import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -29,7 +29,7 @@ class Basic2DScenario(ABC):
         self.set_boundary_conditions()
         self.set_initial_conditions()
         self.register_state_getters()
-        self.outdir = os.sep.join(["./", self.name.replace(" ", "") + "2D"])
+        self.outdir = Path.cwd() / (self.name.replace(" ", "") + "2D")
 
     @abstractmethod
     def setup_solver(self):
