@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import h5py
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
+
+logger = logging.getLogger(__name__)
 
 
 class HDF5Dataset(Dataset):
@@ -26,8 +29,8 @@ class HDF5Dataset(Dataset):
         self.config = []
         self.names = []
 
-        for files_path in files_path:
-            with h5py.File(str(files_path.resolve())) as f:
+        for file_path in files_path:
+            with h5py.File(str(file_path.resolve())) as f:
                 config = f.attrs.get("config")
                 for ds_name, ds in f.items():
                     self.names.append(ds_name)
@@ -77,7 +80,6 @@ class HDF5DatasetLightning(LightningDataModule):
             self.train = HDF5Dataset(self.data_dir, transform=self.transforms)
 
     def train_dataloader(self):
-        print(self.train is None)
         return DataLoader(self.train, batch_size=self.batch_size)
 
 
@@ -90,8 +92,8 @@ if __name__ == "__main__":
     dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
     data, config = next(iter(dataloader))
     for i, d in enumerate(data):
-        print(f"{names[i].upper()} batched data shape: ", d.size())
-    print("number of config files: ", len(config))
+        logger.info("%s batched data shape: %s", names[i].upper(), d.size())
+    logger.info("number of config files: %s", len(config))
 
     # test pytorch lightning dataset
     lightning_dataset = HDF5DatasetLightning(dir_path, batch_size=64, transforms=None)
@@ -99,5 +101,5 @@ if __name__ == "__main__":
     lightning_dataloader = lightning_dataset.train_dataloader()
     data, config = next(iter(lightning_dataloader))
     for i, d in enumerate(data):
-        print(f"{names[i].upper()} batched data shape: ", d.size())
-    print("number of config files: ", len(config))
+        logger.info("%s batched data shape: %s", names[i].upper(), d.size())
+    logger.info("number of config files: %s", len(config))

@@ -297,8 +297,7 @@ def metric_func(pred, target, if_mean=True, Lx=1.0, Ly=1.0, Lz=1.0, iLow=4, iHig
             torch.mean(err_BD, dim=[0, -1]),
             torch.mean(err_F, dim=[0, -1]),
         )
-    else:
-        return err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F
+    return err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F
 
 
 def metrics(

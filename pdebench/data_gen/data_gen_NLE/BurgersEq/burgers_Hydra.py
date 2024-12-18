@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -146,6 +145,7 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import logging
 import sys
 import time
 from math import ceil
@@ -160,6 +160,8 @@ from omegaconf import DictConfig
 
 sys.path.append("..")
 from utils import Courant, Courant_diff, bc, init, limiting
+
+logger = logging.getLogger(__name__)
 
 
 def _pass(carry):
@@ -201,7 +203,8 @@ def main(cfg: DictConfig) -> None:
 
         tm_ini = time.time()
 
-        cond_fun = lambda x: x[0] < fin_time
+        def cond_fun(x):
+            return x[0] < fin_time
 
         def _body_fun(carry):
             def _save(_carry):
@@ -227,7 +230,7 @@ def main(cfg: DictConfig) -> None:
         uu = uu.at[-1].set(u)
 
         tm_fin = time.time()
-        print(f"total elapsed time is {tm_fin - tm_ini} sec")
+        logger.info("total elapsed time is %f sec", tm_fin - tm_ini)
         return uu, t
 
     @jax.jit
@@ -285,9 +288,9 @@ def main(cfg: DictConfig) -> None:
     u = init(xc=xc, mode=cfg.args.init_mode, u0=cfg.args.u0, du=cfg.args.du)
     u = device_put(u)  # putting variables in GPU (not necessary??)
     uu, t = evolve(u)
-    print(f"final time is: {t:.3f}")
+    logger.info("final time is: %.3f", t)
 
-    print("data saving...")
+    logger.info("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     if cfg.args.init_mode == "sinsin":
         jnp.save(

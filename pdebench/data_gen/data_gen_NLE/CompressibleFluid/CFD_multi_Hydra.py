@@ -206,10 +206,8 @@ def main(cfg: DictConfig) -> None:
 
     dx = (cfg.args.xR - cfg.args.xL) / cfg.args.nx
     dx_inv = 1.0 / dx
-    #
     dy = (cfg.args.yR - cfg.args.yL) / cfg.args.ny
     dy_inv = 1.0 / dy
-    #
     dz = (cfg.args.zR - cfg.args.zL) / cfg.args.nz
     dz_inv = 1.0 / dz
 

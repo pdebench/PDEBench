@@ -146,18 +146,22 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import logging
+
 import hydra
 from omegaconf import DictConfig
 from pdebench.models.fno.train import run_training as run_training_FNO
 from pdebench.models.pinn.train import run_training as run_training_PINN
 from pdebench.models.unet.train import run_training as run_training_Unet
 
+logger = logging.getLogger(__name__)
+
 
 @hydra.main(config_path="config", config_name="config")
 def main(cfg: DictConfig):
-    print(cfg.args)
+    logger.info(cfg.args)
     if cfg.args.model_name == "FNO":
-        print("FNO")
+        logger.info("FNO")
         run_training_FNO(
             if_training=cfg.args.if_training,
             continue_training=cfg.args.continue_training,
@@ -190,7 +194,7 @@ def main(cfg: DictConfig):
             training_type=cfg.args.training_type,
         )
     elif cfg.args.model_name == "Unet":
-        print("Unet")
+        logger.info("Unet")
         run_training_Unet(
             if_training=cfg.args.if_training,
             continue_training=cfg.args.continue_training,
@@ -225,7 +229,7 @@ def main(cfg: DictConfig):
             training_type=cfg.args.training_type,
         )
     elif cfg.args.model_name == "PINN":
-        print("PINN")
+        logger.info("PINN")
         run_training_PINN(
             scenario=cfg.args.scenario,
             epochs=cfg.args.epochs,
@@ -238,4 +242,3 @@ def main(cfg: DictConfig):
 
 if __name__ == "__main__":
     main()
-    print("Done.")

@@ -419,9 +419,6 @@ class UNetDatasetMult(Dataset):
         filename,
         initial_step=10,
         saved_folder="../data/",
-        reduced_resolution=1,
-        reduced_resolution_t=1,
-        reduced_batch=1,
         if_test=False,
         test_ratio=0.1,
     ):

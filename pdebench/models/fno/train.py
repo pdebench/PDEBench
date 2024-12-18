@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import pickle
-from timeit import default_timer
 from pathlib import Path
 
 import numpy as np
 import torch
-
 from pdebench.models.fno.fno import FNO1d, FNO2d, FNO3d
 from pdebench.models.fno.utils import FNODatasetMult, FNODatasetSingle
 from pdebench.models.metrics import metrics
@@ -140,8 +138,7 @@ def run_training(
         ).to(device)
 
     # Set maximum time step of the data to train
-    if t_train > _data.shape[-2]:
-        t_train = _data.shape[-2]
+    t_train = min(t_train, _data.shape[-2])
 
     model_path = model_name + ".pt"
 
@@ -156,7 +153,7 @@ def run_training(
     )
 
     loss_fn = nn.MSELoss(reduction="mean")
-    loss_val_min = np.infty
+    loss_val_min = np.inf
 
     start_epoch = 0
 
