@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -146,10 +145,10 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import logging
 import sys
 import time
 from functools import partial
-from math import ceil
 
 import hydra
 import jax.numpy as jnp
@@ -165,6 +164,8 @@ from omegaconf import DictConfig
 sys.path.append("..")
 from utils import Courant_HD, Courant_vis_HD, bc_HD, init_HD, limiting_HD, save_data_HD
 
+logger = logging.getLogger(__name__)
+
 
 def _pass(carry):
     return carry
@@ -179,9 +180,6 @@ def main(cfg: DictConfig) -> None:
     gamminv1 = 1.0 / gammi1
     gamgamm1inv = gamma * gamminv1
     gammi1 = gamma - 1.0
-    gampl1 = gamma + 1.0
-    gammi3 = gamma - 3.0
-    gampl3 = gamma + 3.0
 
     visc = cfg.args.zeta + cfg.args.eta / 3.0
 
@@ -204,9 +202,6 @@ def main(cfg: DictConfig) -> None:
     yc = ye[:-1] + 0.5 * dy
     zc = ze[:-1] + 0.5 * dz
 
-    # t-coordinate
-    it_tot = ceil((cfg.args.fin_time - cfg.args.ini_time) / cfg.args.dt_save) + 1
-    tc = jnp.arange(it_tot + 1) * cfg.args.dt_save
 
     def evolve(Q):
         t = cfg.args.ini_time
@@ -218,7 +213,7 @@ def main(cfg: DictConfig) -> None:
 
         while t < cfg.args.fin_time:
             if t >= tsave:
-                print(f"save data at t = {t:.3f}")
+                logger.info(f"save data at t = {t:.3f}")
                 save_data_HD(Q[:, 2:-2, 2:-2, 2:-2], xc, yc, zc, i_save, cfg.args.save)
                 tsave += cfg.args.dt_save
                 i_save += 1
@@ -356,6 +351,8 @@ def main(cfg: DictConfig) -> None:
 
     @jit
     def update_vis(carry):
+        eta = cfg.args.eta
+
         def _update_vis_x(carry):
             Q, dt = carry
             # calculate conservative variables

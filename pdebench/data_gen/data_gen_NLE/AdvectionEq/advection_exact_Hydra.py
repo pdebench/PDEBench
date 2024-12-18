@@ -163,7 +163,7 @@ logger = logging.getLogger(__name__)
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
-    logging.info("advection velocity: %f", cfg.args.beta)
+    logger.info("advection velocity: %f", cfg.args.beta)
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.args.xL, cfg.args.xR, cfg.args.nx + 1)
@@ -183,14 +183,14 @@ def main(cfg: DictConfig) -> None:
         uu = uu.at[0].set(u)
 
         while t < cfg.args.fin_time:
-            logging.info("save data at t = %f", t)
+            logger.info("save data at t = %f", t)
             u = set_function(xc, t, cfg.args.beta)
             uu = uu.at[i_save].set(u)
             t += cfg.args.dt_save
             i_save += 1
 
         tm_fin = time.time()
-        logging.info("total elapsed time is %f sec", tm_fin - tm_ini)
+        logger.info("total elapsed time is %f sec", tm_fin - tm_ini)
         uu = uu.at[-1].set(u)
         return uu, t
 
