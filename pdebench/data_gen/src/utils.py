@@ -19,7 +19,7 @@ def matching_paths(glob_exp):
     return a list of paths matching a glob expression
     """
     path = os.path.expandvars(Path(glob_exp).expanduser())
-    return list(Path(path).glob('*'))
+    return list(Path(path).glob("*"))
 
 
 def resolve_path(path, idx=None, unique=True):

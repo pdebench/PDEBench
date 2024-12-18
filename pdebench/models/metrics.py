@@ -144,6 +144,7 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
 import logging
@@ -160,7 +161,9 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger = logging.getLogger(__name__)
 
 
-def metric_func(pred, target, if_mean=True, Lx=1.0, Ly=1.0, Lz=1.0, iLow=4, iHigh=12, initial_step=1):
+def metric_func(
+    pred, target, if_mean=True, Lx=1.0, Ly=1.0, Lz=1.0, iLow=4, iHigh=12, initial_step=1
+):
     """
     code for calculate metrics discussed in the Brain-storming session
     RMSE, normalized RMSE, max error, RMSE at the boundaries, conserved variables, RMSE in Fourier space, temporal sensitivity
@@ -171,13 +174,13 @@ def metric_func(pred, target, if_mean=True, Lx=1.0, Ly=1.0, Lz=1.0, iLow=4, iHig
     pred = pred[..., initial_step:, :]
     target = target[..., initial_step:, :]
     idxs = target.size()
-    if len(idxs) == 4: # 1D
+    if len(idxs) == 4:  # 1D
         pred = pred.permute(0, 3, 1, 2)
         target = target.permute(0, 3, 1, 2)
-    if len(idxs) == 5: # 2D
+    if len(idxs) == 5:  # 2D
         pred = pred.permute(0, 4, 1, 2, 3)
         target = target.permute(0, 4, 1, 2, 3)
-    elif len(idxs) == 6: # 3D
+    elif len(idxs) == 6:  # 3D
         pred = pred.permute(0, 5, 1, 2, 3, 4)
         target = target.permute(0, 5, 1, 2, 3, 4)
     idxs = target.size()
@@ -338,7 +341,6 @@ def metrics(
                     temp_shape.extend(list(range(1, len(inp.shape) - 1)))
                     inp = inp.permute(temp_shape)
 
-
                     temp_shape = [0]
                     temp_shape.extend(list(range(2, len(inp.shape))))
                     temp_shape.append(1)
@@ -353,7 +355,15 @@ def metrics(
                     _err_Max,
                     _err_BD,
                     _err_F,
-                ) = metric_func(pred, yy, if_mean=True, Lx=Lx, Ly=Ly, Lz=Lz, initial_step=initial_step)
+                ) = metric_func(
+                    pred,
+                    yy,
+                    if_mean=True,
+                    Lx=Lx,
+                    Ly=Ly,
+                    Lz=Lz,
+                    initial_step=initial_step,
+                )
 
                 if itot == 0:
                     err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F = (
@@ -381,7 +391,6 @@ def metrics(
                     val_l2_time += torch.sqrt(
                         torch.mean((pred - yy) ** 2, dim=mean_dim)
                     )
-
 
     elif mode == "FNO":
         with torch.no_grad():
@@ -409,7 +418,15 @@ def metrics(
                     _err_Max,
                     _err_BD,
                     _err_F,
-                ) = metric_func(pred, yy, if_mean=True, Lx=Lx, Ly=Ly, Lz=Lz, initial_step=initial_step)
+                ) = metric_func(
+                    pred,
+                    yy,
+                    if_mean=True,
+                    Lx=Lx,
+                    Ly=Ly,
+                    Lz=Lz,
+                    initial_step=initial_step,
+                )
                 if itot == 0:
                     err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F = (
                         _err_RMSE,
@@ -436,7 +453,6 @@ def metrics(
                     val_l2_time += torch.sqrt(
                         torch.mean((pred - yy) ** 2, dim=mean_dim)
                     )
-
 
     elif mode == "PINN":
         raise NotImplementedError
@@ -797,4 +813,3 @@ def inverse_metrics(u0, x, pred_u0, y):
         "fftl3loss_mid_pred_u0": fftl3loss_mid_pred_u0,
         "fftl3loss_hi_pred_u0": fftl3loss_hi_pred_u0,
     }
-

@@ -157,5 +157,3 @@ class Simulator:
 
         # Stack the time derivative into a single array y_t
         return np.concatenate((u_t, v_t))
-
-

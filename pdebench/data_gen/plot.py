@@ -3,6 +3,7 @@ Created on Wed May  4 09:53:18 2022
 
 @author: timot
 """
+
 from __future__ import annotations
 
 import os
@@ -61,7 +62,6 @@ def main(config: DictConfig):
         config,
         config.name + "_" + postfix + ".png",
     )
-
 
 
 if __name__ == "__main__":

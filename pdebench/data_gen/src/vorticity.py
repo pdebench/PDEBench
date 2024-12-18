@@ -1,4 +1,4 @@
-r""" Generate vorticity field :math:`\boldsymbol{\omega} = \nabla \times \boldsymbol{v}` given
+r"""Generate vorticity field :math:`\boldsymbol{\omega} = \nabla \times \boldsymbol{v}` given
      velocity field :math:`\boldsymbol{v}` using numerical approximation.
 
 Assuming the velocitiy field of shape [n, sx, sy, sz, 3] (5D) consists of a trajectory of equidistant cells,
@@ -15,6 +15,7 @@ This module provides the functions
 
 for approximating the vorticity field.
 """
+
 from __future__ import annotations
 
 import jax
