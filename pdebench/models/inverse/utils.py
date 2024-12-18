@@ -155,9 +155,7 @@ import pandas as pd
 from omegaconf import DictConfig
 from scipy.signal import welch
 
-logging.basicConfig(level=logging.INFO, filename=__name__)
-logging.root.setLevel(logging.INFO)
-
+logger = logging.getLogger(__name__)
 
 def plot_ic_solution_mcmc(
     latent,
@@ -307,7 +305,7 @@ def read_results(
             )
             if verbose:
                 msg = f"reading result file: {inverse_metric_filename}"
-                logging.info(msg)
+                logger.info(msg)
 
             dframe = pd.read_pickle(inverse_metric_filename)
             dframe["model"] = model_name
@@ -325,7 +323,7 @@ def process_results(cfg: DictConfig):
 
     June 2022, F.Alesiani
     """
-    logging.info(cfg.args)
+    logger.info(cfg.args)
 
     df, keys = read_results(
         cfg.args.model_names,
@@ -337,11 +335,11 @@ def process_results(cfg: DictConfig):
     df1p3 = df[keys + list(cfg.args.results_values)]
     df2p3 = df1p3.groupby(by=keys).agg([np.mean, np.std]).reset_index()
     msg = "saving results into: {cfg.args.base_path + cfg.args.result_filename}"
-    logging.info(msg)
+    logger.info(msg)
     df2p3.to_csv(cfg.args.base_path + cfg.args.result_filename)
 
 
 if __name__ == "__main__":
     process_results()
     msg = "Done."
-    logging.info(msg)
+    logger.info(msg)

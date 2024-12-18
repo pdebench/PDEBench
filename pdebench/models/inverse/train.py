@@ -167,9 +167,7 @@ from pyro.infer import MCMC, NUTS
 from torch import nn
 from tqdm import tqdm
 
-logging.basicConfig(level=logging.INFO, filename=__name__)
-logging.root.setLevel(logging.INFO)
-
+logger = logging.getLogger(__name__)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -184,8 +182,8 @@ def load_model(model, model_path, device):
 
 @hydra.main(config_path="../config", config_name="config")
 def main(cfg: DictConfig):
-    logging.info(cfg.args.filename)
-    logging.info(cfg.args)
+    logger.info(cfg.args.filename)
+    logger.info(cfg.args)
 
     # we use the test data
     if cfg.args.model_name in ["FNO"]:
@@ -230,7 +228,7 @@ def main(cfg: DictConfig):
 
     if cfg.args.model_name in ["FNO"]:
         if dimensions == 4:
-            logging.info(cfg.args.num_channels)
+            logger.info(cfg.args.num_channels)
             model = FNO1d(
                 num_channels=cfg.args.num_channels,
                 width=cfg.args.width,
@@ -325,7 +323,7 @@ def main(cfg: DictConfig):
 
         if ks == 0:
             msg = f"{x.shape}, {y.shape}"
-            logging.info(msg)
+            logger.info(msg)
 
         # scale the input and output
         x = scaler.fit_transform(x)
@@ -405,7 +403,7 @@ def main(cfg: DictConfig):
                 f"mse_inverse_y_L2: {inverse_y_l2_full / num_samples:.5f}",
             ]
         )
-        logging.info(msg)
+        logger.info(msg)
 
     df_metric = pd.DataFrame(all_metric)
     inverse_metric_filename = (
@@ -418,7 +416,7 @@ def main(cfg: DictConfig):
         + ".csv"
     )
     msg = f"saving in : {inverse_metric_filename}"
-    logging.info(msg)
+    logger.info(msg)
     df_metric.to_csv(inverse_metric_filename)
 
     inverse_metric_filename = (
@@ -431,7 +429,7 @@ def main(cfg: DictConfig):
         + ".pickle"
     )
     msg = f"saving in : {inverse_metric_filename}"
-    logging.info(msg)
+    logger.info(msg)
     df_metric.to_pickle(inverse_metric_filename)
 
     inverse_metric_filename = (
@@ -444,7 +442,7 @@ def main(cfg: DictConfig):
         + "_stats.csv"
     )
     msg = f"saving in : {inverse_metric_filename}"
-    logging.info(msg)
+    logger.info(msg)
     df_metric = df_metric.describe()
     df_metric.to_csv(inverse_metric_filename)
 

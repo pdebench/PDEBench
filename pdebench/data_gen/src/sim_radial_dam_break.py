@@ -8,9 +8,7 @@ import numpy as np
 import torch
 from clawpack import pyclaw, riemann
 
-logging.basicConfig(level=logging.INFO, filename=__name__)
-logging.root.setLevel(logging.INFO)
-
+logger = logging.getLogger(__name__)
 
 class Basic2DScenario(ABC):
     name = ""
@@ -103,7 +101,7 @@ class Basic2DScenario(ABC):
             self.solver.evolve_to_time(self.solution, t)
         else:
             msg = "Simulate failed: No scenario defined."
-            logging.info(msg)
+            logger.info(msg)
 
     def run(self, T: float = 1.0, tsteps: int = 20) -> None:
         self.init_save_state(T, tsteps)
