@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,6 +143,7 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
 import random
@@ -194,7 +194,6 @@ def main(cfg: DictConfig) -> None:
     else:
         rho = cfg.multi.rho
         nu = cfg.multi.nu
-    print(f"rho: {rho:>5f}, nu: {nu:>5f}")
 
     # t-coordinate
     it_tot = ceil((fin_time - ini_time) / dt_save) + 1
@@ -232,9 +231,7 @@ def main(cfg: DictConfig) -> None:
 
         carry = t, tsave, steps, i_save, dt, u, uu
         t, tsave, steps, i_save, dt, u, uu = lax.while_loop(cond_fun, _body_fun, carry)
-        uu = uu.at[-1].set(u)
-
-        return uu
+        return uu.at[-1].set(u)
 
     @jax.jit
     def simulation_fn(i, carry):
@@ -272,14 +269,12 @@ def main(cfg: DictConfig) -> None:
             u, dx, Ncell=cfg.multi.nx
         )  # index 2 for _U is equivalent with index 0 for u
         # 2nd-order diffusion flux
-        f = -nu * (_u[2 : cfg.multi.nx + 3] - _u[1 : cfg.multi.nx + 2]) * dx_inv
-        return f
+        return -nu * (_u[2 : cfg.multi.nx + 3] - _u[1 : cfg.multi.nx + 2]) * dx_inv
 
     @jax.jit
     def Piecewise_Exact_Solution(u, dt):  # Piecewise_Exact_Solution method
         # stiff equation
-        u = 1.0 / (1.0 + jnp.exp(-rho * dt) * (1.0 - u) / u)
-        return u
+        return 1.0 / (1.0 + jnp.exp(-rho * dt) * (1.0 - u) / u)
 
     u = init_multi(
         xc,
@@ -296,7 +291,6 @@ def main(cfg: DictConfig) -> None:
     local_devices = jax.local_device_count()
     uu = vm_evolve(u.reshape([local_devices, cfg.multi.numbers // local_devices, -1]))
 
-    print("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     jnp.save(
         cwd + cfg.multi.save + "/ReacDiff_Nu" + str(nu)[:5] + "_Rho" + str(rho)[:5], uu
@@ -307,7 +301,6 @@ def main(cfg: DictConfig) -> None:
     # reshape based on device count
     uu = uu.reshape((-1, *uu.shape[2:]))
 
-    print("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     Path(cwd + cfg.multi.save).mkdir(parents=True, exist_ok=True)
     jnp.save(

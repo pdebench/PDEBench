@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,6 +143,7 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
 import sys
@@ -228,9 +228,7 @@ def main(cfg: DictConfig) -> None:
         t, tsave, steps, i_save, dt, u, uu, nu = lax.while_loop(
             cond_fun, _body_fun, carry
         )
-        uu = uu.at[-1].set(u)
-
-        return uu
+        return uu.at[-1].set(u)
 
     @jax.jit
     def simulation_fn(i, carry):
@@ -325,7 +323,6 @@ def main(cfg: DictConfig) -> None:
         vm_evolve = vmap(evolve, 0, 0)
         uu = vm_evolve(u, nu)
 
-    print("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     jnp.save(
         cwd

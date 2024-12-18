@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,8 +143,10 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
+import logging
 import os
 import random
 import sys
@@ -157,14 +158,7 @@ import hydra
 import jax
 import jax.numpy as jnp
 from jax import device_put, jit, lax
-
-# Hydra
 from omegaconf import DictConfig
-
-os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
-os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".9"
-
-sys.path.append("..")
 from utils import (
     Courant_HD,
     Courant_vis_HD,
@@ -178,6 +172,15 @@ from utils import (
     init_multi_HD_shock,
     limiting_HD,
 )
+
+logger = logging.getLogger(__name__)
+
+# Hydra
+
+os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
+os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".9"
+
+sys.path.append("..")
 
 # if double precision
 # from jax.config import config
@@ -197,9 +200,6 @@ def main(cfg: DictConfig) -> None:
     gamminv1 = 1.0 / gammi1
     gamgamm1inv = gamma * gamminv1
     gammi1 = gamma - 1.0
-    gampl1 = gamma + 1.0
-    gammi3 = gamma - 3.0
-    gampl3 = gamma + 3.0
 
     BCs = ["trans", "periodic", "KHI"]  # reflect
     assert cfg.args.bc in BCs, "bc should be in 'trans, reflect, periodic'"
@@ -240,7 +240,7 @@ def main(cfg: DictConfig) -> None:
     else:
         zeta = cfg.args.zeta
         eta = cfg.args.eta
-    print(f"zeta: {zeta:>5f}, eta: {eta:>5f}")
+    logger.info(f"zeta: {zeta:>5f}, eta: {eta:>5f}")
     visc = zeta + eta / 3.0
 
     def evolve(Q):
@@ -299,7 +299,7 @@ def main(cfg: DictConfig) -> None:
         )
 
         tm_fin = time.time()
-        print(f"total elapsed time is {tm_fin - tm_ini} sec")
+        logger.info(f"total elapsed time is {tm_fin - tm_ini} sec")
         DDD = DDD.at[-1].set(Q[0, 2:-2, 2:-2, 2:-2])
         VVx = VVx.at[-1].set(Q[1, 2:-2, 2:-2, 2:-2])
         VVy = VVy.at[-1].set(Q[2, 2:-2, 2:-2, 2:-2])
@@ -411,9 +411,7 @@ def main(cfg: DictConfig) -> None:
         Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(
             gammi1 * (E0 - 0.5 * (Mx**2 + My**2 + Mz**2) / D0)
         )  # p
-        Q = Q.at[4].set(jnp.where(Q[4] > 1.0e-8, Q[4], cfg.args.p_floor))
-
-        return Q
+        return Q.at[4].set(jnp.where(Q[4] > 1.0e-8, Q[4], cfg.args.p_floor))
 
     @jit
     def update_vis(carry):
@@ -587,26 +585,21 @@ def main(cfg: DictConfig) -> None:
     def flux_x(Q):
         QL, QR = limiting_HD(Q, if_second_order=cfg.args.if_second_order)
         # f_Riemann = HLL(QL, QR, direc=0)
-        f_Riemann = HLLC(QL, QR, direc=0)
-        return f_Riemann
+        return HLLC(QL, QR, direc=0)
 
     @jit
     def flux_y(Q):
         _Q = jnp.transpose(Q, (0, 2, 3, 1))  # (y, z, x)
         QL, QR = limiting_HD(_Q, if_second_order=cfg.args.if_second_order)
         # f_Riemann = jnp.transpose(HLL(QL, QR, direc=1), (0, 3, 1, 2))  # (x,y,z) = (Z,X,Y)
-        f_Riemann = jnp.transpose(
-            HLLC(QL, QR, direc=1), (0, 3, 1, 2)
-        )  # (x,y,z) = (Z,X,Y)
-        return f_Riemann
+        return jnp.transpose(HLLC(QL, QR, direc=1), (0, 3, 1, 2))  # (x,y,z) = (Z,X,Y)
 
     @jit
     def flux_z(Q):
         _Q = jnp.transpose(Q, (0, 3, 1, 2))  # (z, x, y)
         QL, QR = limiting_HD(_Q, if_second_order=cfg.args.if_second_order)
         # f_Riemann = jnp.transpose(HLL(QL, QR, direc=2), (0, 2, 3, 1))
-        f_Riemann = jnp.transpose(HLLC(QL, QR, direc=2), (0, 2, 3, 1))
-        return f_Riemann
+        return jnp.transpose(HLLC(QL, QR, direc=2), (0, 2, 3, 1))
 
     @partial(jit, static_argnums=(2,))
     def HLL(QL, QR, direc):
@@ -660,9 +653,7 @@ def main(cfg: DictConfig) -> None:
 
         # L: left of cell = right-going,  R: right of cell: left-going
         f_Riemann = jnp.where(Sfl > 0.0, fR[:, 1:-2], fHLL)
-        f_Riemann = jnp.where(Sfr < 0.0, fL[:, 2:-1], f_Riemann)
-
-        return f_Riemann
+        return jnp.where(Sfr < 0.0, fL[:, 2:-1], f_Riemann)
 
     @partial(jit, static_argnums=(2,))
     def HLLC(QL, QR, direc):
@@ -751,12 +742,10 @@ def main(cfg: DictConfig) -> None:
         f_Riemann = jnp.where(
             Sfl * Va < 0.0, fal, f_Riemann
         )  # SL < 0 and Va > 0 : sub-sonic
-        f_Riemann = jnp.where(
+        return jnp.where(
             Sfr * Va < 0.0, far, f_Riemann
         )  # Va < 0 and SR > 0 : sub-sonic
         # f_Riemann = jnp.where(Sfr < 0., fL[:, 2:-1], f_Riemann) # SR < 0 : supersonic
-
-        return f_Riemann
 
     Q = jnp.zeros(
         [cfg.args.numbers, 5, cfg.args.nx + 4, cfg.args.ny + 4, cfg.args.nz + 4]
@@ -838,7 +827,7 @@ def main(cfg: DictConfig) -> None:
         )
     elif cfg.args.init_mode_Multi == "KHs":
         assert 2.0 * yc[0] - (yc[1] - yc[0]) == 0.0, "yL is assumed 0!"
-        print("now we are coming into KHs...")
+        logger.info("now we are coming into KHs...")
         Q = init_multi_HD_KH(
             Q,
             xc,
@@ -851,7 +840,7 @@ def main(cfg: DictConfig) -> None:
             gamma=cfg.args.gamma,
         )
     elif cfg.args.init_mode_Multi == "2D_Turbs":
-        print("now we are coming into 2DTurbs......")
+        logger.info("now we are coming into 2DTurbs......")
         Q = init_multi_HD_2DTurb(
             Q,
             xc,
@@ -864,10 +853,10 @@ def main(cfg: DictConfig) -> None:
             gamma=cfg.args.gamma,
         )
     elif cfg.args.init_mode_Multi == "2D_rand":
-        assert (
+        assert (  # noqa: PT018
             xe[0] == 0.0 and ye[0] == 0.0 and xe[-1] == 1.0 and ye[-1] == 1.0
         ), "xc, yc should be between 0 and 1!"
-        print("now we are coming into 2Drand......")
+        logger.info("now we are coming into 2Drand......")
         Q = init_multi_HD_2DRand(
             Q,
             xc,
@@ -880,7 +869,7 @@ def main(cfg: DictConfig) -> None:
             gamma=cfg.args.gamma,
         )
     elif cfg.args.init_mode_Multi == "3D_Turbs":
-        print("now we are coming into 3DTurbs......")
+        logger.info("now we are coming into 3DTurbs......")
         Q = init_multi_HD_3DTurb(
             Q,
             xc,
@@ -893,7 +882,7 @@ def main(cfg: DictConfig) -> None:
             gamma=cfg.args.gamma,
         )
     elif cfg.args.init_mode_Multi == "3D_rand":
-        print("now we are coming into 3Drand......")
+        logger.info("now we are coming into 3Drand......")
         Q = init_multi_HD_3DRand(
             Q,
             xc,
@@ -905,7 +894,7 @@ def main(cfg: DictConfig) -> None:
             k_tot=cfg.args.k_tot,
             gamma=cfg.args.gamma,
         )
-    print("initial conditions were prepared!!")
+    logger.info("initial conditions were prepared!!")
     Q = device_put(Q)  # putting variables in GPU (not necessary??)
 
     local_device_count = jax.local_device_count()
@@ -929,7 +918,7 @@ def main(cfg: DictConfig) -> None:
     VVy = VVy.reshape(cfg.args.numbers, itot, cfg.args.nx, cfg.args.ny, cfg.args.nz)
     VVz = VVz.reshape(cfg.args.numbers, itot, cfg.args.nx, cfg.args.ny, cfg.args.nz)
     PPP = PPP.reshape(cfg.args.numbers, itot, cfg.args.nx, cfg.args.ny, cfg.args.nz)
-    print("now data saving...")
+    logger.info("now data saving...")
     jnp.save(
         cfg.args.save
         + "HD_Sols_"
