@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,8 +143,10 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
+import logging
 import sys
 import time
 from math import ceil
@@ -161,12 +162,12 @@ from omegaconf import DictConfig
 sys.path.append("..")
 from utils import Courant_diff, bc, init
 
+logger = logging.getLogger(__name__)
+
 
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
-    print(f"nu: {cfg.args.nu:.3f}, rho: {cfg.args.rho:.3f}")
-
     # basic parameters
     dx = (cfg.args.xR - cfg.args.xL) / cfg.args.nx
     dx_inv = 1.0 / dx
@@ -197,7 +198,7 @@ def main(cfg: DictConfig) -> None:
                 i_save += 1
 
             if steps % cfg.args.show_steps == 0 and cfg.args.if_show:
-                print(f"now {steps:d}-steps, t = {t:.3f}, dt = {dt:.3f}")
+                logger.info(f"now {steps:d}-steps, t = {t:.3f}, dt = {dt:.3f}")
 
             carry = (u, t, dt, steps, tsave)
             u, t, dt, steps, tsave = lax.fori_loop(
@@ -205,7 +206,7 @@ def main(cfg: DictConfig) -> None:
             )
 
         tm_fin = time.time()
-        print(f"total elapsed time is {tm_fin - tm_ini} sec")
+        logger.info(f"total elapsed time is {tm_fin - tm_ini} sec")
         return uu, t
 
     @jax.jit
@@ -247,21 +248,20 @@ def main(cfg: DictConfig) -> None:
             u, dx, Ncell=cfg.args.nx
         )  # index 2 for _U is equivalent with index 0 for u
         # source term
-        f = -cfg.args.nu * (_u[2 : cfg.args.nx + 3] - _u[1 : cfg.args.nx + 2]) * dx_inv
-        return f
+        return (
+            -cfg.args.nu * (_u[2 : cfg.args.nx + 3] - _u[1 : cfg.args.nx + 2]) * dx_inv
+        )
 
     @jax.jit
     def Piecewise_Exact_Solution(u, dt):  # Piecewise_Exact_Solution method
         # stiff equation
-        u = 1.0 / (1.0 + jnp.exp(-cfg.args.rho * dt) * (1.0 - u) / u)
-        return u
+        return 1.0 / (1.0 + jnp.exp(-cfg.args.rho * dt) * (1.0 - u) / u)
 
     u = init(xc=xc, mode=cfg.args.init_mode)
     u = device_put(u)  # putting variables in GPU (not necessary??)
     uu, t = evolve(u)
-    print(f"final time is: {t:.3f}")
+    logger.info(f"final time is: {t:.3f}")
 
-    print("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     jnp.save(
         cwd

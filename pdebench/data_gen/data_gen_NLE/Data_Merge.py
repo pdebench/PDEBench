@@ -143,6 +143,16 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import h5py
+import hydra
+import numpy as np
+from omegaconf import DictConfig
+
 """
 Data_Merge.py
 This is a script creating HDF5 from the generated data (numpy array) by our data generation scripts.
@@ -150,31 +160,16 @@ A more detailed explanation how to use this script is provided in the README.
 """
 
 
-# Hydra
-
-
-from __future__ import annotations
-
-import glob
-
-import h5py
-import hydra
-import numpy as np
-from omegaconf import DictConfig
-
-
 def _mergeRD(var, DataND, savedir):
     _vars = ["2D", "nu"]
     if var not in _vars:
-        print(var + " is not defined!")
         return None
 
     idx = 0
-    data = glob.glob(savedir + "/" + var + "*key*.npy")
-    data.sort()
-    for data in data:
-        print(idx, data)
-        test = np.load(data).squeeze()
+    data_list = Path(savedir).glob(var + "*key*.npy")
+    data_list.sort()
+    for data_file in data_list:
+        test = np.load(data_file).squeeze()
         batch = min(test.shape[0], DataND.shape[0] - idx)
         if var == "2D":
             DataND[idx : idx + batch] = test[:batch, -2]
@@ -193,15 +188,13 @@ def _merge(var, DataND, dim, savedir):
     elif dim == 3:
         _vars = ["D", "P", "Vx", "Vy", "Vz"]
     if var not in _vars:
-        print(var + " is not defined!")
         return None
 
     idx = 0
-    data = glob.glob(savedir + "/HD*" + var + ".npy")
+    data = Path(savedir).glob("HD*" + var + ".npy")
     data.sort()
-    for data in data:
-        print(idx, data)
-        test = np.load(data).squeeze()
+    for data_file in data:
+        test = np.load(data_file).squeeze()
         batch = min(test.shape[0], DataND.shape[0] - idx)
         DataND[idx : idx + batch] = test[:batch]
         idx += batch
@@ -216,13 +209,11 @@ def nan_check(data):
 
 def merge(type, dim, bd, nbatch, savedir):
     if type == "CFD":
-        data = glob.glob(savedir + "/HD*D.npy")
+        data = Path(savedir).glob("HD*D.npy")
         data.sort()
         test = np.load(data[0])
         __nbatch, nt, nx, ny, nz = test.shape
         _nbatch = __nbatch * len(data)
-        print("nb, nt, nx, ny, nz: ", _nbatch, nt, nx, ny, nz)
-        print(f"nbatch: {nbatch}, _nbatch: {_nbatch}")
         assert (
             nbatch <= _nbatch
         ), "nbatch should be equal or less than the number of generated samples"
@@ -241,16 +232,14 @@ def merge(type, dim, bd, nbatch, savedir):
             vars = ["D", "P", "Vx", "Vy", "Vz"]
 
     elif type == "ReacDiff":
-        data = glob.glob(savedir + "/nu*.npy")
+        data = Path(savedir).glob("nu*.npy")
         data.sort()
         test = np.load(data[0])
         __nbatch, nx, ny = test.shape
         _nbatch = __nbatch * len(data)
-        print(f"nbatch: {nbatch}, _nbatch: {_nbatch}")
         assert (
             nbatch == _nbatch
         ), "nbatch should be equal or less than the number of generated samples"
-        print("nb, nx, ny: ", _nbatch, nx, ny)
         DataND = np.zeros([nbatch, nx, ny], dtype=np.float32)
         vars = ["2D", "nu"]
 
@@ -259,10 +248,8 @@ def merge(type, dim, bd, nbatch, savedir):
             _DataND = _merge(var, DataND, dim, savedir)
             if var == "D":
                 idx_neg, idx_pos = nan_check(_DataND)
-                print(f"idx_neg: {len(idx_neg)}, idx_pos: {len(idx_pos)}")
                 if len(idx_pos) < nbatch:
-                    print("too many ill-defined data...")
-                    print(f"nbatch: {nbatch}, idx_pos: {len(idx_pos)}")
+                    pass
             _DataND = _DataND[idx_pos]
             _DataND = _DataND[:nbatch]
             np.save(savedir + "/" + var + ".npy", _DataND)
@@ -270,7 +257,7 @@ def merge(type, dim, bd, nbatch, savedir):
             DataND = _mergeRD(var, DataND, savedir)
             np.save(savedir + "/" + var + ".npy", DataND)
 
-    data = glob.glob(savedir + "/*npy")
+    data = Path(savedir).glob("*npy")
     data.sort()
 
     if type == "CFD":
@@ -284,7 +271,7 @@ def merge(type, dim, bd, nbatch, savedir):
     del data[-1]
     if type == "ReacDiff":
         # data = glob.glob('save/' + type + '/nu*key*npy')
-        data = glob.glob(savedir + "/nu*key*npy")
+        data = Path(savedir).glob("nu*key*npy")
         data.sort()
         _beta = data[0].split("/")[-1].split("_")[3]
         flnm = savedir + "/2D_DecayFlow_" + _beta + "_Train.hdf5"
@@ -343,7 +330,6 @@ def merge(type, dim, bd, nbatch, savedir):
             + bd
             + "_Train.hdf5"
         )
-    print(flnm)
 
     del DataND
 
@@ -361,17 +347,17 @@ def merge(type, dim, bd, nbatch, savedir):
         f.create_dataet("t-coordinate", data=tcrd)
         eta = float(_eta[3:])
         zeta = float(_zeta[4:])
-        print("(eta, zeta) = ", eta, zeta)
         f.attrs["eta"] = eta
         f.attrs["zeta"] = zeta
         if dim > 1:
             M = float(_M[1:])
             f.attrs["M"] = M
-            print("M: ", M)
+            return None
+        return None
 
 
 def transform(type, savedir):
-    data = glob.glob(savedir + "/*npy")
+    data = Path(savedir).glob("*npy")
     data.sort()
     xcrd = np.load(data[-1])
     del data[-1]
@@ -380,7 +366,6 @@ def transform(type, savedir):
 
     flnm = data[0]
     with h5py.File(flnm[:-3] + "hdf5", "w") as f:
-        print(flnm)
         _data = np.load(flnm)
 
         f.create_dataset("tensor", data=_data.astype(np.float32))
@@ -388,18 +373,15 @@ def transform(type, savedir):
         f.create_dataset("t-coordinate", data=tcrd)
         if type == "advection":
             beta = float(flnm.split("/")[-1].split("_")[3][4:-4])  # advection train
-            print(f"beta: {beta}")
             f.attrs["beta"] = beta
 
         elif type == "burgers":
             Nu = float(flnm.split("/")[-1].split("_")[-1][2:-4])  # Burgers test/train
-            print(f"Nu: {Nu}")
             f.attrs["Nu"] = Nu
 
         elif type == "ReacDiff":
             Rho = float(flnm.split("/")[-1].split("_")[-1][3:-4])  # reac-diff test
             Nu = float(flnm.split("/")[-1].split("_")[-2][2:])  # reac-diff test
-            print(f"Nu, rho: {Nu, Rho}")
             f.attrs["Nu"] = Nu
             f.attrs["rho"] = Rho
 
