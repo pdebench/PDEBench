@@ -14,6 +14,7 @@ from torch import nn
 # np.random.seed(0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 def run_training(
     if_training,
     continue_training,

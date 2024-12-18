@@ -144,6 +144,7 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
 import logging
@@ -156,6 +157,7 @@ from omegaconf import DictConfig
 from scipy.signal import welch
 
 logger = logging.getLogger(__name__)
+
 
 def plot_ic_solution_mcmc(
     latent,

@@ -10,6 +10,7 @@ from clawpack import pyclaw, riemann
 
 logger = logging.getLogger(__name__)
 
+
 class Basic2DScenario(ABC):
     name = ""
 

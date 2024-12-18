@@ -1,6 +1,7 @@
-""" Convert velocity- to vorticity field assuming 3D CFD exampe was downloaded.
-    The resulting .hdf5 file does not store pressure and density.
+"""Convert velocity- to vorticity field assuming 3D CFD exampe was downloaded.
+The resulting .hdf5 file does not store pressure and density.
 """
+
 from __future__ import annotations
 
 import argparse

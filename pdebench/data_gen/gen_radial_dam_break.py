@@ -101,7 +101,6 @@ def main(config: DictConfig):
     # Change back to the hydra working directory
     os.chdir(temp_path)
 
-
     work_path = Path(config.work_dir)
     output_path = work_path / config.data_dir / config.output_path
     if not output_path.is_dir():

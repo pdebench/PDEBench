@@ -143,6 +143,7 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
 import logging
@@ -232,7 +233,6 @@ def main(cfg: DictConfig) -> None:
         carry = t, tsave, steps, i_save, dt, u, uu
         t, tsave, steps, i_save, dt, u, uu = lax.while_loop(cond_fun, _body_fun, carry)
         return uu.at[-1].set(u)
-
 
     @jax.jit
     def simulation_fn(i, carry):
