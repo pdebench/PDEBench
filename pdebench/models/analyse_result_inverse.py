@@ -156,7 +156,7 @@ def main():
     data = pd.read_csv(filename)
     pdes = data["pde"].drop_duplicates()
     num_pdes = len(pdes)
-    models = list(data.columns.values[-2:])
+    models = list(data.columns.to_numpy()[-2:])
     num_models = len(models)
     x = np.arange(num_pdes)
     width = 0.5 / (num_models)
@@ -170,7 +170,6 @@ def main():
             yerr=data[data.iloc[:, 1] == "std"][models[i]],
             width=width,
         )
-        print(width, pos)
 
     ax.set_xticks(x)
     ax.set_xticklabels(pdes, rotation=45, fontsize=30)
@@ -185,4 +184,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("Done.")

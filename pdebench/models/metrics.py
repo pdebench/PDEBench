@@ -146,6 +146,7 @@ arrangements between the parties relating hereto.
 """
 from __future__ import annotations
 
+import logging
 import math as mt
 
 import matplotlib.pyplot as plt
@@ -155,6 +156,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from torch import nn
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+logger = logging.getLogger(__name__)
 
 
 def metric_func(pred, target, if_mean=True, Lx=1.0, Ly=1.0, Lz=1.0, iLow=4, iHigh=12, initial_step=1):
@@ -320,30 +323,28 @@ def metrics(
 ):
     if mode == "Unet":
         with torch.no_grad():
-            itot = 0
-            for xx, yy in val_loader:
-                xx = xx.to(device)
-                yy = yy.to(device)
+            for itot, (xx, yy) in enumerate(val_loader):
+                xx = xx.to(device)  # noqa: PLW2901
+                yy = yy.to(device)  # noqa: PLW2901
 
                 pred = yy[..., :initial_step, :]
                 inp_shape = list(xx.shape)
                 inp_shape = inp_shape[:-2]
                 inp_shape.append(-1)
 
-                for t in range(initial_step, yy.shape[-2]):
+                for _t in range(initial_step, yy.shape[-2]):
                     inp = xx.reshape(inp_shape)
                     temp_shape = [0, -1]
                     temp_shape.extend(list(range(1, len(inp.shape) - 1)))
                     inp = inp.permute(temp_shape)
 
-                    y = yy[..., t : t + 1, :]
 
                     temp_shape = [0]
                     temp_shape.extend(list(range(2, len(inp.shape))))
                     temp_shape.append(1)
                     im = model(inp).permute(temp_shape).unsqueeze(-2)
                     pred = torch.cat((pred, im), -2)
-                    xx = torch.cat((xx[..., 1:, :], im), dim=-2)
+                    xx = torch.cat((xx[..., 1:, :], im), dim=-2)  # noqa: PLW2901
 
                 (
                     _err_RMSE,
@@ -381,27 +382,25 @@ def metrics(
                         torch.mean((pred - yy) ** 2, dim=mean_dim)
                     )
 
-                itot += 1
 
     elif mode == "FNO":
         with torch.no_grad():
             itot = 0
-            for xx, yy, grid in val_loader:
-                xx = xx.to(device)
-                yy = yy.to(device)
-                grid = grid.to(device)
+            for itot, (xx, yy, grid) in enumerate(val_loader):
+                xx = xx.to(device)  # noqa: PLW2901
+                yy = yy.to(device)  # noqa: PLW2901
+                grid = grid.to(device)  # noqa: PLW2901
 
                 pred = yy[..., :initial_step, :]
                 inp_shape = list(xx.shape)
                 inp_shape = inp_shape[:-2]
                 inp_shape.append(-1)
 
-                for t in range(initial_step, yy.shape[-2]):
+                for _t in range(initial_step, yy.shape[-2]):
                     inp = xx.reshape(inp_shape)
-                    y = yy[..., t : t + 1, :]
                     im = model(inp, grid)
                     pred = torch.cat((pred, im), -2)
-                    xx = torch.cat((xx[..., 1:, :], im), dim=-2)
+                    xx = torch.cat((xx[..., 1:, :], im), dim=-2)  # noqa: PLW2901
 
                 (
                     _err_RMSE,
@@ -438,7 +437,6 @@ def metrics(
                         torch.mean((pred - yy) ** 2, dim=mean_dim)
                     )
 
-                itot += 1
 
     elif mode == "PINN":
         raise NotImplementedError
@@ -449,12 +447,12 @@ def metrics(
     err_Max = np.array(err_Max.data.cpu() / itot)
     err_BD = np.array(err_BD.data.cpu() / itot)
     err_F = np.array(err_F.data.cpu() / itot)
-    print(f"RMSE: {err_RMSE:.5f}")
-    print(f"normalized RMSE: {err_nRMSE:.5f}")
-    print(f"RMSE of conserved variables: {err_CSV:.5f}")
-    print(f"Maximum value of rms error: {err_Max:.5f}")
-    print(f"RMSE at boundaries: {err_BD:.5f}")
-    print(f"RMSE in Fourier space: {err_F}")
+    logger.info(f"RMSE: {err_RMSE:.5f}")
+    logger.info(f"normalized RMSE: {err_nRMSE:.5f}")
+    logger.info(f"RMSE of conserved variables: {err_CSV:.5f}")
+    logger.info(f"Maximum value of rms error: {err_Max:.5f}")
+    logger.info(f"RMSE at boundaries: {err_BD:.5f}")
+    logger.info(f"RMSE in Fourier space: {err_F}")
 
     val_l2_time = val_l2_time / itot
 
@@ -667,7 +665,7 @@ class FftMseLoss:
         # Dimension and Lp-norm type are positive
         self.reduction = reduction
 
-    def __call__(self, x, y, flow=None, fhigh=None, eps=1e-20):
+    def __call__(self, x, y, flow=None, fhigh=None):
         num_examples = x.size()[0]
         others_dims = x.shape[1:-2]
         for d in others_dims:
@@ -767,7 +765,7 @@ def inverse_metrics(u0, x, pred_u0, y):
     fftl3loss_mid_pred_u0 = fftl3loss_fn(pred_u0, y, fmid, 2 * fmid).item()
     fftl3loss_hi_pred_u0 = fftl3loss_fn(pred_u0, y, 2 * fmid).item()
 
-    metric = {
+    return {
         "mseloss_u0": mseloss_u0,
         "l2loss_u0": l2loss_u0,
         "l3loss_u0": l3loss_u0,
@@ -800,4 +798,3 @@ def inverse_metrics(u0, x, pred_u0, y):
         "fftl3loss_hi_pred_u0": fftl3loss_hi_pred_u0,
     }
 
-    return metric

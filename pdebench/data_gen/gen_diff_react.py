@@ -1,17 +1,26 @@
-#!/usr/bin/env python
 from __future__ import annotations
 
+import logging
+import multiprocessing as mp
 import os
+import time
+from itertools import repeat
+from pathlib import Path
 
 import dotenv
+import h5py
+import hydra
+import numpy as np
+from hydra.utils import get_original_cwd
+from omegaconf import DictConfig, OmegaConf
+from pdebench.data_gen.src import utils
+from pdebench.data_gen.uploader import dataverse_upload
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
 # this allows us to keep defaults local to the machine
 # e.g. HPC versus local laptop
 dotenv.load_dotenv()
-
-import time
 
 # or if the environment variables will be fixed for all executions, we can hard-code the environment variables like this:
 num_threads = "4"
@@ -22,18 +31,6 @@ os.environ["OPENBLAS_NUM_THREADS"] = num_threads
 os.environ["VECLIB_MAXIMUM_THREADS"] = num_threads
 os.environ["NUMEXPR_NUM_THREADS"] = num_threads
 
-import logging
-import multiprocessing as mp
-from itertools import repeat
-
-import dotenv
-import h5py
-import hydra
-import numpy as np
-from hydra.utils import get_original_cwd
-from omegaconf import DictConfig, OmegaConf
-from pdebench.data_gen.src import utils
-from pdebench.data_gen.uploader import dataverse_upload
 
 log = logging.getLogger(__name__)
 
@@ -102,17 +99,16 @@ def main(config: DictConfig):
 
     # Change to original working directory to import modules
 
-    temp_path = os.getcwd()
+    temp_path = Path.cwd()
     os.chdir(get_original_cwd())
 
     # Change back to the hydra working directory
     os.chdir(temp_path)
 
-    work_path = os.path.dirname(config.work_dir)
-    output_path = os.path.join(work_path, config.data_dir, config.output_path)
-    if not os.path.isdir(output_path):
-        os.makedirs(output_path)
-    config.output_path = os.path.join(output_path, config.output_path) + ".h5"
+    work_path = Path(config.work_dir)
+    output_path: Path = work_path / config.data_dir / config.output_path
+    output_path.mkdir(output_path, exist_ok=True, parents=True)
+    config.output_path = (output_path / config.output_path).with_suffix(".h5")
 
     num_samples_init = 0
     num_samples_final = 1000
@@ -132,8 +128,6 @@ def main(config: DictConfig):
             log=log,
         )
 
-
-import os
 
 if __name__ == "__main__":
     test = main()
