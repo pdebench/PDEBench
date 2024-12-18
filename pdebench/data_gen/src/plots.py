@@ -4,6 +4,7 @@ PDE Simulation packages
 """
 from __future__ import annotations
 
+import h5py
 import imageio
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,7 +18,8 @@ def plot_data(data, t, dim, channel, t_fraction, config, filename):
     plt.figure()
     plt.title(f"$t={t[t_idx]}$")
     if dim == 1:
-        x = np.array(h5_file["grid"]["x"], dtype="f")
+        with h5py.File(config.data_path, 'r') as h5_file:
+            x = np.array(h5_file["grid"]["x"], dtype="f")
         plt.plot(x.squeeze(), data[t_idx, ..., channel])
         plt.xlabel("$x$")
     else:

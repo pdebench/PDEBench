@@ -163,8 +163,7 @@ class ElementStandardScaler:
     def transform(self, x):
         eps = 1e-20
         x = x - self.mean
-        x = x / (self.std + eps)
-        return x
+        return x / (self.std + eps)
 
     def fit_transform(self, x):
         self.fit(x)
@@ -203,36 +202,32 @@ class ProbRasterLatent(PyroModule):
             torch.tensor([self.prior_std], device=self.device, dtype=torch.float),
         )
         self.latent = PyroSample(dist.Normal(_m, _s).expand(latent_dims).to_event(2))
-        print(self.latent_dims, self.dims)
 
     def get_latent(self):
         if self.latent_dims == self.dims:
             return self.latent.unsqueeze(0)
         # `mini-batch x channels x [optional depth] x [optional height] x width`.
-        l = F.interpolate(
+        return F.interpolate(
             self.latent.unsqueeze(1),
             self.dims,
             mode=self.interpolation,
             align_corners=False,
         ).squeeze(0)  # squeeze/unsqueeze is because of weird interpolate semantics
-        return l
 
     def latent2source(self, latent):
         if latent.shape == self.dims:
             return latent.unsqueeze(0)
         # `mini-batch x channels x [optional depth] x [optional height] x width`.
-        l = F.interpolate(
+        return F.interpolate(
             latent.unsqueeze(1), self.dims, mode=self.interpolation, align_corners=False
         ).squeeze(0)  # squeeze/unsqueeze is because of weird interpolate semantics
-        return l
 
     def forward(self, grid, y=None):
         # overwrite process predictor batch with my own latent
         x = self.get_latent()
         # print("forward:x.shape,grid.shape=",x.shape,grid.shape)
         mean = self.process_predictor(x.to(self.device), grid.to(self.device))
-        o = pyro.sample("obs", dist.Normal(mean, self.obs_scale).to_event(2), obs=y)
-        return o
+        return pyro.sample("obs", dist.Normal(mean, self.obs_scale).to_event(2), obs=y)
 
 
 class InitialConditionInterp(nn.Module):
@@ -248,11 +243,11 @@ class InitialConditionInterp(nn.Module):
     """
 
     def __init__(self, dims, hidden_dim):
-        super(InitialConditionInterp, self).__init__()
+        super().__init__()
         self.spatial_dim = len(hidden_dim)
-        self.dims = [1] + dims if len(dims) == 1 else dims
+        self.dims = [1, *dims] if len(dims) == 1 else dims
         # self.dims = [1,1,1]+dims
-        self.hidden_dim = [1] + hidden_dim if len(hidden_dim) == 1 else hidden_dim
+        self.hidden_dim = [1, *hidden_dim] if len(hidden_dim) == 1 else hidden_dim
         self.interpolation = "bilinear" if len(hidden_dim) < 3 else "trilinear"
         self.scale = 1 / prod(hidden_dim)
         self.latent = nn.Parameter(
@@ -264,10 +259,10 @@ class InitialConditionInterp(nn.Module):
         if latent.shape[2:] == self.dims:
             return latent
         # `mini-batch x channels x [optional depth] x [optional height] x width`.
-        l = F.interpolate(
+        latent = F.interpolate(
             latent, self.dims, mode=self.interpolation, align_corners=False
         )
-        return l.view(self.dims)
+        return latent.view(self.dims)
 
     def forward(self):
         x = self.latent2source(self.latent)
