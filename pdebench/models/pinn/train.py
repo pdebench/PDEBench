@@ -1,7 +1,9 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+
 from __future__ import annotations
 
 import pickle
+from pathlib import Path
 
 import deepxde as dde
 import matplotlib.pyplot as plt
@@ -194,24 +196,25 @@ def setup_pde1D(
     xL=0.0,
     xR=1.0,
     if_periodic_bc=True,
-    aux_params=[0.1],
+    aux_params=None,
 ):
     # TODO: read from dataset config file
+    if aux_params is None:
+        aux_params = [0.1]
     geom = dde.geometry.Interval(xL, xR)
     boundary_r = lambda x, on_boundary: _boundary_r(x, on_boundary, xL, xR)
     if filename[0] == "R":
         timedomain = dde.geometry.TimeDomain(0, 1.0)
         pde = lambda x, y: pde_diffusion_reaction_1d(x, y, aux_params[0], aux_params[1])
-    else:
-        if filename.split("_")[1][0] == "A":
-            timedomain = dde.geometry.TimeDomain(0, 2.0)
-            pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
-        elif filename.split("_")[1][0] == "B":
-            timedomain = dde.geometry.TimeDomain(0, 2.0)
-            pde = lambda x, y: pde_burgers1D(x, y, aux_params[0])
-        elif filename.split("_")[1][0] == "C":
-            timedomain = dde.geometry.TimeDomain(0, 1.0)
-            pde = lambda x, y: pde_CFD1d(x, y, aux_params[0])
+    elif filename.split("_")[1][0] == "A":
+        timedomain = dde.geometry.TimeDomain(0, 2.0)
+        pde = lambda x, y: pde_adv1d(x, y, aux_params[0])
+    elif filename.split("_")[1][0] == "B":
+        timedomain = dde.geometry.TimeDomain(0, 2.0)
+        pde = lambda x, y: pde_burgers1D(x, y, aux_params[0])
+    elif filename.split("_")[1][0] == "C":
+        timedomain = dde.geometry.TimeDomain(0, 1.0)
+        pde = lambda x, y: pde_CFD1d(x, y, aux_params[0])
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
     dataset = PINNDataset1Dpde(
@@ -294,9 +297,11 @@ def setup_CFD2D(
     yL=0.0,
     yR=1.0,
     if_periodic_bc=True,
-    aux_params=[1.6667],
+    aux_params=None,
 ):
     # TODO: read from dataset config file
+    if aux_params is None:
+        aux_params = [1.6667]
     geom = dde.geometry.Rectangle((-1, -1), (1, 1))
     timedomain = dde.geometry.TimeDomain(0.0, 1.0)
     pde = lambda x, y: pde_CFD2d(x, y, aux_params[0])
@@ -320,7 +325,7 @@ def setup_CFD2D(
         initial_input.cpu(), initial_u[..., 3].unsqueeze(1), component=3
     )
     # prepare boundary condition
-    bc = dde.icbc.PeriodicBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+    # bc = dde.icbc.PeriodicBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
     data = dde.data.TimePDE(
         geomtime,
         pde,
@@ -344,9 +349,11 @@ def setup_CFD3D(
     input_ch=2,
     output_ch=4,
     hidden_ch=40,
-    aux_params=[1.6667],
+    aux_params=None,
 ):
     # TODO: read from dataset config file
+    if aux_params is None:
+        aux_params = [1.6667]
     geom = dde.geometry.Cuboid((0.0, 0.0, 0.0), (1.0, 1.0, 1.0))
     timedomain = dde.geometry.TimeDomain(0.0, 1.0)
     pde = lambda x, y: pde_CFD2d(x, y, aux_params[0])
@@ -424,10 +431,7 @@ def _run_training(
             if_periodic_bc=if_periodic_bc,
             aux_params=aux_params,
         )
-        if flnm.split("_")[1][0] == "C":
-            n_components = 3
-        else:
-            n_components = 1
+        n_components = 3 if flnm.split("_")[1][0] == "C" else 1
     elif scenario == "CFD2D":
         model, dataset = setup_CFD2D(
             filename=flnm,
@@ -449,13 +453,11 @@ def _run_training(
         )
         n_components = 5
     else:
-        raise NotImplementedError(f"PINN training not implemented for {scenario}")
+        msg = f"PINN training not implemented for {scenario}"
+        raise NotImplementedError(msg)
 
     # filename
-    if if_single_run:
-        model_name = flnm + "_PINN"
-    else:
-        model_name = flnm[:-5] + "_PINN"
+    model_name = flnm + "_PINN" if if_single_run else flnm[:-5] + "_PINN"
 
     checker = dde.callbacks.ModelCheckpoint(
         f"{model_name}.pt", save_better_only=True, period=5000
@@ -484,8 +486,8 @@ def _run_training(
     if if_single_run:
         errs = metric_func(test_pred, test_gt)
         errors = [np.array(err.cpu()) for err in errs]
-        print(errors)
-        pickle.dump(errors, open(model_name + ".pickle", "wb"))
+        with Path(model_name + ".pickle").open("wb") as f:
+            pickle.dump(errors, f)
 
         # plot sample
         plot_input = dataset.generate_plot_input(time=1.0)
@@ -508,11 +510,11 @@ def _run_training(
             plt.imshow(im_data)
 
         plt.savefig(f"{model_name}.png")
+        return None
 
         # TODO: implement function to get specific timestep from dataset
         # y_true = dataset[:][1][-xdim * ydim :]
-    else:
-        return test_pred, test_gt, model_name
+    return test_pred, test_gt, model_name
 
 
 def run_training(
@@ -526,9 +528,11 @@ def run_training(
     root_path="../data/",
     val_num=10,
     if_periodic_bc=True,
-    aux_params=[None],
+    aux_params=None,
     seed="0000",
 ):
+    if aux_params is None:
+        aux_params = [None]
     if val_num == 1:  # single job
         _run_training(
             scenario,
@@ -570,8 +574,8 @@ def run_training(
 
         errs = metric_func(test_pred, test_gt)
         errors = [np.array(err.cpu()) for err in errs]
-        print(errors)
-        pickle.dump(errors, open(model_name + ".pickle", "wb"))
+        with Path(model_name + ".pickle").open("wb") as f:
+            pickle.dump(errors, f)
 
 
 if __name__ == "__main__":

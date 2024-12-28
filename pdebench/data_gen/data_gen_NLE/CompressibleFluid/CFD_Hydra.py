@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,12 +143,13 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
+import logging
 import sys
 import time
 from functools import partial
-from math import ceil
 
 import hydra
 import jax.numpy as jnp
@@ -165,6 +165,8 @@ from omegaconf import DictConfig
 sys.path.append("..")
 from utils import Courant_HD, Courant_vis_HD, bc_HD, init_HD, limiting_HD, save_data_HD
 
+logger = logging.getLogger(__name__)
+
 
 def _pass(carry):
     return carry
@@ -179,9 +181,6 @@ def main(cfg: DictConfig) -> None:
     gamminv1 = 1.0 / gammi1
     gamgamm1inv = gamma * gamminv1
     gammi1 = gamma - 1.0
-    gampl1 = gamma + 1.0
-    gammi3 = gamma - 3.0
-    gampl3 = gamma + 3.0
 
     visc = cfg.args.zeta + cfg.args.eta / 3.0
 
@@ -190,10 +189,8 @@ def main(cfg: DictConfig) -> None:
 
     dx = (cfg.args.xR - cfg.args.xL) / cfg.args.nx
     dx_inv = 1.0 / dx
-    #
     dy = (cfg.args.yR - cfg.args.yL) / cfg.args.ny
     dy_inv = 1.0 / dy
-    #
     dz = (cfg.args.zR - cfg.args.zL) / cfg.args.nz
     dz_inv = 1.0 / dz
 
@@ -206,10 +203,6 @@ def main(cfg: DictConfig) -> None:
     yc = ye[:-1] + 0.5 * dy
     zc = ze[:-1] + 0.5 * dz
 
-    # t-coordinate
-    it_tot = ceil((cfg.args.fin_time - cfg.args.ini_time) / cfg.args.dt_save) + 1
-    tc = jnp.arange(it_tot + 1) * cfg.args.dt_save
-
     def evolve(Q):
         t = cfg.args.ini_time
         tsave = t
@@ -220,13 +213,13 @@ def main(cfg: DictConfig) -> None:
 
         while t < cfg.args.fin_time:
             if t >= tsave:
-                print(f"save data at t = {t:.3f}")
+                logger.info(f"save data at t = {t:.3f}")
                 save_data_HD(Q[:, 2:-2, 2:-2, 2:-2], xc, yc, zc, i_save, cfg.args.save)
                 tsave += cfg.args.dt_save
                 i_save += 1
 
             if steps % cfg.args.show_steps == 0 and cfg.args.if_show:
-                print(f"now {steps:d}-steps, t = {t:.3f}, dt = {dt:.3f}")
+                logger.info(f"now {steps:d}-steps, t = {t:.3f}, dt = {dt:.3f}")
 
             carry = (Q, t, dt, steps, tsave)
             Q, t, dt, steps, tsave = lax.fori_loop(
@@ -234,7 +227,7 @@ def main(cfg: DictConfig) -> None:
             )
 
         tm_fin = time.time()
-        print(f"total elapsed time is {tm_fin - tm_ini} sec")
+        logger.info(f"total elapsed time is {tm_fin - tm_ini} sec")
         save_data_HD(
             Q[:, 2:-2, 2:-2, 2:-2],
             xc,
@@ -352,12 +345,12 @@ def main(cfg: DictConfig) -> None:
         Q = Q.at[4, 2:-2, 2:-2, 2:-2].set(
             gammi1 * (E0 - 0.5 * (Mx**2 + My**2 + Mz**2) / D0)
         )  # p
-        Q = Q.at[4].set(jnp.where(Q[4] > 1.0e-8, Q[4], cfg.args.p_floor))
-
-        return Q
+        return Q.at[4].set(jnp.where(Q[4] > 1.0e-8, Q[4], cfg.args.p_floor))
 
     @jit
     def update_vis(carry):
+        eta = cfg.args.eta
+
         def _update_vis_x(carry):
             Q, dt = carry
             # calculate conservative variables
@@ -528,26 +521,21 @@ def main(cfg: DictConfig) -> None:
     def flux_x(Q):
         QL, QR = limiting_HD(Q, if_second_order=cfg.args.if_second_order)
         # f_Riemann = HLL(QL, QR, direc=0)
-        f_Riemann = HLLC(QL, QR, direc=0)
-        return f_Riemann
+        return HLLC(QL, QR, direc=0)
 
     @jit
     def flux_y(Q):
         _Q = jnp.transpose(Q, (0, 2, 3, 1))  # (y, z, x)
         QL, QR = limiting_HD(_Q, if_second_order=cfg.args.if_second_order)
         # f_Riemann = jnp.transpose(HLL(QL, QR, direc=1), (0, 3, 1, 2))  # (x,y,z) = (Z,X,Y)
-        f_Riemann = jnp.transpose(
-            HLLC(QL, QR, direc=1), (0, 3, 1, 2)
-        )  # (x,y,z) = (Z,X,Y)
-        return f_Riemann
+        return jnp.transpose(HLLC(QL, QR, direc=1), (0, 3, 1, 2))  # (x,y,z) = (Z,X,Y)
 
     @jit
     def flux_z(Q):
         _Q = jnp.transpose(Q, (0, 3, 1, 2))  # (z, x, y)
         QL, QR = limiting_HD(_Q, if_second_order=cfg.args.if_second_order)
         # f_Riemann = jnp.transpose(HLL(QL, QR, direc=2), (0, 2, 3, 1))
-        f_Riemann = jnp.transpose(HLLC(QL, QR, direc=2), (0, 2, 3, 1))
-        return f_Riemann
+        return jnp.transpose(HLLC(QL, QR, direc=2), (0, 2, 3, 1))
 
     @partial(jit, static_argnums=(2,))
     def HLL(QL, QR, direc):
@@ -601,9 +589,7 @@ def main(cfg: DictConfig) -> None:
 
         # L: left of cell = right-going,  R: right of cell: left-going
         f_Riemann = jnp.where(Sfl > 0.0, fR[:, 1:-2], fHLL)
-        f_Riemann = jnp.where(Sfr < 0.0, fL[:, 2:-1], f_Riemann)
-
-        return f_Riemann
+        return jnp.where(Sfr < 0.0, fL[:, 2:-1], f_Riemann)
 
     @partial(jit, static_argnums=(2,))
     def HLLC(QL, QR, direc):
@@ -692,12 +678,10 @@ def main(cfg: DictConfig) -> None:
         f_Riemann = jnp.where(
             Sfl * Va < 0.0, fal, f_Riemann
         )  # SL < 0 and Va > 0 : sub-sonic
-        f_Riemann = jnp.where(
+        return jnp.where(
             Sfr * Va < 0.0, far, f_Riemann
         )  # Va < 0 and SR > 0 : sub-sonic
         # f_Riemann = jnp.where(Sfr < 0., fL[:, 2:-1], f_Riemann) # SR < 0 : supersonic
-
-        return f_Riemann
 
     Q = jnp.zeros([5, cfg.args.nx + 4, cfg.args.ny + 4, cfg.args.nz + 4])
     Q = init_HD(
@@ -714,7 +698,7 @@ def main(cfg: DictConfig) -> None:
     )
     Q = device_put(Q)  # putting variables in GPU (not necessary??)
     t = evolve(Q)
-    print(f"final time is: {t:.3f}")
+    logger.info(f"final time is: {t:.3f}")
 
 
 if __name__ == "__main__":

@@ -1,14 +1,25 @@
-#!/usr/bin/env python
 from __future__ import annotations
 
+import logging
+import multiprocessing as mp
 import os
+import time
 from copy import deepcopy
+from itertools import repeat
 
 # load environment variables from `.env` file if it exists
 # recursively searches for `.env` in all folders starting from work dir
 # this allows us to keep defaults local to the machine
 # e.g. HPC versus local laptop
 import dotenv
+import h5py
+import hydra
+import numpy as np
+from hydra.utils import get_original_cwd
+from omegaconf import DictConfig, OmegaConf
+from pdebench.data_gen.src import utils
+from pdebench.data_gen.src.sim_radial_dam_break import RadialDamBreak2D
+from pdebench.data_gen.uploader import dataverse_upload
 
 dotenv.load_dotenv()
 
@@ -22,19 +33,6 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = num_threads
 os.environ["NUMEXPR_NUM_THREADS"] = num_threads
 os.environ["NUMEXPR_MAX_THREADS"] = num_threads
 
-import logging
-import multiprocessing as mp
-import time
-from itertools import repeat
-
-import h5py
-import hydra
-import numpy as np
-from hydra.utils import get_original_cwd
-from omegaconf import DictConfig, OmegaConf
-from pdebench.data_gen.src import utils
-from pdebench.data_gen.src.sim_radial_dam_break import RadialDamBreak2D
-from pdebench.data_gen.uploader import dataverse_upload
 
 log = logging.getLogger(__name__)
 
@@ -42,11 +40,11 @@ log = logging.getLogger(__name__)
 def simulator(base_config, i):
     config = deepcopy(base_config)
     config.sim.seed = i
-    log.info(f"Starting seed {i}")
+    log.info("Starting seed %d", i)
 
-    np.random.seed(config.sim.seed)
+    rng = np.random.default_rng(config.sim.seed)
     # config.sim.inner_height = np.random.uniform(1.5, 2.5)
-    config.sim.dam_radius = np.random.uniform(0.3, 0.7)
+    config.sim.dam_radius = rng.uniform(0.3, 0.7)
 
     scenario = RadialDamBreak2D(
         grav=config.sim.gravity,
@@ -59,7 +57,7 @@ def simulator(base_config, i):
     scenario.run(T=config.sim.T_end, tsteps=config.sim.n_time_steps, plot=False)
     duration = time.time() - start_time
     seed_str = str(i).zfill(4)
-    log.info(f"Seed {seed_str} took {duration} to finish")
+    log.info("Seed %s took %s to finish", seed_str, duration)
 
     while True:
         try:
@@ -95,18 +93,19 @@ def main(config: DictConfig):
 
     # Change to original working directory to import modules
     import os
+    from pathlib import Path
 
-    temp_path = os.getcwd()
+    temp_path = Path.cwd()
     os.chdir(get_original_cwd())
 
     # Change back to the hydra working directory
     os.chdir(temp_path)
 
-    work_path = os.path.dirname(config.work_dir)
-    output_path = os.path.join(work_path, config.data_dir, config.output_path)
-    if not os.path.isdir(output_path):
-        os.makedirs(output_path)
-    config.output_path = os.path.join(output_path, config.output_path) + ".h5"
+    work_path = Path(config.work_dir)
+    output_path = work_path / config.data_dir / config.output_path
+    if not output_path.is_dir():
+        output_path.mkdir(parents=True)
+    config.output_path = output_path / config.output_path.with_suffix(".h5")
 
     num_samples_init = 0
     num_samples_final = 10000

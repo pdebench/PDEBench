@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import pickle
-from timeit import default_timer
 from pathlib import Path
 
 import numpy as np
 import torch
-
 from pdebench.models.fno.fno import FNO1d, FNO2d, FNO3d
 from pdebench.models.fno.utils import FNODatasetMult, FNODatasetSingle
 from pdebench.models.metrics import metrics
@@ -15,6 +13,7 @@ from torch import nn
 # torch.manual_seed(0)
 # np.random.seed(0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def run_training(
     if_training,
@@ -86,16 +85,10 @@ def run_training(
         # print("FNODatasetMult")
         train_data = FNODatasetMult(
             flnm,
-            reduced_resolution=reduced_resolution,
-            reduced_resolution_t=reduced_resolution_t,
-            reduced_batch=reduced_batch,
             saved_folder=base_path,
         )
         val_data = FNODatasetMult(
             flnm,
-            reduced_resolution=reduced_resolution,
-            reduced_resolution_t=reduced_resolution_t,
-            reduced_batch=reduced_batch,
             if_test=True,
             saved_folder=base_path,
         )
@@ -140,8 +133,7 @@ def run_training(
         ).to(device)
 
     # Set maximum time step of the data to train
-    if t_train > _data.shape[-2]:
-        t_train = _data.shape[-2]
+    t_train = min(t_train, _data.shape[-2])
 
     model_path = model_name + ".pt"
 
@@ -156,7 +148,7 @@ def run_training(
     )
 
     loss_fn = nn.MSELoss(reduction="mean")
-    loss_val_min = np.infty
+    loss_val_min = np.inf
 
     start_epoch = 0
 
@@ -218,9 +210,9 @@ def run_training(
             # xx: input tensor (first few time steps) [b, x1, ..., xd, t_init, v]
             # yy: target tensor [b, x1, ..., xd, t, v]
             # grid: meshgrid [b, x1, ..., xd, dims]
-            xx = xx.to(device)
-            yy = yy.to(device)
-            grid = grid.to(device)
+            xx = xx.to(device)  # noqa: PLW2901
+            yy = yy.to(device)  # noqa: PLW2901
+            grid = grid.to(device)  # noqa: PLW2901
 
             # Initialize the prediction tensor
             pred = yy[..., :initial_step, :]
@@ -252,7 +244,7 @@ def run_training(
 
                     # Concatenate the prediction at the current time step to be used
                     # as input for the next time step
-                    xx = torch.cat((xx[..., 1:, :], im), dim=-2)
+                    xx = torch.cat((xx[..., 1:, :], im), dim=-2)  # noqa: PLW2901
 
                 train_l2_step += loss.item()
                 _batch = yy.size(0)
@@ -284,9 +276,9 @@ def run_training(
             with torch.no_grad():
                 for xx, yy, grid in val_loader:
                     loss = 0
-                    xx = xx.to(device)
-                    yy = yy.to(device)
-                    grid = grid.to(device)
+                    xx = xx.to(device)  # noqa: PLW2901
+                    yy = yy.to(device)  # noqa: PLW2901
+                    grid = grid.to(device)  # noqa: PLW2901
 
                     if training_type in ["autoregressive"]:
                         pred = yy[..., :initial_step, :]
@@ -305,7 +297,7 @@ def run_training(
 
                             pred = torch.cat((pred, im), -2)
 
-                            xx = torch.cat((xx[..., 1:, :], im), dim=-2)
+                            xx = torch.cat((xx[..., 1:, :], im), dim=-2)  # noqa: PLW2901
 
                         val_l2_step += loss.item()
                         _batch = yy.size(0)

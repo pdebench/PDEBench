@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import glob
 import os
 from pathlib import Path
 from pprint import pprint
@@ -8,7 +7,7 @@ from pprint import pprint
 from omegaconf import DictConfig, OmegaConf
 
 
-def expand_path(path, unique=True):
+def expand_path(path):
     """
     Resolve a path that may contain variables and user home directory references.
     """
@@ -20,7 +19,7 @@ def matching_paths(glob_exp):
     return a list of paths matching a glob expression
     """
     path = os.path.expandvars(Path(glob_exp).expanduser())
-    return glob.glob(path)
+    return list(Path(path).glob("*"))
 
 
 def resolve_path(path, idx=None, unique=True):
@@ -42,7 +41,7 @@ def resolve_path(path, idx=None, unique=True):
         return matches[idx]
     except IndexError:
         idxerrmsg = f"No matches for glob: {path}"
-        raise FileNotFoundError(idxerrmsg)
+        raise FileNotFoundError(idxerrmsg) from None
 
 
 def print_config(
@@ -52,4 +51,4 @@ def print_config(
     """
     basic pretty-printer for omegaconf configs
     """
-    pprint(OmegaConf.to_yaml(config, resolve=resolve))
+    pprint(OmegaConf.to_yaml(config, resolve=resolve))  # noqa: T203

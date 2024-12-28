@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from __future__ import annotations
 
 import math as mt
@@ -52,8 +51,7 @@ def init_multi(
 
     def select_A(carry):
         def _func(carry):
-            carry = jnp.abs(carry)
-            return carry
+            return jnp.abs(carry)
 
         cond, value = carry
         value = lax.cond(cond == 1, _func, _pass, value)
@@ -79,7 +77,7 @@ def init_multi(
             return u
 
         cond, u = carry
-        u = lax.cond(cond == True, _norm, _pass, u)
+        u = lax.cond(cond is True, _norm, _pass, u)
         return cond, u
 
     key = random.PRNGKey(init_key)
@@ -182,9 +180,7 @@ def init_multi_2DRand(xc, yc, numbers=10000, init_key=2022, k_tot=4, duMx=1.0e1)
                 u += uk * jnp.sin(kdx + phs)
 
         # renormalize total velocity
-        u = u0 + delu * u / jnp.abs(u).mean()
-
-        return u
+        return u0 + delu * u / jnp.abs(u).mean()
 
     key = random.PRNGKey(init_key)
     u0 = random.uniform(key, shape=([numbers, 1]), minval=1.0e-1, maxval=duMx)
@@ -208,9 +204,7 @@ def init_multi_2DRand(xc, yc, numbers=10000, init_key=2022, k_tot=4, duMx=1.0e1)
     cond, mask, _xc, xL, xR, trns = vmap(select_W, 0, 0)(carry)
 
     u = u * mask
-    u = u + u0[:, :, None] * (1.0 - mask)
-
-    return u
+    return u + u0[:, :, None] * (1.0 - mask)
 
 
 def init_HD(
@@ -230,7 +224,6 @@ def init_HD(
     :param mode: initial condition
     :return: 1D scalar function u at cell center
     """
-    print(mode)
     modes = [
         "shocktube0",
         "shocktube1",
@@ -647,8 +640,7 @@ def init_multi_HD(
 
     def select_A(carry):
         def _func(carry):
-            carry = jnp.abs(carry)
-            return carry
+            return jnp.abs(carry)
 
         cond, value = carry
         value = lax.cond(cond == 1, _func, _pass, value)
@@ -686,10 +678,10 @@ def init_multi_HD(
 
         cond, u, key = carry
         carry = u, key
-        u, key = lax.cond(cond == True, _norm, _pass, carry)
+        u, key = lax.cond(cond is True, _norm, _pass, carry)
         return cond, u, key
 
-    assert yc.shape[0] == 1 and zc.shape[0] == 1, "ny and nz is assumed to be 1!!"
+    assert yc.shape[0] == 1 and zc.shape[0] == 1, "ny and nz is assumed to be 1!!"  # noqa: PT018
     assert numbers % jax.device_count() == 0, "numbers should be : GPUs x integer!!"
 
     key = random.PRNGKey(init_key)
@@ -743,7 +735,7 @@ def init_multi_HD_shock(
     :param mode: initial condition
     :return: 1D scalar function u at cell center
     """
-    assert yc.shape[0] == 1 and zc.shape[0] == 1, "ny and nz is assumed to be 1!!"
+    assert yc.shape[0] == 1 and zc.shape[0] == 1, "ny and nz is assumed to be 1!!"  # noqa: PT018
     assert numbers % jax.device_count() == 0, "numbers should be : GPUs x integer!!"
 
     def select_var(carry):
@@ -830,8 +822,7 @@ def init_multi_HD_KH(
         u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
         u = u.loc[2].set(0.0)
         u = u.loc[3].add(0.0)
-        u = u.loc[4].add(p0)
-        return u
+        return u.loc[4].add(p0)
 
     # create random density ratio
     key = random.PRNGKey(init_key)
@@ -839,10 +830,7 @@ def init_multi_HD_KH(
     # create random wave-numbers
     key, subkey = random.split(key)
     kk = random.randint(key, shape=([numbers, 1]), minval=1, maxval=kmax)
-    print("vmap...")
-    u = jax.vmap(__create_KH_init, axis_name="i")(u, dk, kk)
-
-    return u
+    return jax.vmap(__create_KH_init, axis_name="i")(u, dk, kk)
 
 
 # @partial(jit, static_argnums=(4, 5, 6, 7, 8))
@@ -931,8 +919,7 @@ def init_multi_HD_2DTurb(
         u = u.loc[0].set(d0)
         u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
         u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
-        u = u.loc[4].add(p0)
-        return u
+        return u.loc[4].add(p0)
 
     key = random.PRNGKey(init_key)
     keys = random.randint(
@@ -943,9 +930,7 @@ def init_multi_HD_2DTurb(
         minval=0,
         maxval=10000000,
     )
-    u = jax.vmap(__create_2DTurb_init, axis_name="i")(u, keys)
-
-    return u
+    return jax.vmap(__create_2DTurb_init, axis_name="i")(u, keys)
 
 
 def init_multi_HD_2DRand(
@@ -1042,8 +1027,7 @@ def init_multi_HD_2DRand(
         u = u.loc[0, 2:-2, 2:-2, 2:-2].set(d)
         u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
         u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
-        u = u.loc[4, 2:-2, 2:-2, 2:-2].set(p)
-        return u
+        return u.loc[4, 2:-2, 2:-2, 2:-2].set(p)
 
     key = random.PRNGKey(init_key)
     d0 = random.uniform(key, shape=([numbers, 1]), minval=1.0e-1, maxval=dMx)
@@ -1088,11 +1072,9 @@ def init_multi_HD_2DRand(
     u = u.loc[:, 0, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * (1.0 - mask[:, :, :, None])
     )
-    u = u.loc[:, 4, 2:-2, 2:-2, 2:-2].add(
+    return u.loc[:, 4, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * T0[:, :, None, None] * (1.0 - mask[:, :, :, None])
     )
-
-    return u
 
 
 def init_multi_HD_3DTurb(
@@ -1203,8 +1185,7 @@ def init_multi_HD_3DTurb(
         u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
         u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
         u = u.loc[3, 2:-2, 2:-2, 2:-2].set(vz)
-        u = u.loc[4].add(p0)
-        return u
+        return u.loc[4].add(p0)
 
     key = random.PRNGKey(init_key)
     keys = random.randint(
@@ -1215,9 +1196,7 @@ def init_multi_HD_3DTurb(
         minval=0,
         maxval=10000000,
     )
-    u = jax.vmap(__create_3DTurb_init, axis_name="i")(u, keys)
-
-    return u
+    return jax.vmap(__create_3DTurb_init, axis_name="i")(u, keys)
 
 
 def init_multi_HD_3DRand(
@@ -1329,8 +1308,7 @@ def init_multi_HD_3DRand(
         u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
         u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
         u = u.loc[3, 2:-2, 2:-2, 2:-2].set(vz)
-        u = u.loc[4, 2:-2, 2:-2, 2:-2].set(p)
-        return u
+        return u.loc[4, 2:-2, 2:-2, 2:-2].set(p)
 
     key = random.PRNGKey(init_key)
     d0 = random.uniform(key, shape=([numbers, 1]), minval=1.0e-1, maxval=dMx)
@@ -1379,11 +1357,9 @@ def init_multi_HD_3DRand(
     u = u.loc[:, 0, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * (1.0 - mask[:, :, :, :])
     )
-    u = u.loc[:, 4, 2:-2, 2:-2, 2:-2].add(
+    return u.loc[:, 4, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * T0[:, :, None, None] * (1.0 - mask[:, :, :, :])
     )
-
-    return u
 
 
 def bc(u, dx, Ncell, mode="periodic"):
@@ -1578,10 +1554,8 @@ def limiting_HD(u, if_second_order):
 def save_data(u, xc, i_save, save_dir, dt_save=None, if_final=False):
     if if_final:
         jnp.save(save_dir + "/x_coordinate", xc)
-        #
         tc = jnp.arange(i_save + 1) * dt_save
         jnp.save(save_dir + "/t_coordinate", tc)
-        #
         flnm = save_dir + "/Data_" + str(i_save).zfill(4)
         jnp.save(flnm, u)
     else:
@@ -1594,10 +1568,8 @@ def save_data_HD(u, xc, yc, zc, i_save, save_dir, dt_save=None, if_final=False):
         jnp.save(save_dir + "/x_coordinate", xc)
         jnp.save(save_dir + "/y_coordinate", yc)
         jnp.save(save_dir + "/z_coordinate", zc)
-        #
         tc = jnp.arange(i_save + 1) * dt_save
         jnp.save(save_dir + "/t_coordinate", tc)
-        #
         flnm = save_dir + "/Data_" + str(i_save).zfill(4)
         jnp.save(flnm, u)
     else:
@@ -1606,13 +1578,11 @@ def save_data_HD(u, xc, yc, zc, i_save, save_dir, dt_save=None, if_final=False):
 
 
 def Courant(u, dx):
-    stability_adv = dx / (jnp.max(jnp.abs(u)) + 1.0e-8)
-    return stability_adv
+    return dx / (jnp.max(jnp.abs(u)) + 1.0e-8)
 
 
 def Courant_diff(dx, epsilon=1.0e-3):
-    stability_dif = 0.5 * dx**2 / (epsilon + 1.0e-8)
-    return stability_dif
+    return 0.5 * dx**2 / (epsilon + 1.0e-8)
 
 
 def Courant_diff_2D(dx, dy, epsilon=1.0e-3):
@@ -1626,10 +1596,7 @@ def Courant_HD(u, dx, dy, dz, gamma):
     stability_adv_x = dx / (jnp.max(cs + jnp.abs(u[1])) + 1.0e-8)
     stability_adv_y = dy / (jnp.max(cs + jnp.abs(u[2])) + 1.0e-8)
     stability_adv_z = dz / (jnp.max(cs + jnp.abs(u[3])) + 1.0e-8)
-    stability_adv = jnp.min(
-        jnp.array([stability_adv_x, stability_adv_y, stability_adv_z])
-    )
-    return stability_adv
+    return jnp.min(jnp.array([stability_adv_x, stability_adv_y, stability_adv_z]))
 
 
 def Courant_vis_HD(dx, dy, dz, eta, zeta):
@@ -1638,7 +1605,4 @@ def Courant_vis_HD(dx, dy, dz, eta, zeta):
     stability_dif_x = 0.5 * dx**2 / (visc + 1.0e-8)
     stability_dif_y = 0.5 * dy**2 / (visc + 1.0e-8)
     stability_dif_z = 0.5 * dz**2 / (visc + 1.0e-8)
-    stability_dif = jnp.min(
-        jnp.array([stability_dif_x, stability_dif_y, stability_dif_z])
-    )
-    return stability_dif
+    return jnp.min(jnp.array([stability_dif_x, stability_dif_y, stability_dif_z]))

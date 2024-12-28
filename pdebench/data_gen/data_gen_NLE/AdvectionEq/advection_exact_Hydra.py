@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,8 +143,10 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
+import logging
 import time
 from math import ceil
 
@@ -157,11 +158,13 @@ from jax import device_put
 # Hydra
 from omegaconf import DictConfig
 
+logger = logging.getLogger(__name__)
+
 
 # Init arguments with Hydra
 @hydra.main(config_path="config")
 def main(cfg: DictConfig) -> None:
-    print(f"advection velocity: {cfg.args.beta}")
+    logger.info("advection velocity: %f", cfg.args.beta)
 
     # cell edge coordinate
     xe = jnp.linspace(cfg.args.xL, cfg.args.xR, cfg.args.nx + 1)
@@ -181,14 +184,14 @@ def main(cfg: DictConfig) -> None:
         uu = uu.at[0].set(u)
 
         while t < cfg.args.fin_time:
-            print(f"save data at t = {t:.3f}")
+            logger.info("save data at t = %f", t)
             u = set_function(xc, t, cfg.args.beta)
             uu = uu.at[i_save].set(u)
             t += cfg.args.dt_save
             i_save += 1
 
         tm_fin = time.time()
-        print(f"total elapsed time is {tm_fin - tm_ini} sec")
+        logger.info("total elapsed time is %f sec", tm_fin - tm_ini)
         uu = uu.at[-1].set(u)
         return uu, t
 
@@ -199,9 +202,9 @@ def main(cfg: DictConfig) -> None:
     u = set_function(xc, t=0, beta=cfg.args.beta)
     u = device_put(u)  # putting variables in GPU (not necessary??)
     uu, t = evolve(u)
-    print(f"final time is: {t:.3f}")
+    logger.info("final time is: %f", t)
 
-    print("data saving...")
+    logger.info("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     jnp.save(cwd + cfg.args.save + "/Advection_beta" + str(cfg.args.beta), uu)
     jnp.save(cwd + cfg.args.save + "/x_coordinate", xe)

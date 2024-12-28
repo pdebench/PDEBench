@@ -14,8 +14,7 @@ from torch import nn
 
 # torch.manual_seed(0)
 # np.random.seed(0)
-logging.basicConfig(level=logging.INFO, filename=__name__)
-logging.root.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -54,7 +53,7 @@ def run_training(
     training_type="autoregressive",
 ):
     msg = f"Epochs = {epochs}, learning rate = {learning_rate}, scheduler step = {scheduler_step}, scheduler gamma = {scheduler_gamma}"
-    logging.info(msg)
+    logger.info(msg)
 
     ################################################################
     # load data
@@ -118,7 +117,7 @@ def run_training(
     _, _data = next(iter(val_loader))
     dimensions = len(_data.shape)
     msg = f"Spatial Dimension: {dimensions - 3}"
-    logging.info(msg)
+    logger.info(msg)
     if training_type in ["autoregressive"]:
         if dimensions == 4:
             model = UNet1d(in_channels * initial_step, out_channels).to(device)
@@ -154,7 +153,7 @@ def run_training(
 
     total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     msg = f"Total parameters = {total_params}"
-    logging.info(msg)
+    logger.info(msg)
 
     optimizer = torch.optim.Adam(
         model.parameters(), lr=learning_rate, weight_decay=1e-4
@@ -200,7 +199,7 @@ def run_training(
     # file
     if continue_training:
         msg = "Restoring model (that is the network's weights) from file..."
-        logging.info(msg)
+        logger.info(msg)
         checkpoint = torch.load(model_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
         model.to(device)
@@ -217,7 +216,7 @@ def run_training(
         loss_val_min = checkpoint["loss"]
 
     msg = "start training..."
-    logging.info(msg)
+    logger.info(msg)
 
     if ar_mode:
         for ep in range(start_epoch, epochs):
@@ -396,7 +395,7 @@ def run_training(
             t2 = default_timer()
             scheduler.step()
             msg = f"epoch: {ep}, loss: {loss.item():.5f}, t2-t1: {t2 - t1:.5f}, trainL2: {train_l2_step:.5f}, testL2: {val_l2_step:.5f}"
-            logging.info(msg)
+            logger.info(msg)
 
     else:
         for ep in range(start_epoch, epochs):
@@ -519,10 +518,10 @@ def run_training(
             t2 = default_timer()
             scheduler.step()
             msg = f"epoch: {ep}, loss: {loss.item():.5f}, t2-t1: {t2 - t1:.5f}, trainL2: {train_l2_step:.5f}, testL2: {val_l2_step:.5f}"
-            logging.info(msg)
+            logger.info(msg)
 
 
 if __name__ == "__main__":
     run_training()
     msg = "Done."
-    logging.info(msg)
+    logger.info(msg)

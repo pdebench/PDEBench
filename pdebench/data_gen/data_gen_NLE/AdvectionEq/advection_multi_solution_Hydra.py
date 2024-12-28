@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,21 +143,28 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
 import random
+import sys
+
+# Hydra
+from math import ceil, exp, log
 from pathlib import Path
 
 import hydra
 import jax
 import jax.numpy as jnp
 from jax import device_put, lax
-
-# Hydra
 from omegaconf import DictConfig
 
 sys.path.append("..")
+import logging
+
 from utils import Courant, bc, init_multi, limiting
+
+logger = logging.getLogger(__name__)
 
 
 def _pass(carry):
@@ -192,7 +198,7 @@ def main(cfg: DictConfig) -> None:
     else:
         beta = cfg.multi.beta
 
-    print("beta: ", beta)
+    logger.info("beta: %f", beta)
 
     @jax.jit
     def evolve(u):
@@ -204,7 +210,8 @@ def main(cfg: DictConfig) -> None:
         uu = jnp.zeros([it_tot, u.shape[0]])
         uu = uu.at[0].set(u)
 
-        cond_fun = lambda x: x[0] < fin_time
+        def cond_fun(x):
+            return x[0] < fin_time
 
         def _body_fun(carry):
             def _show(_carry):
@@ -226,9 +233,7 @@ def main(cfg: DictConfig) -> None:
 
         carry = t, tsave, steps, i_save, dt, u, uu
         t, tsave, steps, i_save, dt, u, uu = lax.while_loop(cond_fun, _body_fun, carry)
-        uu = uu.at[-1].set(u)
-
-        return uu
+        return uu.at[-1].set(u)
 
     @jax.jit
     def simulation_fn(i, carry):
@@ -265,12 +270,11 @@ def main(cfg: DictConfig) -> None:
         fL = uL * beta
         fR = uR * beta
         # upwind advection scheme
-        f_upwd = 0.5 * (
+        return 0.5 * (
             fR[1 : cfg.multi.nx + 2]
             + fL[2 : cfg.multi.nx + 3]
             - jnp.abs(beta) * (uL[2 : cfg.multi.nx + 3] - uR[1 : cfg.multi.nx + 2])
         )
-        return f_upwd
 
     u = init_multi(xc, numbers=cfg.multi.numbers, k_tot=4, init_key=cfg.multi.init_key)
     u = device_put(u)  # putting variables in GPU (not necessary??)
@@ -285,7 +289,7 @@ def main(cfg: DictConfig) -> None:
     # reshape before saving
     uu = uu.reshape((-1, *uu.shape[2:]))
 
-    print("data saving...")
+    logger.info("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     Path(cwd + cfg.multi.save).mkdir(parents=True, exist_ok=True)
     jnp.save(cwd + cfg.multi.save + "1D_Advection_Sols_beta" + str(beta)[:5], uu)

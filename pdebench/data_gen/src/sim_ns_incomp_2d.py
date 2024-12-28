@@ -2,6 +2,7 @@
 Author : John Kim, Ran Zhang, Dan MacKinlay
 PDE Simulation packages
 """
+
 from __future__ import annotations
 
 import logging
@@ -14,9 +15,7 @@ import numpy as np
 from pdebench.data_gen.src import data_io
 from tqdm import tqdm
 
-logging.basicConfig(level=logging.INFO, filename=__name__)
-logging.root.setLevel(logging.INFO)
-
+logger = logging.getLogger(__name__)
 
 # import wandb
 
@@ -297,7 +296,7 @@ def ns_sim(
             if step % frame_int == 0:
                 frame_i = step // frame_int
                 msg = f"step {step} frame_i {frame_i}"
-                logging.info(msg)
+                logger.info(msg)
                 call_many(
                     callbacks,
                     frame_i=frame_i,

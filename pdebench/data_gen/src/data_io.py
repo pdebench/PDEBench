@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import json
 import logging
-import os
-import os.path
 import subprocess
 
 import h5py
 import numpy as np
 from omegaconf import OmegaConf
 from phi.field import Field
-from phi.flow import *
+from phi.flow import CenteredGrid
 from phi.math import Shape
 
 log = logging.getLogger(__name__)
@@ -21,26 +19,26 @@ def dims_for(n_steps=1000, grid_size=(100, 100), frame_int=1, n_batch=1, **kwarg
     return a dict of fields and their shapes
     """
     n_frames = ((n_steps - 1) // frame_int) + 1
-    return dict(
-        velocity=(n_batch, n_frames, *grid_size, len(grid_size)),
-        particles=(n_batch, n_frames, *grid_size, 1),
-        force=(n_batch, *grid_size, len(grid_size)),
-        t=(n_batch, n_frames),
-    )
+    return {
+        "velocity": (n_batch, n_frames, *grid_size, len(grid_size)),
+        "particles": (n_batch, n_frames, *grid_size, 1),
+        "force": (n_batch, *grid_size, len(grid_size)),
+        "t": (n_batch, n_frames),
+    }
 
 
 def dict_for(config):
     spec = dims_for(**config)
-    data_store = dict(latest_index=-1, config=config)
+    data_store = {"latest_index": -1, "config": config}
     for field_name, full_shape in spec.items():
         data_store[field_name] = np.ndarray(full_shape, dtype="float32")
     return data_store
 
 
 def h5_for(config):
-    log.info(f"config: {config}")
+    log.info("config: %s", config)
     spec = dims_for(**config)
-    log.info(f"spec: {spec}")
+    log.info("spec: %s", spec)
     fname = f"{config['sim_name']}-{config['seed']}.h5"
     data_store = h5py.File(fname, "a")
     data_store.attrs["config"] = OmegaConf.to_yaml(config)
@@ -48,7 +46,7 @@ def h5_for(config):
     for field_name, full_shape in spec.items():
         # dataset shape is (batch, t_length, x1, ..., xd, v)
         chunk_shape = (1, 1, *full_shape[2:])  # chunk shape in (1, 1, x1, ..., xd, v)
-        # Open a dataset, creating it if it doesn’t exist.
+        # Open a dataset, creating it if it doesn't exist.
         data_store.require_dataset(
             field_name,
             full_shape,
@@ -87,8 +85,7 @@ def to_ndarray(field: Field) -> np.ndarray:
     """
     centered = to_centre_grid(field)
     order = _get_dim_order(centered.shape)
-    ndarray = centered.values.numpy(order=order)
-    return ndarray
+    return centered.values.numpy(order=order)
 
 
 def dataverse_upload(
@@ -119,6 +116,8 @@ def dataverse_upload(
         "--retry",
         str(retry),
     ]
-    log.info(f"upload cmd {cmd}")
+    log.info("upload cmd %s", cmd)
     subprocess.Popen(cmd)
-    log.info(f"upload cmd {os.getcwd()}$ {' '.join(cmd)}")
+    from pathlib import Path
+
+    log.info("upload cmd %s$ %s", Path.cwd(), " ".join(cmd))

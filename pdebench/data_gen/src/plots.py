@@ -2,8 +2,10 @@
 Author : John Kim, Simon Brown, Timothy Praditia
 PDE Simulation packages
 """
+
 from __future__ import annotations
 
+import h5py
 import imageio
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,7 +19,8 @@ def plot_data(data, t, dim, channel, t_fraction, config, filename):
     plt.figure()
     plt.title(f"$t={t[t_idx]}$")
     if dim == 1:
-        x = np.array(h5_file["grid"]["x"], dtype="f")
+        with h5py.File(config.data_path, "r") as h5_file:
+            x = np.array(h5_file["grid"]["x"], dtype="f")
         plt.plot(x.squeeze(), data[t_idx, ..., channel])
         plt.xlabel("$x$")
     else:
@@ -56,12 +59,9 @@ def phi_plots(
     """
     images = []
     upperfilepath = filepath
-    for i, arr in enumerate(T_results):
+    for i, _ in enumerate(T_results):
         filename = f"{title}.png"
-        if upperfilepath == "":
-            filepath = filename
-        else:
-            filepath = upperfilepath + f"/{filename}"
+        filepath = filename if upperfilepath == "" else upperfilepath + f"/{filename}"
         save_phi_plot(
             scale * results[i],
             title,
@@ -74,7 +74,6 @@ def phi_plots(
 
 
 def save_sim_figures(
-    results,
     T_results,
     simulation_name,
     kinematic_value,
@@ -88,14 +87,11 @@ def save_sim_figures(
     """
     images = []
     upperfilepath = filepath
-    for i, arr in enumerate(T_results):
+    for _, arr in enumerate(T_results):
         res = arr[0]
-        title = f"{simulation_name}_{kinematic_value}_t={round(T_results[i], 2)}"
+        title = f"{simulation_name}_{kinematic_value}_t={round(arr, 2)}"
         filename = f"{title}.png"
-        if upperfilepath == "":
-            filepath = filename
-        else:
-            filepath = upperfilepath + f"/{filename}"
+        filepath = filename if upperfilepath == "" else upperfilepath + f"/{filename}"
         save_phi_plot(
             scale * res, title, filepath, bbox_inches=bbox_inches, pad_inches=pad_inches
         )

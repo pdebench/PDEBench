@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import logging
-import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import numpy as np
 import torch
 from clawpack import pyclaw, riemann
 
-logging.basicConfig(level=logging.INFO, filename=__name__)
-logging.root.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class Basic2DScenario(ABC):
@@ -29,7 +28,7 @@ class Basic2DScenario(ABC):
         self.set_boundary_conditions()
         self.set_initial_conditions()
         self.register_state_getters()
-        self.outdir = os.sep.join(["./", self.name.replace(" ", "") + "2D"])
+        self.outdir = Path.cwd() / (self.name.replace(" ", "") + "2D")
 
     @abstractmethod
     def setup_solver(self):
@@ -103,7 +102,7 @@ class Basic2DScenario(ABC):
             self.solver.evolve_to_time(self.solution, t)
         else:
             msg = "Simulate failed: No scenario defined."
-            logging.info(msg)
+            logger.info(msg)
 
     def run(self, T: float = 1.0, tsteps: int = 20) -> None:
         self.init_save_state(T, tsteps)

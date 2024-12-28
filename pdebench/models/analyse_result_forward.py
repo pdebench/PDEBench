@@ -144,11 +144,12 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
-import glob
-
 import _pickle as cPickle
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -156,7 +157,7 @@ import pandas as pd
 
 def main():
     # get results
-    files = glob.glob("./*pickle")
+    files = list(Path().glob("*.pickle"))
     files.sort()
 
     # metric names
@@ -173,10 +174,9 @@ def main():
 
     # define index
     index1, index2, index3 = [], [], []
-    for j, fl in enumerate(files):
-        with open(fl, "rb") as f:
+    for _j, fl in enumerate(files):
+        with Path(fl).open("rb") as f:
             title = fl.split("\\")[-1][:-7].split("_")
-            print(title)
             if title[0] == "1D":
                 if title[1] == "CFD":
                     index1.append(title[0] + title[1])
@@ -212,7 +212,7 @@ def main():
     # create dataframe
     data = np.zeros([len(files), 8])
     for j, fl in enumerate(files):
-        with open(fl, "rb") as f:
+        with Path(fl).open("rb") as f:
             test = cPickle.load(f)
             for i, var in enumerate(test):
                 if i == 5:
@@ -230,10 +230,7 @@ def main():
     num_models = len(models)
     x = np.arange(num_pdes)
 
-    if num_models == 1:
-        width = 0.5
-    else:
-        width = 0.5 / (num_models - 1)
+    width = 0.5 if num_models == 1 else 0.5 / (num_models - 1)
 
     fig, ax = plt.subplots(figsize=(8, 6))
     for i in range(num_models):
@@ -253,4 +250,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("Done.")

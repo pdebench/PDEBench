@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
        <NAME OF THE PROGRAM THIS FILE BELONGS TO>
 
@@ -144,8 +143,10 @@ arrangements between the parties relating hereto.
 
        THIS HEADER MAY NOT BE EXTRACTED OR MODIFIED IN ANY WAY.
 """
+
 from __future__ import annotations
 
+import logging
 import random
 import sys
 from math import ceil, exp, log
@@ -161,6 +162,8 @@ from omegaconf import DictConfig
 
 sys.path.append("..")
 from utils import Courant, Courant_diff, bc, init_multi, limiting
+
+logger = logging.getLogger(__name__)
 
 
 def _pass(carry):
@@ -191,7 +194,7 @@ def main(cfg: DictConfig) -> None:
         )  # uniform number between 0.01 to 100
     else:
         epsilon = cfg.multi.epsilon
-    print("epsilon: ", epsilon)
+    logger.info("epsilon: %f", epsilon)
     # t-coordinate
     it_tot = ceil((fin_time - ini_time) / dt_save) + 1
     tc = jnp.arange(it_tot + 1) * dt_save
@@ -206,7 +209,8 @@ def main(cfg: DictConfig) -> None:
         uu = jnp.zeros([it_tot, u.shape[0]])
         uu = uu.at[0].set(u)
 
-        cond_fun = lambda x: x[0] < fin_time
+        def cond_fun(x):
+            return x[0] < fin_time
 
         def _body_fun(carry):
             def _show(_carry):
@@ -228,9 +232,7 @@ def main(cfg: DictConfig) -> None:
 
         carry = t, tsave, steps, i_save, dt, u, uu
         t, tsave, steps, i_save, dt, u, uu = lax.while_loop(cond_fun, _body_fun, carry)
-        uu = uu.at[-1].set(u)
-
-        return uu
+        return uu.at[-1].set(u)
 
     @jax.jit
     def simulation_fn(i, carry):
@@ -301,7 +303,7 @@ def main(cfg: DictConfig) -> None:
     # reshape before saving
     uu = uu.reshape((-1, *uu.shape[2:]))
 
-    print("data saving...")
+    logger.info("data saving...")
     cwd = hydra.utils.get_original_cwd() + "/"
     Path(cwd + cfg.multi.save).mkdir(parents=True, exist_ok=True)
     jnp.save(cwd + cfg.multi.save + "1D_Burgers_Sols_Nu" + str(epsilon)[:5], uu)

@@ -98,7 +98,7 @@ class Simulator:
 
         return np.expand_dims(sample_c, axis=-1)
 
-    def rc_ode(self, t: float, y):
+    def rc_ode(self, t: float, y):  # noqa: ARG002
         """
         Solves a given equation for a particular time step.
         :param t: The current time step

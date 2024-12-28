@@ -3,9 +3,10 @@ Created on Wed Apr 20 09:43:15 2022
 
 @author: timot
 """
+
 from __future__ import annotations
 
-import os
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -23,8 +24,8 @@ class PINNDataset1D(Dataset):
         self.seed = seed
 
         # load data file
-        root_path = os.path.abspath("../data")
-        data_path = os.path.join(root_path, filename)
+        root_path = Path("../data").resolve()
+        data_path = root_path / filename
         with h5py.File(data_path, "r") as h5_file:
             seed_group = h5_file[seed]
 
@@ -50,7 +51,7 @@ class PINNDataset1D(Dataset):
 
             # permute from [t, x] -> [x, t]
             permute_idx = list(range(1, len(self.data_output.shape) - 1))
-            permute_idx.extend(list([0, -1]))
+            permute_idx.extend([0, -1])
             self.data_output = self.data_output.permute(permute_idx)
 
     def get_test_data(self, n_last_time_steps, n_components=1):
@@ -96,8 +97,7 @@ class PINNDataset1D(Dataset):
         # xx, yy = np.meshgrid(x_space, y_space)
 
         tt = np.ones_like(x_space) * time
-        val_input = np.vstack((x_space, tt)).T
-        return val_input
+        return np.vstack((x_space, tt)).T
 
     def __len__(self):
         return len(self.data_output)
@@ -118,8 +118,8 @@ class PINNDataset2D(Dataset):
         self.seed = seed
 
         # load data file
-        root_path = os.path.abspath("../data")
-        data_path = os.path.join(root_path, filename)
+        root_path = Path("../data").resolve()
+        data_path = root_path / filename
         with h5py.File(data_path, "r") as h5_file:
             seed_group = h5_file[seed]
 
@@ -147,7 +147,7 @@ class PINNDataset2D(Dataset):
 
             # permute from [t, x, y] -> [x, y, t]
             permute_idx = list(range(1, len(self.data_output.shape) - 1))
-            permute_idx.extend(list([0, -1]))
+            permute_idx.extend([0, -1])
             self.data_output = self.data_output.permute(permute_idx)
 
     def generate_plot_input(self, time=1.0):
@@ -163,8 +163,7 @@ class PINNDataset2D(Dataset):
         )
         xx, yy = np.meshgrid(x_space, y_space)
         tt = np.ones_like(xx) * time
-        val_input = np.vstack((np.ravel(xx), np.ravel(yy), np.ravel(tt))).T
-        return val_input
+        return np.vstack((np.ravel(xx), np.ravel(yy), np.ravel(tt))).T
 
     def __len__(self):
         return len(self.data_output)
@@ -243,11 +242,9 @@ class PINNDatasetRadialDambreak(PINNDataset2D):
             h_out = 1.0
             dam_radius = self.config["sim"]["dam_radius"]
 
-            h_initial = np.expand_dims(
+            return np.expand_dims(
                 h_in * (r <= dam_radius) + h_out * (r > dam_radius), 1
             )
-
-            return h_initial
 
         return initial_h
 
@@ -263,26 +260,15 @@ class PINNDatasetDiffReact(PINNDataset2D):
     def get_initial_condition(self):
         Nx = len(self.data_grid_x)
         Ny = len(self.data_grid_y)
-        Nt = len(self.data_grid_t)
 
-        np.random.seed(self.config["sim"]["seed"])
+        rng = np.random.default_rng(self.config["sim"]["seed"])
 
-        u0 = np.random.randn(Nx * Ny)
-        v0 = np.random.randn(Nx * Ny)
+        u0 = rng.standard_normal(Nx * Ny)
+        v0 = rng.standard_normal(Nx * Ny)
 
         u0 = u0.reshape(Nx * Ny)
         v0 = v0.reshape(Nx * Ny)
 
-        x_space = np.linspace(
-            self.config["sim"]["x_left"],
-            self.config["sim"]["x_right"],
-            self.config["sim"]["xdim"],
-        )
-        y_space = np.linspace(
-            self.config["sim"]["y_bottom"],
-            self.config["sim"]["y_top"],
-            self.config["sim"]["ydim"],
-        )
         xx, yy = np.meshgrid(self.data_grid_x.cpu(), self.data_grid_y.cpu())
         tt = np.zeros_like(xx)
         ic_input = np.vstack((np.ravel(xx), np.ravel(yy), np.ravel(tt))).T
@@ -312,9 +298,9 @@ class PINNDatasetDiffSorption(PINNDataset1D):
         # Generate initial condition
         Nx = self.config["sim"]["xdim"]
 
-        np.random.seed(self.config["sim"]["seed"])
+        rng = np.random.default_rng(self.config["sim"]["seed"])
 
-        u0 = np.ones(Nx) * np.random.uniform(0, 0.2)
+        u0 = np.ones(Nx) * rng.uniform(0, 0.2)
 
         return (self.data_input[:Nx, :], np.expand_dims(u0, 1))
 
@@ -327,7 +313,7 @@ class PINNDataset1Dpde(Dataset):
         """
 
         # load data file
-        data_path = os.path.join(root_path, filename)
+        data_path = Path(root_path) / filename
         h5_file = h5py.File(data_path, "r")
 
         # build input data from individual dimensions
@@ -436,8 +422,7 @@ class PINNDataset1Dpde(Dataset):
         # xx, yy = np.meshgrid(x_space, y_space)
 
         tt = np.ones_like(x_space) * time
-        val_input = np.vstack((x_space, tt)).T
-        return val_input
+        return np.vstack((x_space, tt)).T
 
     def __len__(self):
         return len(self.data_output)
@@ -454,7 +439,7 @@ class PINNDataset2Dpde(Dataset):
         """
 
         # load data file
-        data_path = os.path.join(root_path, filename)
+        data_path = Path(root_path) / filename
         h5_file = h5py.File(data_path, "r")
 
         # build input data from individual dimensions
@@ -570,7 +555,7 @@ class PINNDataset2Dpde(Dataset):
         n_y = len(self.data_grid_y)
         return raveled_tensor.reshape((1, n_x, n_y, n_last_time_steps, n_components))
 
-    def generate_plot_input(self, time=1.0):
+    def generate_plot_input(self, time=1.0):  # noqa: ARG002
         return None
 
     def __len__(self):
@@ -590,7 +575,7 @@ class PINNDataset3Dpde(Dataset):
         """
 
         # load data file
-        data_path = os.path.join(root_path, filename)
+        data_path = Path(root_path) / filename
         h5_file = h5py.File(data_path, "r")
 
         # build input data from individual dimensions
@@ -732,7 +717,7 @@ class PINNDataset3Dpde(Dataset):
             (1, n_x, n_y, n_z, n_last_time_steps, n_components)
         )
 
-    def generate_plot_input(self, time=1.0):
+    def generate_plot_input(self, time=1.0):  # noqa: ARG002
         return None
 
     def __len__(self):

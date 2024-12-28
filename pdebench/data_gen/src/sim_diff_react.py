@@ -21,7 +21,7 @@ class Simulator:
         y_bottom: float = -1.0,
         y_top: float = 1.0,
         ydim: int = 50,
-        n: int = 1,
+        n: int = 1,  # noqa: ARG002
         seed: int = 0,
     ):
         """
@@ -77,10 +77,10 @@ class Simulator:
         :return: The generated sample as numpy array(t, x, y, num_features)
         """
 
-        np.random.seed(self.seed)
+        rng = np.random.default_rng(self.seed)
 
-        u0 = np.random.randn(self.Nx * self.Ny)
-        v0 = np.random.randn(self.Nx * self.Ny)
+        u0 = rng.standard_normal(self.Nx * self.Ny)
+        v0 = rng.standard_normal(self.Nx * self.Ny)
 
         u0 = u0.reshape(self.Nx * self.Ny)
         v0 = v0.reshape(self.Nx * self.Ny)
@@ -135,7 +135,7 @@ class Simulator:
 
         return np.stack((sample_u, sample_v), axis=-1)
 
-    def rc_ode(self, t, y):
+    def rc_ode(self, t, y):  # noqa: ARG002
         """
         Solves a given equation for a particular time step.
         :param t: The current time step
@@ -156,9 +156,4 @@ class Simulator:
         v_t = react_v + self.Dv * (self.lap @ v)
 
         # Stack the time derivative into a single array y_t
-        y_t = np.concatenate((u_t, v_t))
-
-        # Log the simulation progress
-        # self.log.info('t = ' + str(t))
-
-        return y_t
+        return np.concatenate((u_t, v_t))

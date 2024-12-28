@@ -44,5 +44,4 @@ def grf(
     # TODO: This is the rbf kernel; Matern kernel has more plausible smoothness.
     # Matern 3/2 PSD is
     # (18 * jnp.sqrt(3)* jnp.pi * sigma**2)/((4 * k^2 * jnp.pi**2 + 3/(rho**2))^(5/2) rho^3)
-    field = jnp.fft.irfft2(noise * gain, (xdim, ydim), norm="forward")
-    return field
+    return jnp.fft.irfft2(noise * gain, (xdim, ydim), norm="forward")
