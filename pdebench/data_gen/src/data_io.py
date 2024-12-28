@@ -85,7 +85,7 @@ def to_ndarray(field: Field) -> np.ndarray:
     """
     centered = to_centre_grid(field)
     order = _get_dim_order(centered.shape)
-    return centered.values.numpy(order=order)  # noqa: PD011
+    return centered.values.numpy(order=order)
 
 
 def dataverse_upload(
