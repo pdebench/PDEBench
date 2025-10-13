@@ -88,16 +88,10 @@ def run_training(
 
         train_data = UNetDatasetMult(
             flnm,
-            reduced_resolution=reduced_resolution,
-            reduced_resolution_t=reduced_resolution_t,
-            reduced_batch=reduced_batch,
             saved_folder=base_path,
         )
         val_data = UNetDatasetMult(
             flnm,
-            reduced_resolution=reduced_resolution,
-            reduced_resolution_t=reduced_resolution_t,
-            reduced_batch=reduced_batch,
             if_test=True,
             saved_folder=base_path,
         )
