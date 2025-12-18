@@ -176,6 +176,7 @@ def main():
     index1, index2, index3 = [], [], []
     for _j, fl in enumerate(files):
         with Path(fl).open("rb") as f:
+            fl = str(fl)
             title = fl.split("\\")[-1][:-7].split("_")
             if title[0] == "1D":
                 if title[1] == "CFD":
@@ -234,8 +235,12 @@ def main():
 
     fig, ax = plt.subplots(figsize=(8, 6))
     for i in range(num_models):
-        pos = x - 0.3 + 0.5 / (num_models - 1) * i
-        ax.bar(pos, data[data.index.isin([models[i]], level=2)]["MSE"], width)
+        if num_models == 1:
+            pos = x
+            ax.bar(pos, data[data.index.isin([models[i]], level=2)]["MSE"], width)
+        else:
+            pos = x - 0.3 + 0.5 / (num_models - 1) * i
+            ax.bar(pos, data[data.index.isin([models[i]], level=2)]["MSE"], width)
 
     ax.set_xticks(x)
     ax.set_xticklabels(pdes, fontsize=30)

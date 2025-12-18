@@ -156,7 +156,7 @@ from omegaconf import DictConfig
 logger = logging.getLogger(__name__)
 
 
-@hydra.main(version_base="1.2", config_path="config", config_name="config_rdb")
+@hydra.main(version_base="1.2", config_path="config", config_name="config")
 def main(cfg: DictConfig):
     if cfg.args.model_name == "FNO":
         from pdebench.models.fno.train import run_training as run_training_FNO

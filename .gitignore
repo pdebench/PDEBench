@@ -177,5 +177,10 @@ debug/
 .DS_Store
 
 # neural net, sciml artefacts
-.pt
-.hdf5
+*.pt
+*.h5
+*.pickle
+
+# data analysis
+*.csv
+*.pdf
