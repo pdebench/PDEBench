@@ -170,6 +170,8 @@ The data generation codes are contained in [data_gen](./pdebench/data_gen):
 - `gen_radial_dam_break.py` to generate the 2D shallow-water data.
 - `gen_ns_incomp.py` to generate the 2D incompressible inhomogeneous
   Navier-Stokes data.
+- `gen_wave.py` to generate 1D/2D wave equation and Klein-Gordon equation data.
+  See [WAVE_BENCHMARK.md](WAVE_BENCHMARK.md) for details and baseline results.
 - `plot.py` to plot the generated data.
 - `uploader.py` to upload the generated data to the data repository.
 - `.env` is the environment data to store Dataverse URL and API token to upload

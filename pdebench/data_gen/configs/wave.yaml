@@ -1,0 +1,31 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - mode: default.yaml
+
+work_dir: ${hydra:runtime.cwd}
+data_dir: data
+
+# Output filename (without extension)
+output_path: 1D_Wave_c1.0
+
+name: 1d_wave
+
+num_samples: 1000
+
+sim:
+  c: 1.0
+  chi: 0.0       # 0 = wave equation, >0 = Klein-Gordon
+  t: 2.0
+  tdim: 201
+  xdim: 1024
+  ndim: 1
+  n_modes: 5
+  n: 1
+  seed: "???"
+
+plot:
+  t_idx: 1.0
+  dim: 1
+  channel_idx: 0

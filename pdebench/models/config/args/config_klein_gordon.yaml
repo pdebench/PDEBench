@@ -1,0 +1,30 @@
+# Klein-Gordon Equation - 1D
+# d2u/dt2 = c^2 * d2u/dx2 - chi^2 * u, periodic BCs, domain [0,1]
+# Datasets: 1D_Wave_c1.0_chi{0.5,1.0,2.0,5.0}_tensor.hdf5
+model_name: "FNO"
+if_training: True
+continue_training: False
+batch_size: 16
+unroll_step: 20
+t_train: 201
+model_update: 1
+filename: "1D_Wave_c1.0_chi1.0_tensor.hdf5"
+single_file: True
+reduced_resolution: 4
+reduced_resolution_t: 4
+reduced_batch: 1
+epochs: 100
+learning_rate: 1.e-3
+num_workers: 0
+# Unet
+in_channels: 1
+out_channels: 1
+ar_mode: True
+pushforward: True
+# FNO
+num_channels: 1
+modes: 12
+width: 20
+scheduler_step: 50
+scheduler_gamma: 0.5
+initial_step: 10
