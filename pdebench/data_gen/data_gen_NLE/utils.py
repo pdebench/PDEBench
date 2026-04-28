@@ -293,17 +293,17 @@ def init_HD(
             uR = [1.0, 0.1, 0.0, 0.0, 1.0]
 
         # left
-        _u = _u.loc[0, :nx0].set(uL[0])
-        _u = _u.loc[iX, :nx0].set(uL[1])
-        _u = _u.loc[iY, :nx0].set(uL[2])
-        _u = _u.loc[iZ, :nx0].set(uL[3])
-        _u = _u.loc[4, :nx0].set(uL[4])
+        _u = _u.at[0, :nx0].set(uL[0])
+        _u = _u.at[iX, :nx0].set(uL[1])
+        _u = _u.at[iY, :nx0].set(uL[2])
+        _u = _u.at[iZ, :nx0].set(uL[3])
+        _u = _u.at[4, :nx0].set(uL[4])
         # right
-        _u = _u.loc[0, nx0:].set(uR[0])
-        _u = _u.loc[iX, nx0:].set(uR[1])
-        _u = _u.loc[iY, nx0:].set(uR[2])
-        _u = _u.loc[iZ, nx0:].set(uR[3])
-        _u = _u.loc[4, nx0:].set(uR[4])
+        _u = _u.at[0, nx0:].set(uR[0])
+        _u = _u.at[iX, nx0:].set(uR[1])
+        _u = _u.at[iY, nx0:].set(uR[2])
+        _u = _u.at[iZ, nx0:].set(uR[3])
+        _u = _u.at[4, nx0:].set(uR[4])
 
         if direc == "x":
             u = _u
@@ -318,29 +318,29 @@ def init_HD(
         u4 = [0.1, 0.0, 0.0, 0.0, 0.01]
 
         # left-bottom
-        u = u.loc[0, : nx // 2, : ny // 2].set(u1[0])
-        u = u.loc[1, : nx // 2, : ny // 2].set(u1[1])
-        u = u.loc[2, : nx // 2, : ny // 2].set(u1[2])
-        u = u.loc[3, : nx // 2, : ny // 2].set(u1[3])
-        u = u.loc[4, : nx // 2, : ny // 2].set(u1[4])
+        u = u.at[0, : nx // 2, : ny // 2].set(u1[0])
+        u = u.at[1, : nx // 2, : ny // 2].set(u1[1])
+        u = u.at[2, : nx // 2, : ny // 2].set(u1[2])
+        u = u.at[3, : nx // 2, : ny // 2].set(u1[3])
+        u = u.at[4, : nx // 2, : ny // 2].set(u1[4])
         # right-bottom
-        u = u.loc[0, nx // 2 :, : ny // 2].set(u2[0])
-        u = u.loc[1, nx // 2 :, : ny // 2].set(u2[1])
-        u = u.loc[2, nx // 2 :, : ny // 2].set(u2[2])
-        u = u.loc[3, nx // 2 :, : ny // 2].set(u2[3])
-        u = u.loc[4, nx // 2 :, : ny // 2].set(u2[4])
+        u = u.at[0, nx // 2 :, : ny // 2].set(u2[0])
+        u = u.at[1, nx // 2 :, : ny // 2].set(u2[1])
+        u = u.at[2, nx // 2 :, : ny // 2].set(u2[2])
+        u = u.at[3, nx // 2 :, : ny // 2].set(u2[3])
+        u = u.at[4, nx // 2 :, : ny // 2].set(u2[4])
         # left-top
-        u = u.loc[0, : nx // 2, ny // 2 :].set(u3[0])
-        u = u.loc[1, : nx // 2, ny // 2 :].set(u3[1])
-        u = u.loc[2, : nx // 2, ny // 2 :].set(u3[2])
-        u = u.loc[3, : nx // 2, ny // 2 :].set(u3[3])
-        u = u.loc[4, : nx // 2, ny // 2 :].set(u3[4])
+        u = u.at[0, : nx // 2, ny // 2 :].set(u3[0])
+        u = u.at[1, : nx // 2, ny // 2 :].set(u3[1])
+        u = u.at[2, : nx // 2, ny // 2 :].set(u3[2])
+        u = u.at[3, : nx // 2, ny // 2 :].set(u3[3])
+        u = u.at[4, : nx // 2, ny // 2 :].set(u3[4])
         # right-top
-        u = u.loc[0, nx // 2 :, ny // 2 :].set(u4[0])
-        u = u.loc[1, nx // 2 :, ny // 2 :].set(u4[1])
-        u = u.loc[2, nx // 2 :, ny // 2 :].set(u4[2])
-        u = u.loc[3, nx // 2 :, ny // 2 :].set(u4[3])
-        u = u.loc[4, nx // 2 :, ny // 2 :].set(u4[4])
+        u = u.at[0, nx // 2 :, ny // 2 :].set(u4[0])
+        u = u.at[1, nx // 2 :, ny // 2 :].set(u4[1])
+        u = u.at[2, nx // 2 :, ny // 2 :].set(u4[2])
+        u = u.at[3, nx // 2 :, ny // 2 :].set(u4[3])
+        u = u.at[4, nx // 2 :, ny // 2 :].set(u4[4])
 
     elif mode == "OTVortex":  # shock tube
         dx = xc[1] - xc[0]
@@ -356,11 +356,11 @@ def init_HD(
         _xc = _xc.at[-2:].set(jnp.array([xc[-1] + dx, xc[-1] + 2.0 * dx]))
         _yc = _yc.at[-2:].set(jnp.array([yc[-1] + dy, yc[-1] + 2.0 * dy]))
 
-        u = u.loc[0].add(gamma**2)
-        u = u.loc[1].set(-jnp.sin(2.0 * jnp.pi * _yc[None, :, None] / qLy))
-        u = u.loc[2].set(jnp.sin(2.0 * jnp.pi * _xc[:, None, None] / qLx))
-        u = u.loc[3].add(0.0)
-        u = u.loc[4].add(gamma)
+        u = u.at[0].add(gamma**2)
+        u = u.at[1].set(-jnp.sin(2.0 * jnp.pi * _yc[None, :, None] / qLy))
+        u = u.at[2].set(jnp.sin(2.0 * jnp.pi * _xc[:, None, None] / qLx))
+        u = u.at[3].add(0.0)
+        u = u.at[4].add(gamma)
 
     elif mode == "KHI":  # Kelvin-Helmholtz instability
         nx, ny, nz = xc.shape[0], yc.shape[0], zc.shape[0]
@@ -392,11 +392,11 @@ def init_HD(
             vx = vx.at[i, :, :].set(_vx[:, None])
             dd = dd.at[i, :, :].set(_dd[:, None])
 
-        u = u.loc[0, 2:-2, 2:-2, 2:-2].set(dd)
-        u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
-        u = u.loc[2].set(0.0)
-        u = u.loc[3].add(0.0)
-        u = u.loc[4].add(p0)
+        u = u.at[0, 2:-2, 2:-2, 2:-2].set(dd)
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2].set(0.0)
+        u = u.at[3].add(0.0)
+        u = u.at[4].add(p0)
 
     elif mode == "turbulence":  # 3D decaying turbulence
         nx, ny, nz = xc.shape[0], yc.shape[0], zc.shape[0]
@@ -503,11 +503,11 @@ def init_HD(
         vy *= u0 / vtot
         vz *= u0 / vtot
 
-        u = u.loc[0].set(d0)
-        u = u.loc[1, 2:-2, 2:-2, 2:-2].set(jnp.array(vx))
-        u = u.loc[2, 2:-2, 2:-2, 2:-2].set(jnp.array(vy))
-        u = u.loc[3, 2:-2, 2:-2, 2:-2].add(jnp.array(vz))
-        u = u.loc[4].add(p0)
+        u = u.at[0].set(d0)
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(jnp.array(vx))
+        u = u.at[2, 2:-2, 2:-2, 2:-2].set(jnp.array(vy))
+        u = u.at[3, 2:-2, 2:-2, 2:-2].add(jnp.array(vz))
+        u = u.at[4].add(p0)
 
     elif mode == "BlastWave":  # Kelvin-Helmholtz instability
         """ Stone Gardiner 2009 without B """
@@ -539,11 +539,11 @@ def init_HD(
         #            if RR < 0.1 * qL:
         #                p0 = p0.at[i,j,k].set(pc)
 
-        u = u.loc[0].set(db)
-        u = u.loc[1].set(0.0)
-        u = u.loc[2].set(0.0)
-        u = u.loc[3].set(0.0)
-        u = u.loc[4, 2:-2, 2:-2, 2:-2].set(p0)
+        u = u.at[0].set(db)
+        u = u.at[1].set(0.0)
+        u = u.at[2].set(0.0)
+        u = u.at[3].set(0.0)
+        u = u.at[4, 2:-2, 2:-2, 2:-2].set(p0)
 
     elif mode == "sound_wave":  # sound wave
         nx, ny, nz = xc.shape[0], yc.shape[0], zc.shape[0]
@@ -568,9 +568,9 @@ def init_HD(
             _u = jnp.transpose(u, (0, 3, 1, 2))
 
         kk = 2.0 * jnp.pi / qL
-        _u = _u.loc[0, 2:-2].set(d0 * (1.0 + 1.0e-3 * jnp.sin(kk * XC[:, None, None])))
-        _u = _u.loc[iX].set((_u[0] - d0) * cs / d0)
-        _u = _u.loc[4].set(p0 + cs**2 * (_u[0] - d0))
+        _u = _u.at[0, 2:-2].set(d0 * (1.0 + 1.0e-3 * jnp.sin(kk * XC[:, None, None])))
+        _u = _u.at[iX].set((_u[0] - d0) * cs / d0)
+        _u = _u.at[4].set(p0 + cs**2 * (_u[0] - d0))
 
         if direc == "x":
             u = _u
@@ -600,11 +600,11 @@ def init_HD(
             qL = (zc[1] - zc[0]) * nz
             _u = jnp.transpose(u, (0, 3, 1, 2))
 
-        _u = _u.loc[0].set(d0)
-        _u = _u.loc[iY, 2:-2].set(
+        _u = _u.at[0].set(d0)
+        _u = _u.at[iY, 2:-2].set(
             vy0 * scipy.special.erf(0.5 * XC[:, None, None] / jnp.sqrt(0.1))
         )
-        _u = _u.loc[4].set(p0)
+        _u = _u.at[4].set(p0)
 
         if direc == "x":
             u = _u
@@ -818,11 +818,11 @@ def init_multi_HD_KH(
             vx = vx.at[i, :, :].set(_vx[:, None])
             dd = dd.at[i, :, :].set(_dd[:, None])
 
-        u = u.loc[0, 2:-2, 2:-2, 2:-2].set(dd)
-        u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
-        u = u.loc[2].set(0.0)
-        u = u.loc[3].add(0.0)
-        return u.loc[4].add(p0)
+        u = u.at[0, 2:-2, 2:-2, 2:-2].set(dd)
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2].set(0.0)
+        u = u.at[3].add(0.0)
+        return u.at[4].add(p0)
 
     # create random density ratio
     key = random.PRNGKey(init_key)
@@ -916,10 +916,10 @@ def init_multi_HD_2DTurb(
         vx *= u0 / vtot
         vy *= u0 / vtot
 
-        u = u.loc[0].set(d0)
-        u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
-        u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
-        return u.loc[4].add(p0)
+        u = u.at[0].set(d0)
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2, 2:-2, 2:-2, 2:-2].set(vy)
+        return u.at[4].add(p0)
 
     key = random.PRNGKey(init_key)
     keys = random.randint(
@@ -1024,10 +1024,10 @@ def init_multi_HD_2DRand(
         d = d0 * (1.0 + delD * d / jnp.abs(d).mean())
         p = p0 * (1.0 + delP * p / jnp.abs(p).mean())
 
-        u = u.loc[0, 2:-2, 2:-2, 2:-2].set(d)
-        u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
-        u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
-        return u.loc[4, 2:-2, 2:-2, 2:-2].set(p)
+        u = u.at[0, 2:-2, 2:-2, 2:-2].set(d)
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2, 2:-2, 2:-2, 2:-2].set(vy)
+        return u.at[4, 2:-2, 2:-2, 2:-2].set(p)
 
     key = random.PRNGKey(init_key)
     d0 = random.uniform(key, shape=([numbers, 1]), minval=1.0e-1, maxval=dMx)
@@ -1066,13 +1066,13 @@ def init_multi_HD_2DRand(
     carry = cond, mask, _xc, _yc, xL, xR, yL, yR, trns
     cond, mask, _xc, _yc, xL, xR, yL, yR, trns = vmap(select_W, 0, 0)(carry)
 
-    u = u.loc[:, :, 2:-2, 2:-2, 2:-2].set(
+    u = u.at[:, :, 2:-2, 2:-2, 2:-2].set(
         u[:, :, 2:-2, 2:-2, 2:-2] * mask[:, None, :, :, None]
     )
-    u = u.loc[:, 0, 2:-2, 2:-2, 2:-2].add(
+    u = u.at[:, 0, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * (1.0 - mask[:, :, :, None])
     )
-    return u.loc[:, 4, 2:-2, 2:-2, 2:-2].add(
+    return u.at[:, 4, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * T0[:, :, None, None] * (1.0 - mask[:, :, :, None])
     )
 
@@ -1181,11 +1181,11 @@ def init_multi_HD_3DTurb(
         vy *= u0 / vtot
         vz *= u0 / vtot
 
-        u = u.loc[0].set(d0)
-        u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
-        u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
-        u = u.loc[3, 2:-2, 2:-2, 2:-2].set(vz)
-        return u.loc[4].add(p0)
+        u = u.at[0].set(d0)
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2, 2:-2, 2:-2, 2:-2].set(vy)
+        u = u.at[3, 2:-2, 2:-2, 2:-2].set(vz)
+        return u.at[4].add(p0)
 
     key = random.PRNGKey(init_key)
     keys = random.randint(
@@ -1304,11 +1304,11 @@ def init_multi_HD_3DRand(
         d = d0 * (1.0 + delD * d / jnp.abs(d).mean())
         p = p0 * (1.0 + delP * p / jnp.abs(p).mean())
 
-        u = u.loc[0, 2:-2, 2:-2, 2:-2].set(d)
-        u = u.loc[1, 2:-2, 2:-2, 2:-2].set(vx)
-        u = u.loc[2, 2:-2, 2:-2, 2:-2].set(vy)
-        u = u.loc[3, 2:-2, 2:-2, 2:-2].set(vz)
-        return u.loc[4, 2:-2, 2:-2, 2:-2].set(p)
+        u = u.at[0, 2:-2, 2:-2, 2:-2].set(d)
+        u = u.at[1, 2:-2, 2:-2, 2:-2].set(vx)
+        u = u.at[2, 2:-2, 2:-2, 2:-2].set(vy)
+        u = u.at[3, 2:-2, 2:-2, 2:-2].set(vz)
+        return u.at[4, 2:-2, 2:-2, 2:-2].set(p)
 
     key = random.PRNGKey(init_key)
     d0 = random.uniform(key, shape=([numbers, 1]), minval=1.0e-1, maxval=dMx)
@@ -1351,33 +1351,33 @@ def init_multi_HD_3DRand(
         carry
     )
 
-    u = u.loc[:, :, 2:-2, 2:-2, 2:-2].set(
+    u = u.at[:, :, 2:-2, 2:-2, 2:-2].set(
         u[:, :, 2:-2, 2:-2, 2:-2] * mask[:, None, :, :, :]
     )
-    u = u.loc[:, 0, 2:-2, 2:-2, 2:-2].add(
+    u = u.at[:, 0, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * (1.0 - mask[:, :, :, :])
     )
-    return u.loc[:, 4, 2:-2, 2:-2, 2:-2].add(
+    return u.at[:, 4, 2:-2, 2:-2, 2:-2].add(
         d0[:, :, None, None] * T0[:, :, None, None] * (1.0 - mask[:, :, :, :])
     )
 
 
 def bc(u, dx, Ncell, mode="periodic"):
     _u = jnp.zeros(Ncell + 4)  # because of 2nd-order precision in space
-    _u = _u.loc[2 : Ncell + 2].set(u)
+    _u = _u.at[2 : Ncell + 2].set(u)
     if mode == "periodic":  # periodic boundary condition
-        _u = _u.loc[0:2].set(u[-2:])  # left hand side
-        _u = _u.loc[Ncell + 2 : Ncell + 4].set(u[0:2])  # right hand side
+        _u = _u.at[0:2].set(u[-2:])  # left hand side
+        _u = _u.at[Ncell + 2 : Ncell + 4].set(u[0:2])  # right hand side
     elif mode == "reflection":
-        _u = _u.loc[0].set(-u[3])  # left hand side
-        _u = _u.loc[1].set(-u[2])  # left hand side
-        _u = _u.loc[-2].set(-u[-3])  # right hand side
-        _u = _u.loc[-1].set(-u[-4])  # right hand side
+        _u = _u.at[0].set(-u[3])  # left hand side
+        _u = _u.at[1].set(-u[2])  # left hand side
+        _u = _u.at[-2].set(-u[-3])  # right hand side
+        _u = _u.at[-1].set(-u[-4])  # right hand side
     elif mode == "copy":
-        _u = _u.loc[0].set(u[3])  # left hand side
-        _u = _u.loc[1].set(u[2])  # left hand side
-        _u = _u.loc[-2].set(u[-3])  # right hand side
-        _u = _u.loc[-1].set(u[-4])  # right hand side
+        _u = _u.at[0].set(u[3])  # left hand side
+        _u = _u.at[1].set(u[2])  # left hand side
+        _u = _u.at[-2].set(u[-3])  # right hand side
+        _u = _u.at[-1].set(u[-4])  # right hand side
 
     return _u
 
@@ -1385,16 +1385,16 @@ def bc(u, dx, Ncell, mode="periodic"):
 def bc_2D(_u, mode="trans"):
     Nx, Ny = _u.shape
     u = jnp.zeros([Nx + 4, Ny + 4])  # because of 2nd-order precision in space
-    u = u.loc[2:-2, 2:-2].set(_u)
+    u = u.at[2:-2, 2:-2].set(_u)
     Nx += 2
     Ny += 2
 
     if mode == "periodic":  # periodic boundary condition
         # left hand side
-        u = u.loc[0:2, 2:-2].set(u[Nx - 2 : Nx, 2:-2])  # x
-        u = u.loc[2:-2, 0:2].set(u[2:-2, Ny - 2 : Ny])  # y
+        u = u.at[0:2, 2:-2].set(u[Nx - 2 : Nx, 2:-2])  # x
+        u = u.at[2:-2, 0:2].set(u[2:-2, Ny - 2 : Ny])  # y
         # right hand side
-        u = u.loc[Nx : Nx + 2, 2:-2].set(u[2:4, 2:-2])
+        u = u.at[Nx : Nx + 2, 2:-2].set(u[2:4, 2:-2])
         u = u.loc[2:-2, Ny : Ny + 2].set(u[2:-2, 2:4])
     elif mode == "trans":  # periodic boundary condition
         # left hand side

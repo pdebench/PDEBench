@@ -26,6 +26,36 @@ Created and maintained by Makoto Takamoto
 Francesco Alesiani, Dirk Pflüger, and Mathias Niepert.
 
 ---
+## Compatibility with Newer Python, JAX, PyTorch, and CUDA Versions
+
+While this project officially targets older versions: 
+- Python 3.9  
+- JAX 0.4.11  
+- PyTorch 1.13.0  
+- CUDA 11.7  
+
+we have verified that most components remain compatible with newer releases.:
+- Python 3.12  
+- JAX 0.9.2  
+- PyTorch 2.11.0  
+- CUDA 13.0  
+
+In particular, the core codebase, forward training in `pdebench/model`, and data generation in `data_gen_NLE` work with these newer versions.
+Compatibility for the remaining components is still under investigation.
+_Last updated: 2026-03-30_
+
+## Data Path Issue in Forward Training (`model/fno/utils.py` and `model/unet/utils.py`)
+
+We identified an issue with data paths during forward training in `model/fno/utils.py` and `model/unet/utils.py`. This problem is caused by Hydra modifying the `data_path` at runtime.
+
+To resolve this issue, please use the commented lines:
+- Lines 185–188 in `model/fno/utils.py`  
+- Lines 185–187 in `model/unet/utils.py`  
+
+(Note that the above modification (use of "to_absolute_path" in hydra) is allowed Hydra version >= 0.11.0.)
+
+_Last updated: 2026-03-30_
+
 
 ## Datasets and Pretrained Models
 
@@ -492,25 +522,41 @@ booktitle = {Proceedings of the 41st International Conference on Machine Learnin
 
 <details>
 <summary>
-    <a href="https://arxiv.org/abs/2408.01536"> Active Learning for Neural PDE Solvers - NeurIPS-W'2024 </a>
+    <a href="https://arxiv.org/abs/2408.01536"> Active Learning for Neural PDE Solvers - ICLR-2025 </a>
 </summary>
 <br/>
 
 ```
-@article{active-learn-neuralpde-benchmark-musekamp:2024,
+@article{active-learn-neuralpde-benchmark-musekamp:2025,
  author       = {Daniel Musekamp and
                  Marimuthu Kalimuthu and
                  David Holzm{\"{u}}ller and
                  Makoto Takamoto and
                  Mathias Niepert},
  title        = {Active Learning for Neural {PDE} Solvers},
- journal      = {CoRR},
- volume       = {abs/2408.01536},
- year         = {2024},
- url          = {https://doi.org/10.48550/arXiv.2408.01536},
- doi          = {10.48550/ARXIV.2408.01536},
- eprinttype    = {arXiv},
- eprint       = {2408.01536},
+ booktitle    = {The Thirteenth International Conference on Learning Representations (ICLR)},
+ year         = {2025},
+ url          = {https://openreview.net/forum?id=x4ZmQaumRg}
+}
+```
+
+</details>
+
+<details>
+<summary>
+    <a href="https://arxiv.org/abs/2504.04260"> LOGLO-FNO: Efficient Learning of Local and Global Features in Fourier Neural Operators - TMLR-2025 </a>
+</summary>
+<br/>
+
+```
+@article{loglo-fno-local-global-spectral-conv-kalimuthu:2025,
+title   = {{LOGLO}-{FNO}: Efficient Learning of Local and Global Features in Fourier Neural Operators},
+author  = {Marimuthu Kalimuthu and David Holzm{\"u}ller and Mathias Niepert},
+journal = {Transactions on Machine Learning Research},
+issn    = {2835-8856},
+year    = {2025},
+url     = {https://openreview.net/forum?id=MQ1dRdHTpi},
+note    = {J2C Certification}
 }
 ```
 

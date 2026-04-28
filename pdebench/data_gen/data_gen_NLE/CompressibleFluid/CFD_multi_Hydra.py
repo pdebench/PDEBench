@@ -159,6 +159,8 @@ import jax
 import jax.numpy as jnp
 from jax import device_put, jit, lax
 from omegaconf import DictConfig
+
+sys.path.append("..")  # if PDEBench cannot recognize the location of utils
 from utils import (
     Courant_HD,
     Courant_vis_HD,
@@ -179,8 +181,6 @@ logger = logging.getLogger(__name__)
 
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".9"
-
-sys.path.append("..")
 
 # if double precision
 # from jax.config import config

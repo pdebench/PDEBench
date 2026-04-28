@@ -180,6 +180,12 @@ class UNetDatasetSingle(Dataset):
 
         """
 
+        ### if root_path part causes a problem due to hydra ###
+        ### the following may depend on hydra version ###
+        # from hydra.utils import to_absolute_path
+        # saved_folder = to_absolute_path("../data/")
+        # root_path = Path(Path(saved_folder).resolve()) / filename
+
         # Define path to files
         root_path = Path(saved_folder + filename).resolve()
         assert filename[-2:] != "h5", "HDF5 data is assumed!!"
