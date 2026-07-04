@@ -186,7 +186,6 @@ def main(cfg: DictConfig):
     logger.info(cfg.args.filename)
     logger.info(cfg.args)
 
-    # we use the test data
     if cfg.args.model_name in ["FNO"]:
         inverse_data = FNODatasetSingle(
             cfg.args.filename,
@@ -199,7 +198,13 @@ def main(cfg: DictConfig):
             num_samples_max=cfg.args.num_samples_max,
         )
 
-        _data, _, _ = next(iter(inverse_data))
+        inverse_loader = torch.utils.data.DataLoader(
+            inverse_data,
+            batch_size=1,
+            shuffle=False,
+        )
+
+        _, _data, _ = next(iter(inverse_loader))
         dimensions = len(_data.shape)
         spatial_dim = dimensions - 3
 
@@ -216,8 +221,11 @@ def main(cfg: DictConfig):
         )
 
         inverse_loader = torch.utils.data.DataLoader(
-            inverse_data, batch_size=1, shuffle=False
+            inverse_data,
+            batch_size=1,
+            shuffle=False,
         )
+
         _data, _ = next(iter(inverse_loader))
         dimensions = len(_data.shape)
         spatial_dim = dimensions - 3
@@ -267,6 +275,7 @@ def main(cfg: DictConfig):
     model = load_model(model, model_path, device)
 
     model.eval()
+
     if cfg.args.inverse_model_type in ["ProbRasterLatent"]:
         assert spatial_dim == 1, "give me time"
         if spatial_dim == 1:
@@ -283,9 +292,22 @@ def main(cfg: DictConfig):
 
     if cfg.args.inverse_model_type in ["InitialConditionInterp"]:
         loss_fn = nn.MSELoss(reduction="mean")
+
         input_dims = list(_data.shape[1 : 1 + spatial_dim])
         latent_dims = len(input_dims) * [cfg.args.in_channels_hid]
-        if cfg.args.num_channels > 1:
+
+        if cfg.args.model_name in ["FNO"]:
+            input_dims = [
+                *input_dims,
+                cfg.args.initial_step,
+                cfg.args.num_channels,
+            ]
+            latent_dims = [
+                *latent_dims,
+                cfg.args.initial_step,
+                cfg.args.num_channels,
+            ]
+        elif cfg.args.num_channels > 1:
             input_dims = [*input_dims, cfg.args.num_channels]
             latent_dims = [*latent_dims, cfg.args.num_channels]
 
@@ -298,18 +320,21 @@ def main(cfg: DictConfig):
     inverse_u0_l2_full, inverse_y_l2_full = 0, 0
     all_metric = []
     t1 = default_timer()
+
     for ks, sample in enumerate(inverse_loader):
         if cfg.args.model_name in ["FNO"]:
-            (xx, yy, grid) = sample
+            xx, yy, grid = sample
             xx = xx.to(device)
             yy = yy.to(device)
             grid = grid.to(device)
 
             def model_(x, grid):
+                if x.dim() == grid.dim() + 1:
+                    x = x.reshape(*x.shape[:-2], x.shape[-2] * x.shape[-1])
                 return model(x, grid)
 
         if cfg.args.model_name in ["UNET", "Unet"]:
-            (xx, yy) = sample
+            xx, yy = sample
             grid = None
             xx = xx.to(device)
             yy = yy.to(device)
@@ -319,23 +344,32 @@ def main(cfg: DictConfig):
 
         num_samples = ks + 1
 
-        x = xx[..., 0, :]
+        if cfg.args.model_name in ["FNO"]:
+            x = xx[..., : cfg.args.initial_step, :]
+            x = x.reshape(
+                *x.shape[:-2],
+                cfg.args.initial_step * cfg.args.num_channels,
+            )
+        else:
+            x = xx[..., 0, :]
+
         y = yy[..., t_train : t_train + 1, :]
 
         if ks == 0:
             msg = f"{x.shape}, {y.shape}"
             logger.info(msg)
 
-        # scale the input and output
         x = scaler.fit_transform(x)
         y = scaler.transform(y)
 
         if cfg.args.inverse_model_type in ["ProbRasterLatent"]:
-            # Create model
             model_inverse.to(device)
             nuts_kernel = NUTS(
-                model_inverse, full_mass=False, max_tree_depth=5, jit_compile=True
-            )  # high performacne config
+                model_inverse,
+                full_mass=False,
+                max_tree_depth=5,
+                jit_compile=True,
+            )
 
             mcmc = MCMC(
                 nuts_kernel,
@@ -344,12 +378,12 @@ def main(cfg: DictConfig):
                 num_chains=cfg.args.mcmc_num_chains,
                 disable_progbar=True,
             )
+
             mcmc.run(grid, y)
             mc_samples = {
                 k: v.detach().cpu().numpy() for k, v in mcmc.get_samples().items()
             }
 
-            # get the initial solution
             latent = torch.tensor(mc_samples["latent"])
             u0 = model_inverse.latent2source(latent[0]).to(device)
             pred_u0 = model(u0, grid)
@@ -360,18 +394,27 @@ def main(cfg: DictConfig):
                 lr=cfg.args.inverse_learning_rate,
                 weight_decay=1e-4,
             )
-            # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
+
             if cfg.args.inverse_verbose_flag:
                 _iter = tqdm(range(cfg.args.inverse_epochs))
             else:
                 _iter = range(cfg.args.inverse_epochs)
+
             for _ in _iter:
                 if cfg.args.num_channels > 1:
                     u0 = model_ic().unsqueeze(0)
                 else:
                     u0 = model_ic().unsqueeze(0).unsqueeze(-1)
 
-                pred_u0 = model_(u0, grid)
+                if cfg.args.model_name in ["FNO"]:
+                    u0_for_model = u0.reshape(
+                        *u0.shape[:-2],
+                        u0.shape[-2] * u0.shape[-1],
+                    )
+                else:
+                    u0_for_model = u0
+
+                pred_u0 = model_(u0_for_model, grid)
 
                 loss_u0 = loss_fn(pred_u0, y)
                 optimizer.zero_grad()
@@ -382,13 +425,21 @@ def main(cfg: DictConfig):
                 if cfg.args.inverse_verbose_flag:
                     _iter.set_description(f"loss={loss_u0.item()}, t2-t1= {t2-t1}")
 
-        # compute losses
-        loss_u0 = loss_fn(u0.reshape(1, -1), x.reshape(1, -1)).item()
+        if cfg.args.model_name in ["FNO"]:
+            u0_metric = u0.reshape(
+                *u0.shape[:-2],
+                u0.shape[-2] * u0.shape[-1],
+            )
+        else:
+            u0_metric = u0
+
+        loss_u0 = loss_fn(u0_metric.reshape(1, -1), x.reshape(1, -1)).item()
         loss_y = loss_fn(pred_u0.reshape(1, -1), y.reshape(1, -1)).item()
+
         inverse_u0_l2_full += loss_u0
         inverse_y_l2_full += loss_y
 
-        metric = inverse_metrics(u0, x, pred_u0, y)
+        metric = inverse_metrics(u0_metric, x, pred_u0, y)
         metric["sample"] = ks
 
         all_metric += [metric]
@@ -407,6 +458,7 @@ def main(cfg: DictConfig):
         logger.info(msg)
 
     df_metric = pd.DataFrame(all_metric)
+
     inverse_metric_filename = (
         cfg.args.base_path
         + cfg.args.filename[:-5]
